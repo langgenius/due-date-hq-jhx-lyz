@@ -25,8 +25,8 @@ DueDateHQ 目前是 alpha 阶段产品代码库。它支持运营复核和证据
 
 - **事务所工作区**：登录、首次事务所 onboarding、MFA 设置、邀请、角色相关界面、事务所切换、
   账户安全和中英文 app 文案。
-- **客户事实**：客户资料、filing jurisdictions、负责人、联系方式、导入历史、readiness 信号和
-  事实复核。
+- **客户事实**：客户资料、filing jurisdictions、负责人、联系方式、导入历史、readiness 信号、
+  客户详情工作区、work plan、Pulse 影响、活动日志和事实复核。
 - **Migration Copilot**：支持 CSV、TSV、XLSX、粘贴表格和供应商导出形态的数据；提供字段映射、
   风险输入拦截、导入预览、客户/义务生成和审计证据。
 - **Dashboard 与 Obligations**：风险分诊、保存视图、批量状态更新、readiness、证据抽屉、本周/

@@ -35,7 +35,7 @@ apps/app/
 │   │   ├── migration.new.tsx     ← 首登客户迁移 activation route（path='/migration/new'，EntryShell 内 route-level wizard）
 │   │   ├── obligations.tsx
 │   │   ├── calendar.tsx          ← Obligations 二级 Calendar sync 页（canonical `/obligations/calendar`；`/calendar` 旧链接重定向）
-│   │   ├── clients.tsx           ← Client facts 工作台（readiness 派生、筛选、新增、Sheet 档案；使用 clients.listByFirm / clients.create）
+│   │   ├── clients.tsx           ← Client facts 工作台（readiness 派生、筛选、新增、URL 详情态；使用 clients.listByFirm / clients.create）
 │   │   ├── audit.tsx             ← Audit Log 管理页（firm-wide write events；使用 audit.list）
 │   │   ├── practice.tsx          ← active practice profile（name / timezone / soft-delete）
 │   │   ├── rules.tsx
@@ -571,10 +571,13 @@ shadcn Sidebar（base-vega）打包了 3 种 collapse 模式（`offcanvas` / `ic
 - Clients facts 页当前一次拉取 `clients.listByFirm({ limit: 500 })` 后本地过滤，
   搜索不触发服务端 fetching；因此只对 `q` 的 URL 写入使用
   `queryInputUrlUpdateRateLimit`。表头 facet（client/entity/state/readiness/source/owner）
-  也走 URL state，但仍基于这份本地列表即时过滤，不触发额外 fetching。
-- Fact profile 的 jurisdiction 编辑走 `clients.updateJurisdiction` mutation；成功后必须
-  invalidate Clients、Dashboard、Obligations list/detail/facets 与 client risk summary，确保
-  state/county、exposure 与 Pulse/规则相关派生视图不滞后。
+  也走 URL state，但仍基于这份本地列表即时过滤，不触发额外 fetching。`client=<id>`
+  是同页详情态，不是独立 route 或右侧 sheet；详情页用单页面滚动，顶部承载客户身份与
+  Pulse impact，主体承载 work plan、filing facts、risk summary、contact chain 和 activity log。
+- Client detail 的 filing profile 编辑走 `clients.replaceFilingProfiles` mutation，risk inputs
+  走 `clients.updateRiskProfile` mutation；成功后必须 invalidate Clients、Dashboard、
+  Obligations list/listByClient/detail/facets 与 client risk summary，确保 state/county、
+  exposure 与 Pulse/规则相关派生视图不滞后。
 
 ---
 

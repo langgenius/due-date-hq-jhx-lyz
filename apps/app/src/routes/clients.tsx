@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Trans, useLingui } from '@lingui/react/macro'
 import { AlertCircleIcon, FileClockIcon, FileSearchIcon } from 'lucide-react'
@@ -61,7 +61,6 @@ export function ClientsRoute() {
   const canRunMigration = permission.can('migration.run')
   const canDeleteClients = permission.can('client.write')
   const entityLabels = useEntityLabels()
-  const [profileOpen, setProfileOpen] = useState(false)
   const [
     {
       clients: clientFilter,
@@ -94,10 +93,10 @@ export function ClientsRoute() {
     [clientFilter, entityFilter, ownerFilter, readinessFilter, sourceFilter, stateFilter],
   )
   const filteredClients = useMemo(() => filterClients(clients, filters), [clients, filters])
-  const activeClient =
-    (selectedClientId ? filteredClients.find((client) => client.id === selectedClientId) : null) ??
-    filteredClients[0] ??
-    null
+  const selectedClient = selectedClientId
+    ? (clients.find((client) => client.id === selectedClientId) ?? null)
+    : null
+  const activeClient = selectedClient ?? filteredClients[0] ?? null
 
   const createMutation = useMutation(
     orpc.clients.create.mutationOptions({
@@ -220,8 +219,8 @@ export function ClientsRoute() {
         source: null,
         owner: null,
         client: clientId,
-        importHistory: 'open',
-      }).then(() => setProfileOpen(true))
+        importHistory: null,
+      })
     },
     [setClientsQuery],
   )
@@ -237,41 +236,47 @@ export function ClientsRoute() {
     void setClientsQuery({ client: null, clients: null })
   }, [setClientsQuery])
 
+  const handleClearSelectedClient = useCallback(() => {
+    void setClientsQuery({ client: null })
+  }, [setClientsQuery])
+
   return (
     <div className="flex flex-col gap-6 p-4 md:p-6">
-      <header className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
-        <div className="flex min-w-0 flex-col gap-2">
-          <span className="text-xs font-medium uppercase tracking-wider text-text-tertiary">
-            <Trans>Clients</Trans>
-          </span>
-          <div className="flex flex-col gap-1">
-            <h1 className="text-xl font-semibold text-text-primary">
-              <Trans>Client facts</Trans>
-            </h1>
-            <p className="max-w-3xl text-sm text-text-secondary">
-              <Trans>
-                Validate the practice client facts that generate obligations, dashboard risk, and
-                Pulse matches.
-              </Trans>
-            </p>
+      {selectedClient ? null : (
+        <header className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+          <div className="flex min-w-0 flex-col gap-2">
+            <span className="text-xs font-medium uppercase tracking-wider text-text-tertiary">
+              <Trans>Clients</Trans>
+            </span>
+            <div className="flex flex-col gap-1">
+              <h1 className="text-xl font-semibold text-text-primary">
+                <Trans>Client facts</Trans>
+              </h1>
+              <p className="max-w-3xl text-sm text-text-secondary">
+                <Trans>
+                  Validate the practice client facts that generate obligations, dashboard risk, and
+                  Pulse matches.
+                </Trans>
+              </p>
+            </div>
           </div>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          <Button variant="ghost" onClick={() => handleImportHistoryOpenChange(true)}>
-            <FileClockIcon data-icon="inline-start" />
-            <Trans>Import history</Trans>
-          </Button>
-          <Button variant="outline" onClick={openWizard} disabled={!canRunMigration}>
-            <FileSearchIcon data-icon="inline-start" />
-            <Trans>Import clients</Trans>
-          </Button>
-          <CreateClientDialog
-            entityLabels={entityLabels}
-            isPending={createMutation.isPending}
-            onCreate={handleCreateClient}
-          />
-        </div>
-      </header>
+          <div className="flex flex-wrap gap-2">
+            <Button variant="ghost" onClick={() => handleImportHistoryOpenChange(true)}>
+              <FileClockIcon data-icon="inline-start" />
+              <Trans>Import history</Trans>
+            </Button>
+            <Button variant="outline" onClick={openWizard} disabled={!canRunMigration}>
+              <FileSearchIcon data-icon="inline-start" />
+              <Trans>Import clients</Trans>
+            </Button>
+            <CreateClientDialog
+              entityLabels={entityLabels}
+              isPending={createMutation.isPending}
+              onCreate={handleCreateClient}
+            />
+          </div>
+        </header>
+      )}
 
       {clientsQuery.isError ? (
         <Alert variant="destructive">
@@ -297,6 +302,7 @@ export function ClientsRoute() {
         clients={clients}
         filteredClients={filteredClients}
         activeClient={activeClient}
+        selectedClient={selectedClient}
         factsModel={factsModel}
         entityLabels={entityLabels}
         isLoading={clientsQuery.isLoading}
@@ -306,7 +312,6 @@ export function ClientsRoute() {
         readinessFilter={filters.readinessFilters}
         sourceFilter={filters.sourceFilters}
         ownerFilter={filters.ownerFilters}
-        profileOpen={profileOpen}
         onClientFilterChange={handleClientFilterChange}
         onEntityFilterChange={handleEntityFilterChange}
         onStateFilterChange={handleStateFilterChange}
@@ -314,7 +319,7 @@ export function ClientsRoute() {
         onSourceFilterChange={handleSourceFilterChange}
         onOwnerFilterChange={handleOwnerFilterChange}
         onSelectClient={handleSelectClient}
-        onProfileOpenChange={setProfileOpen}
+        onClearSelectedClient={handleClearSelectedClient}
         onImport={openWizard}
         canImport={canRunMigration}
         canDelete={canDeleteClients}

@@ -10,7 +10,7 @@ export class ClientsPage {
   readonly createDialog: Locator
   readonly createClientButton: Locator
   readonly ownerSelect: Locator
-  readonly factProfileDialog: Locator
+  readonly backToClientsButton: Locator
   readonly filteredEmptyState: Locator
 
   constructor(readonly page: Page) {
@@ -18,14 +18,14 @@ export class ClientsPage {
     this.toolbar = page.locator('[data-slot="card-header"]').filter({
       has: page.getByText('Search, segment, and inspect the filing facts'),
     })
-    this.clientFilter = this.toolbar.getByRole('button', { name: /^Client/ })
-    this.entityFilter = this.toolbar.getByRole('button', { name: /^Entity/ })
-    this.stateFilter = this.toolbar.getByRole('button', { name: /^State/ })
+    this.clientFilter = this.toolbar.getByRole('button', { name: 'Client', exact: true })
+    this.entityFilter = this.toolbar.getByRole('button', { name: 'Entity', exact: true })
+    this.stateFilter = this.toolbar.getByRole('button', { name: 'State', exact: true })
     this.newClientButton = page.getByRole('button', { name: 'New client' })
     this.createDialog = page.getByRole('dialog', { name: 'Create client' })
     this.createClientButton = this.createDialog.getByRole('button', { name: 'Create client' })
     this.ownerSelect = this.createDialog.getByRole('combobox', { name: 'Owner' })
-    this.factProfileDialog = page.getByRole('dialog', { name: 'Fact profile' })
+    this.backToClientsButton = page.getByRole('button', { name: 'Back to clients' })
     this.filteredEmptyState = page.getByText('No clients match these filters')
   }
 
@@ -84,8 +84,16 @@ export class ClientsPage {
 
   rowFor(clientName: string) {
     return this.page.getByRole('button', {
-      name: new RegExp(`Open fact profile for ${escapeRegExp(clientName)}`),
+      name: new RegExp(`Open client detail for ${escapeRegExp(clientName)}`),
     })
+  }
+
+  clientDetailHeading(clientName: string) {
+    return this.page.getByRole('heading', { name: clientName })
+  }
+
+  detailSection(sectionName: string) {
+    return this.page.getByText(sectionName, { exact: true })
   }
 }
 

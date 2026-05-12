@@ -3,7 +3,7 @@ import { expect, test } from '../fixtures/test'
 // Feature: Clients management
 // PRD: P1 client directory
 // AC: E2E-CLIENTS-NAV, E2E-CLIENTS-CREATE, E2E-CLIENTS-FACTS-SEED,
-// E2E-CLIENTS-FILTERS, E2E-CLIENTS-FACT-PROFILE
+// E2E-CLIENTS-FILTERS, E2E-CLIENTS-DETAIL
 
 test.skip(
   Boolean(process.env.E2E_BASE_URL),
@@ -43,10 +43,9 @@ test('AC: E2E-CLIENTS-CREATE creates a manual client through oRPC', async ({
   })
 
   await expect(authenticatedPage.getByText('Client created')).toBeVisible()
-  await expect(clientsPage.rowFor(clientName)).toBeVisible()
-  await expect(clientsPage.rowFor(clientName)).toContainText('E2E Owner')
-  await clientsPage.rowFor(clientName).click()
-  await expect(authenticatedPage.getByRole('dialog', { name: 'Fact profile' })).toBeVisible()
+  await expect(clientsPage.clientDetailHeading(clientName)).toBeVisible()
+  await expect(clientsPage.detailSection('Work plan')).toBeVisible()
+  await expect(authenticatedPage.getByRole('main').getByText('E2E Owner').first()).toBeVisible()
   await expect(authenticatedPage.getByText('23-4567890')).toBeVisible()
 })
 
@@ -96,7 +95,7 @@ test.describe('seeded client facts', () => {
     ).toBeVisible()
   })
 
-  test('AC: E2E-CLIENTS-FACT-PROFILE opens seeded client facts from the table', async ({
+  test('AC: E2E-CLIENTS-DETAIL opens seeded client detail from the table', async ({
     authenticatedPage,
     clientsPage,
   }) => {
@@ -104,18 +103,17 @@ test.describe('seeded client facts', () => {
 
     await clientsPage.rowFor('Unassigned Foundry LLC').click()
 
-    await expect(clientsPage.factProfileDialog).toBeVisible()
-    await expect(clientsPage.factProfileDialog.getByText('Unassigned Foundry LLC')).toBeVisible()
-    await expect(clientsPage.factProfileDialog.getByText('LLC', { exact: true })).toBeVisible()
-    await expect(clientsPage.factProfileDialog.getByText('Manual')).toBeVisible()
-    await expect(clientsPage.factProfileDialog.getByText('Ready for rules')).toBeVisible()
-    await expect(clientsPage.factProfileDialog.getByText('CA / San Diego')).toBeVisible()
-    await expect(clientsPage.factProfileDialog.getByText('37-2222222')).toBeVisible()
-    await expect(clientsPage.factProfileDialog.getByText('Fact readiness')).toBeVisible()
-    await expect(
-      clientsPage.factProfileDialog.getByText('Filing jurisdictions', { exact: true }),
-    ).toBeVisible()
-    await expect(clientsPage.factProfileDialog.getByText('Entity type')).toBeVisible()
+    await expect(clientsPage.clientDetailHeading('Unassigned Foundry LLC')).toBeVisible()
+    await expect(clientsPage.backToClientsButton).toBeVisible()
+    await expect(authenticatedPage.getByText(/LLC \/ Filing, payment/)).toBeVisible()
+    await expect(authenticatedPage.getByText('Manual')).toBeVisible()
+    await expect(authenticatedPage.getByText('Ready for rules')).toBeVisible()
+    await expect(authenticatedPage.getByText('CA / San Diego')).toBeVisible()
+    await expect(authenticatedPage.getByText('37-2222222')).toBeVisible()
+    await expect(clientsPage.detailSection('Pulse impact')).toBeVisible()
+    await expect(clientsPage.detailSection('Work plan')).toBeVisible()
+    await expect(clientsPage.detailSection('Filing jurisdictions')).toBeVisible()
+    await expect(authenticatedPage.getByText('Entity type')).toBeVisible()
     await expect(authenticatedPage).toHaveURL(/\/clients\?client=/)
   })
 })

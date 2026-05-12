@@ -119,7 +119,14 @@ msgstr "已记录 {0} 项"
 msgid "{0} manual records"
 msgstr "{0} 条手动记录"
 
+#. placeholder {0}: workPlan.exposureNeedsInputCount
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "{0} need exposure inputs"
+msgstr "{0} 个需要补充风险输入"
+
 #. placeholder {0}: alert.needsReviewCount
+#. placeholder {0}: summary.needsReviewCount
+#: src/features/clients/ClientFactsWorkspace.tsx
 #: src/features/pulse/components/PulseAlertCard.tsx
 msgid "{0} need review"
 msgstr "{0} 个需要确认"
@@ -129,15 +136,30 @@ msgstr "{0} 个需要确认"
 msgid "{0} needs input"
 msgstr "{0} 个需要输入"
 
+#. placeholder {0}: workPlan.paymentTrackCount
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "{0} obligations carry payment data"
+msgstr "{0} 个义务带有付款数据"
+
 #. placeholder {0}: result.summary.createdCount
 #: src/features/rules/generation-preview-tab.tsx
 msgid "{0} obligations created."
 msgstr "已创建 {0} 个义务。"
 
+#. placeholder {0}: workPlan.needsReviewCount
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "{0} obligations need review"
+msgstr "{0} 个义务需要复核"
+
 #. placeholder {0}: genesis.needsInputCount
 #: src/features/migration/Wizard.tsx
 msgid "{0} obligations still need penalty inputs."
 msgstr "{0} 条义务仍需要罚金输入。"
+
+#. placeholder {0}: summary.overdueOpenCount
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "{0} overdue"
+msgstr "{0} 个逾期"
 
 #. placeholder {0}: summary.accruedPenaltyReadyCount
 #. placeholder {1}: summary.accruedPenaltyNeedsInputCount
@@ -145,6 +167,11 @@ msgstr "{0} 条义务仍需要罚金输入。"
 #: src/routes/dashboard.tsx
 msgid "{0} overdue ready · {1} needs input · {2} unsupported"
 msgstr "{0} 个逾期可计算 · {1} 个需补输入 · {2} 个暂不支持"
+
+#. placeholder {0}: summary.paymentTrackCount
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "{0} payment-linked"
+msgstr "{0} 个关联付款"
 
 #. placeholder {0}: exposure.readyCount
 #: src/features/migration/Step4Preview.tsx
@@ -630,6 +657,10 @@ msgstr "已生效规则"
 msgid "Active sessions"
 msgstr "活跃会话"
 
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "Activity log"
+msgstr "活动日志"
+
 #: src/features/audit/audit-event-drawer.tsx
 #: src/features/audit/audit-log-page.tsx
 #: src/features/audit/audit-log-table.tsx
@@ -647,6 +678,10 @@ msgstr "请添加审核说明后重试。"
 #: src/features/rules/generation-preview-tab.tsx
 msgid "Add a state to at least one client before running obligation preview."
 msgstr "先为至少一个客户添加州信息，再运行义务预览。"
+
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "Add an email before client notification drafts."
+msgstr "先添加邮箱，再生成客户通知草稿。"
 
 #: src/features/migration/Step1Intake.tsx
 msgid "Add at least one provider record to continue."
@@ -810,6 +845,7 @@ msgstr "全部时间"
 msgid "Already active"
 msgstr "已激活"
 
+#: src/features/clients/ClientFactsWorkspace.tsx
 #: src/features/pulse/components/AffectedClientsTable.tsx
 msgid "Already applied"
 msgstr "已应用"
@@ -964,6 +1000,10 @@ msgstr "Ask 查询已运行"
 msgid "Ask the practice owner to send a new invitation."
 msgstr "请事务所 Owner 重新发送邀请。"
 
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "Assign a team member for follow-up accountability."
+msgstr "分配团队成员，明确后续跟进责任。"
+
 #: src/features/audit/audit-log-labels.ts
 #: src/features/migration/mapping-target-labels.ts
 msgid "Assignee"
@@ -990,6 +1030,10 @@ msgstr "审计 {0}"
 #: src/features/pulse/PulseDetailDrawer.tsx
 msgid "Audit + evidence written. Undo within 24h."
 msgstr "审计与证据已记录，24 小时内可撤销。"
+
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "Audit access is role-gated"
+msgstr "审计访问受角色限制"
 
 #: src/features/audit/audit-event-drawer.tsx
 msgid "Audit detail"
@@ -1098,6 +1142,10 @@ msgstr "返回账单"
 #: src/routes/billing.cancel.tsx
 msgid "Back to Billing"
 msgstr "返回账单"
+
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "Back to clients"
+msgstr "返回客户列表"
 
 #: src/features/calendar/calendar-page.tsx
 msgid "Back to Obligations"
@@ -1470,6 +1518,10 @@ msgstr "客户已创建"
 msgid "Client deleted"
 msgstr "客户已删除"
 
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "Client detail"
+msgstr "客户详情"
+
 #: src/features/pulse/PulseDetailDrawer.tsx
 msgid "Client email draft copied"
 msgstr "客户邮件草稿已复制"
@@ -1479,10 +1531,6 @@ msgstr "客户邮件草稿已复制"
 #: src/routes/migration.new.tsx
 msgid "Client facts"
 msgstr "客户事实"
-
-#: src/features/clients/ClientFactsWorkspace.tsx
-msgid "Client facts, risk inputs, and cached AI summary."
-msgstr "客户事实、风险输入和缓存的 AI 摘要。"
 
 #: src/features/rules/generation-preview-tab.tsx
 msgid "CLIENT FILTER"
@@ -1596,6 +1644,10 @@ msgstr "命令面板"
 msgid "Compact"
 msgstr "紧凑"
 
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "Complete"
+msgstr "已完成"
+
 #: src/routes/dashboard.tsx
 msgid "Complete CPA review and close the row."
 msgstr "完成 CPA 复核并关闭该行。"
@@ -1603,6 +1655,11 @@ msgstr "完成 CPA 复核并关闭该行。"
 #: src/features/migration/Step2Mapping.tsx
 msgid "Confidence"
 msgstr "置信度"
+
+#. placeholder {0}: Math.round(match.confidence * 100)
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "Confidence {0}%"
+msgstr "置信度 {0}%"
 
 #. placeholder {0}: row.clientName
 #: src/features/pulse/components/AffectedClientsTable.tsx
@@ -1632,6 +1689,10 @@ msgstr "已确认"
 #: src/routes/billing.success.tsx
 msgid "Confirming subscription"
 msgstr "正在确认订阅"
+
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "Contact chain"
+msgstr "联系人链路"
 
 #: src/routes/billing.tsx
 msgid "Contact sales"
@@ -2099,7 +2160,6 @@ msgid "Create practice"
 msgstr "创建事务所"
 
 #: src/features/calendar/calendar-page.tsx
-#: src/features/clients/ClientFactsWorkspace.tsx
 #: src/features/rules/generation-preview-tab.tsx
 msgid "Created"
 msgstr "创建时间"
@@ -2406,6 +2466,7 @@ msgstr "将 CSV / TSV / XLSX 拖到这里或点击选择 · 最多 1000 行 · 2
 msgid "Dry-Run"
 msgstr "试运行"
 
+#: src/features/clients/ClientFactsWorkspace.tsx
 #: src/routes/practice.tsx
 msgid "Due"
 msgstr "到期日"
@@ -2503,6 +2564,7 @@ msgstr "生效"
 msgid "EIN"
 msgstr "EIN"
 
+#: src/features/clients/ClientFactsWorkspace.tsx
 #: src/features/pulse/components/AffectedClientsTable.tsx
 msgid "Eligible"
 msgstr "可应用"
@@ -2785,10 +2847,6 @@ msgid "Extension source"
 msgstr "延期来源"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
-msgid "Fact profile"
-msgstr "事实档案"
-
-#: src/features/clients/ClientFactsWorkspace.tsx
 msgid "Fact readiness"
 msgstr "事实就绪度"
 
@@ -2819,6 +2877,10 @@ msgstr "失败次数"
 #: src/routes/obligations.tsx
 msgid "Fallback checklist ready"
 msgstr "备用清单已准备好"
+
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "Fallback contact"
+msgstr "备用联系人"
 
 #: src/features/audit/audit-event-drawer.tsx
 msgid "Field"
@@ -2860,6 +2922,14 @@ msgstr "文件"
 msgid "Files"
 msgstr "文件"
 
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "Filing"
+msgstr "申报"
+
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "Filing and payment work tied to this client, ordered by due date."
+msgstr "与该客户相关的申报和付款工作，按截止日排序。"
+
 #: src/features/migration/mapping-target-labels.ts
 msgid "Filing frequency"
 msgstr "申报频率"
@@ -2892,6 +2962,10 @@ msgstr "申报频率复核"
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "Filing-only extension; payment is not extended."
 msgstr "仅延期申报；付款不延期。"
+
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "Filing, payment, Pulse, contact, and audit context for this client."
+msgstr "该客户的申报、付款、Pulse、联系人和审计上下文。"
 
 #: src/features/pulse/AlertsListPage.tsx
 msgid "Filter by alert status"
@@ -2993,6 +3067,10 @@ msgstr "显示完整客户名"
 #: src/routes/billing.tsx
 msgid "Full practice AI workflows"
 msgstr "完整事务所 AI 工作流"
+
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "Future edits to facts, risk inputs, or deletion will appear here."
+msgstr "后续事实、风险输入或删除相关修改会显示在这里。"
 
 #: src/routes/practice.tsx
 msgid "General"
@@ -3256,6 +3334,10 @@ msgstr "集成记录来源"
 #: src/features/migration/Step1Intake.tsx
 msgid "Integration records"
 msgstr "集成记录"
+
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "Internal owner"
+msgstr "内部负责人"
 
 #: src/features/rules/rule-library-tab.tsx
 msgid "Invalid template"
@@ -3849,6 +3931,7 @@ msgid "Needs input"
 msgstr "需要输入"
 
 #: src/features/audit/audit-log-labels.ts
+#: src/features/clients/ClientFactsWorkspace.tsx
 #: src/features/evidence/EvidenceDrawerProvider.tsx
 #: src/features/migration/Step3Normalize.tsx
 #: src/features/obligations/status-control.tsx
@@ -3924,6 +4007,11 @@ msgstr "未来 7 天"
 msgid "Next check"
 msgstr "下一步检查"
 
+#. placeholder {0}: formatDate(workPlan.nextDueDate)
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "Next due {0}"
+msgstr "下个截止日 {0}"
+
 #: src/components/primitives/iso-date-picker.tsx
 msgid "Next month"
 msgstr "下个月"
@@ -3982,6 +4070,10 @@ msgstr "此义务尚无审计事件。"
 #: src/features/audit/audit-log-page.tsx
 msgid "No audit events yet."
 msgstr "暂无审计事件。"
+
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "No audited client changes yet"
+msgstr "暂无已审计的客户变更"
 
 #: src/routes/obligations.tsx
 msgid "No client response yet."
@@ -4084,6 +4176,10 @@ msgid "No matching clients in this practice."
 msgstr "该事务所没有匹配客户。"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
+msgid "No matching Pulse changes"
+msgstr "暂无匹配的 Pulse 变更"
+
+#: src/features/clients/ClientFactsWorkspace.tsx
 msgid "No notes."
 msgstr "无备注。"
 
@@ -4098,6 +4194,14 @@ msgstr "该时间窗口内没有义务事项。"
 #: src/routes/obligations.tsx
 msgid "No obligations match these filters."
 msgstr "没有义务符合当前筛选。"
+
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "No obligations yet"
+msgstr "暂无义务"
+
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "No open due dates"
+msgstr "暂无未完成截止日"
 
 #: src/routes/practice.tsx
 msgid "No open obligations available for preview."
@@ -4231,6 +4335,10 @@ msgstr "未启用"
 msgid "Not entered"
 msgstr "未填写"
 
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "Not modeled yet. Keep escalation in notes until the contact schema expands."
+msgstr "尚未建模。在联系人 schema 扩展前，先把升级联系人记录在备注中。"
+
 #: src/features/audit/audit-event-drawer.tsx
 #: src/features/audit/audit-log-labels.ts
 #: src/features/members/members-page.tsx
@@ -4362,6 +4470,10 @@ msgstr "官方表格或方式"
 msgid "Official sources · pending templates"
 msgstr "官方来源 · 待审核模板"
 
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "Official-source changes from Pulse that touch this client."
+msgstr "Pulse 中影响该客户的官方来源变更。"
+
 #: src/features/audit/audit-log-labels.ts
 msgid "Onboarding alternate path used"
 msgstr "已使用引导备用路径"
@@ -4463,6 +4575,11 @@ msgstr "打开账单"
 msgid "Open billing for {plan} plan"
 msgstr "打开 {plan} 计划的账单"
 
+#. placeholder {0}: row.original.name
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "Open client detail for {0}"
+msgstr "打开 {0} 的客户详情"
+
 #: src/routes/dashboard.tsx
 msgid "Open evidence and confirm the source still matches."
 msgstr "打开证据并确认来源仍然匹配。"
@@ -4475,8 +4592,6 @@ msgid "Open evidence for {0}"
 msgstr "打开 {0} 的证据"
 
 #. placeholder {0}: row.clientName
-#. placeholder {0}: row.original.name
-#: src/features/clients/ClientFactsWorkspace.tsx
 #: src/routes/dashboard.tsx
 msgid "Open fact profile for {0}"
 msgstr "打开 {0} 的事实档案"
@@ -4544,6 +4659,10 @@ msgstr "打开 Apple Calendar 链接"
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
 msgid "Open the Migration Copilot wizard."
 msgstr "打开 Migration Copilot 向导。"
+
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "Open work"
+msgstr "未完成工作"
 
 #: src/routes/account-security-two-factor-setup.tsx
 msgid "Open your authenticator app, add a new account, then scan this code. Use the setup URI if scanning is not available."
@@ -4692,6 +4811,10 @@ msgstr "Owner 在执行敏感生产操作前需要启用 MFA。"
 msgid "Owners updated"
 msgstr "负责人已更新"
 
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "Owners, managers, and preparers can inspect client activity."
+msgstr "Owner、Manager 和 Preparer 可以查看客户活动。"
+
 #: src/features/audit/audit-log-page.tsx
 msgid "Page {pageNumber}"
 msgstr "第 {pageNumber} 页"
@@ -4786,6 +4909,10 @@ msgstr "支付详情由支付处理方保存"
 #: src/routes/billing.tsx
 msgid "Payment model"
 msgstr "支付模型"
+
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "Payment track"
+msgstr "付款链路"
 
 #: src/features/rules/generation-preview-tab.tsx
 msgid "Payment year start"
@@ -5182,6 +5309,10 @@ msgid "primary"
 msgstr "主"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
+msgid "Primary client contact"
+msgstr "客户主联系人"
+
+#: src/features/clients/ClientFactsWorkspace.tsx
 msgid "Primary counties"
 msgstr "主州县"
 
@@ -5233,6 +5364,7 @@ msgstr "Production Pulse 操作需要 Pro 或更高计划。"
 msgid "Projected 90-day risk"
 msgstr "预计 90 天风险"
 
+#: src/features/clients/ClientFactsWorkspace.tsx
 #: src/features/concepts/concept-help.tsx
 #: src/routes/dashboard.tsx
 #: src/routes/obligations.tsx
@@ -5308,6 +5440,14 @@ msgstr "Pulse 已忽略"
 #: src/features/pulse/PulseDetailDrawer.tsx
 msgid "Pulse evidence linked to each obligation"
 msgstr "为每条义务关联监管证据"
+
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "Pulse impact"
+msgstr "Pulse 影响"
+
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "Pulse matches"
+msgstr "Pulse 匹配"
 
 #: src/features/audit/audit-log-labels.ts
 msgid "Pulse quarantined"
@@ -5494,6 +5634,10 @@ msgstr "原因"
 #: src/features/migration/mapping-target-labels.ts
 msgid "Receipts band"
 msgstr "收入区间"
+
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "Recent audited changes for this client record."
+msgstr "该客户记录最近的已审计变更。"
 
 #: src/routes/obligations.tsx
 msgid "Recently updated"
@@ -5727,6 +5871,7 @@ msgstr "撤销此导入批次？"
 msgid "Revert until"
 msgstr "可撤销至"
 
+#: src/features/clients/ClientFactsWorkspace.tsx
 #: src/features/pulse/AlertsListPage.tsx
 #: src/features/pulse/components/AffectedClientsTable.tsx
 #: src/features/pulse/components/PulseStatusBadge.tsx
@@ -6043,6 +6188,10 @@ msgstr "运行迁移"
 msgid "Run Migration Copilot to import clients and generate real deadlines."
 msgstr "运行 Migration Copilot 导入客户并生成真实截止日。"
 
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "Run migration or generate rules before this client has due-date work."
+msgstr "先运行迁移或生成规则，该客户才会有截止日工作。"
+
 #: src/features/rules/generation-preview-tab.tsx
 msgid "Run preview"
 msgstr "运行预览"
@@ -6288,10 +6437,6 @@ msgstr "无法加载安全设置"
 msgid "Select {0}"
 msgstr "选择 {0}"
 
-#: src/features/clients/ClientFactsWorkspace.tsx
-msgid "Select a client to inspect the record."
-msgstr "选择一个客户以查看记录。"
-
 #: src/features/pulse/components/AffectedClientsTable.tsx
 msgid "Select all eligible obligations"
 msgstr "选择全部可应用义务"
@@ -6450,6 +6595,10 @@ msgstr "显示 {firstItemNumber}-{lastItemNumber}，共 {totalCount} 条"
 #: src/features/rules/coverage-tab.tsx
 msgid "showing selected client entity groups; Other remains manual review"
 msgstr "显示所选客户实体组；Other 仍保留为人工复核"
+
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "Showing the next 8 obligations for this client."
+msgstr "正在显示该客户接下来的 8 个义务。"
 
 #: src/routes/obligations.tsx
 msgid "Showing the previous tip while the latest one is being prepared."
@@ -6882,6 +7031,7 @@ msgstr "目标申报年度必须正好比来源申报年度晚一年。"
 msgid "Target filing year must be the next year after source filing year."
 msgstr "目标申报年度必须是来源申报年度的下一年。"
 
+#: src/features/clients/ClientFactsWorkspace.tsx
 #: src/routes/obligations.tsx
 msgid "Tax due"
 msgstr "应缴税款"
@@ -7157,6 +7307,10 @@ msgstr "该提醒已不可用。"
 #: src/features/migration/ImportHistoryDrawer.tsx
 msgid "This clears the unfinished draft so you can start a new import. No clients or deadlines have been created yet."
 msgstr "这会清除未完成的草稿，方便你开始新的导入。目前还没有创建任何客户或截止日。"
+
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "This client is clear of the current firm-scoped Pulse queue."
+msgstr "当前事务所范围的 Pulse 队列中没有影响该客户的事项。"
 
 #: src/features/migration/Step4Preview.tsx
 msgid "This import can be undone for 24 hours and keeps an audit record"
@@ -7557,6 +7711,7 @@ msgstr "可见列"
 msgid "WA subtotal minus credits"
 msgstr "WA 扣除抵免后的小计"
 
+#: src/features/clients/ClientFactsWorkspace.tsx
 #: src/features/obligations/status-control.tsx
 #: src/features/workload/workload-page.tsx
 msgid "Waiting"
@@ -7660,6 +7815,10 @@ msgstr "按确定性优先级、行级原因和下一步检查处理每个风险
 #: src/features/members/members-page.tsx
 msgid "Work email"
 msgstr "工作邮箱"
+
+#: src/features/clients/ClientFactsWorkspace.tsx
+msgid "Work plan"
+msgstr "工作计划"
 
 #: src/features/migration/WizardShell.tsx
 msgid "Workbench"

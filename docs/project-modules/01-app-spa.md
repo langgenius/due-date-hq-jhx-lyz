@@ -63,10 +63,12 @@
 
 前端只负责用户决策和中间态展示，真正的 batch 状态、AI 调用、commit plan、audit/evidence 写入都在 server。
 
-Clients 的事实侧栏使用 `Filing jurisdictions` 面板管理多州报税事实。列表列和 State/Jurisdiction
-筛选按任一 active filing profile 匹配；侧栏显示 primary state、所有 active filing states、
-county 列表、tax type review 状态和 profile source。保存时调用 `clients.replaceFilingProfiles`，
-让 server 统一维护 profile archive、primary mirror、exposure 重算和缓存刷新。
+Clients 使用 `/clients?client=<id>` 的同页详情态管理客户事实，不新增 `/clients/:id` route，
+也不再用右侧侧栏承载完整档案。列表列和 State/Jurisdiction 筛选按任一 active filing profile
+匹配；详情页顶部展示客户身份、readiness 和 Pulse impact，主体展示 work plan、filing
+jurisdictions、risk summary、contact chain、activity log、notes 和删除入口。`Filing
+jurisdictions` 保存时调用 `clients.replaceFilingProfiles`，让 server 统一维护 profile
+archive、primary mirror、exposure 重算和缓存刷新。
 
 Migration Step 2 支持 `Filing states` 目标；Step 3 的 matrix counts 会把逗号/分号/竖线分隔的
 多州输入拆开统计，使一行多州列表和一行一州重复客户都能进入同一 preview/apply 路径。
