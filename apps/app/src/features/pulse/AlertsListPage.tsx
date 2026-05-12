@@ -57,6 +57,12 @@ import {
   sourcesNeedingAttention,
   summarizePulseSources,
 } from './lib/source-health-labels'
+import {
+  isPulseImpactFilter,
+  matchesPulseImpactFilter,
+  PULSE_IMPACT_FILTER_OPTIONS,
+  type PulseImpactFilter,
+} from './lib/impact-filter'
 
 const STATUS_FILTER_OPTIONS = [
   'all',
@@ -83,6 +89,7 @@ export function PulseChangesTab({ embedded = false }: PulseChangesTabProps) {
   const { openDrawer } = usePulseDrawer()
   const permission = useFirmPermission()
   const [statusFilter, setStatusFilter] = useState<PulseStatusFilter>('all')
+  const [impactFilter, setImpactFilter] = useState<PulseImpactFilter>('all')
   const [sourceFilter, setSourceFilter] = useState('all')
   const [sourceReviewParam, setSourceReviewParam] = useQueryState(
     'sourceReview',
@@ -109,15 +116,16 @@ export function PulseChangesTab({ embedded = false }: PulseChangesTabProps) {
     () =>
       alerts.filter(
         (alert) =>
+          matchesPulseImpactFilter(alert, impactFilter) &&
           matchesStatusFilter(alert.status, statusFilter) &&
           (sourceFilter === 'all' || alert.source === sourceFilter),
       ),
-    [alerts, sourceFilter, statusFilter],
+    [alerts, impactFilter, sourceFilter, statusFilter],
   )
   const isEmpty = !alertsQuery.isLoading && alerts.length === 0
   const isFilteredEmpty = !alertsQuery.isLoading && alerts.length > 0 && filteredAlerts.length === 0
   const breathingAlertId = filteredAlerts.find(isBreathingAlertRow)?.id
-  const filtersActive = statusFilter !== 'all' || sourceFilter !== 'all'
+  const filtersActive = impactFilter !== 'all' || statusFilter !== 'all' || sourceFilter !== 'all'
 
   return (
     <div className={embedded ? 'flex flex-col gap-5' : 'flex flex-col gap-5 p-4 md:p-6'}>
@@ -197,7 +205,26 @@ export function PulseChangesTab({ embedded = false }: PulseChangesTabProps) {
       ) : (
         <>
           <div className="flex flex-col gap-2 rounded-md border border-divider-subtle bg-background-default p-3 md:flex-row md:items-center md:justify-between">
-            <div className="grid gap-2 md:grid-cols-[180px_minmax(220px,320px)]">
+            <div className="grid gap-2 md:grid-cols-[180px_180px_minmax(220px,320px)]">
+              <Select
+                value={impactFilter}
+                onValueChange={(value) => {
+                  if (typeof value === 'string' && isPulseImpactFilter(value))
+                    setImpactFilter(value)
+                }}
+              >
+                <SelectTrigger className="w-full" size="sm" aria-label={t`Filter by impact`}>
+                  <SelectValue>{impactFilterLabel(impactFilter)}</SelectValue>
+                </SelectTrigger>
+                <SelectContent align="start">
+                  {PULSE_IMPACT_FILTER_OPTIONS.map((option) => (
+                    <SelectItem key={option} value={option}>
+                      {impactFilterLabel(option)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
               <Select
                 value={statusFilter}
                 onValueChange={(value) => {
@@ -244,6 +271,7 @@ export function PulseChangesTab({ embedded = false }: PulseChangesTabProps) {
               size="sm"
               disabled={!filtersActive}
               onClick={() => {
+                setImpactFilter('all')
                 setStatusFilter('all')
                 setSourceFilter('all')
               }}
@@ -554,6 +582,14 @@ function matchesStatusFilter(status: PulseFirmAlertStatus, filter: PulseStatusFi
   if (filter === 'all') return true
   if (filter === 'active') return status === 'matched'
   return status === filter
+}
+
+function impactFilterLabel(filter: PulseImpactFilter): React.ReactNode {
+  if (filter === 'all') return <Trans>All impact</Trans>
+  if (filter === 'needs_action') return <Trans>Needs action</Trans>
+  if (filter === 'needs_review') return <Trans>Needs review</Trans>
+  if (filter === 'no_matches') return <Trans>No matches</Trans>
+  return <Trans>Closed</Trans>
 }
 
 function statusFilterLabel(filter: PulseStatusFilter): React.ReactNode {

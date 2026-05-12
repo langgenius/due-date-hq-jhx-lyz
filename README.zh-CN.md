@@ -32,7 +32,7 @@ DueDateHQ 目前是 alpha 阶段产品代码库。它支持运营复核和证据
 - **Dashboard 与 Obligations**：风险分诊、保存视图、批量状态更新、readiness、证据抽屉、本周/
   本月视图和预计罚金风险。
 - **Rules 与 Pulse**：来源注册表、coverage、规则库、生成预览、候选规则复核、事务所级验证决策、
-  官方来源监控、事务所提醒、应用/忽略/稍后处理/撤销和来源健康度运营。
+  官方来源监控、Pulse Changes 影响分诊、应用/忽略/稍后处理/撤销和来源健康度运营。
 - **事务所运营**：审计日志、通知、readiness portal、日历订阅、计费 checkout handoff、成员和团队
   workload 界面。
 - **营销站**：静态双语公开站，用于产品、pricing、rules 和 state coverage 入口。

@@ -1,0 +1,43 @@
+# Alerts to Pulse Changes Mapping
+
+## Boundary
+
+The reference `https://github.com/helloigig/DueDateHQ` Alerts surface is not a route or schema to
+copy into this product. It is a product prototype for a broad state-announcement workbench: triage
+feed, announcement archive, alert-type verbs, source confidence, client-specific action modals,
+digest settings, and a modal first-land triage pattern.
+
+This repository's canonical implementation is narrower and more operational:
+
+1. `jobs/pulse/ingest` watches official sources and records source health, snapshots, or T2/T3
+   signals.
+2. `pulse.extract` turns T1 source snapshots into approved `pulse` records.
+3. The DB repo fans approved records into firm-scoped `pulse_firm_alert` rows only when client
+   obligations match.
+4. `Rules > Pulse Changes` is the decision surface for apply, dismiss, snooze, re-open, and revert.
+5. `pulse.apply` writes due-date overlays, audit, evidence, and email outbox rows in one server
+   transaction.
+
+## Product Mapping
+
+| Reference Alerts capability                 | Current Pulse mapping                                                                                                  | Decision                                                                                          |
+| ------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| `Affecting you` / resolved triage tabs      | Impact lanes in `Rules > Pulse Changes`: all impact, needs action, needs review, no matches, closed                    | Keep inside Rules; do not restore standalone `/alerts`.                                           |
+| All-announcement archive                    | Marketing / future public source archive, not app decision workflow                                                    | Do not mix non-firm announcements into firm apply UI.                                             |
+| Alert type taxonomy and type-specific verbs | Phase 0 Pulse supports deadline-shift exceptions only                                                                  | Use deadline-exception CTA copy; do not add non-date action routers until contracts support them. |
+| Source authority and confidence chips       | Existing source badge, source-status badge, confidence badge, source excerpt                                           | Retain as glass-box evidence in the drawer.                                                       |
+| Per-client exclusion and confirmation       | Existing affected-client table selection, needs-review confirmation, manager exclusion when priority review is enabled | Keep rows obligation-scoped, not client-only.                                                     |
+| First-land blocking modal                   | Dashboard Pulse banner + deep link to `Rules > Pulse Changes`                                                          | Avoid blocking modals for regulatory changes.                                                     |
+| Alert digest settings                       | Notification preferences and email outbox                                                                              | No env change; delivery configuration remains server-owned.                                       |
+
+## Current UX Contract
+
+`Rules > Pulse Changes` presents impact first, then technical status and source filtering:
+
+- **Needs action**: matched or partially applied firm alerts with at least one affected obligation.
+- **Needs review**: alerts with obligations that require human applicability confirmation.
+- **No matches**: retained watch-only rows in demo or future no-match review contexts.
+- **Closed**: applied, dismissed, or reverted alerts.
+
+This maps the reference Alerts product strength into the current architecture without reviving the
+old standalone Alerts route or widening Pulse beyond source-backed due-date changes.

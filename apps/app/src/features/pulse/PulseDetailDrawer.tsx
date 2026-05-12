@@ -707,9 +707,13 @@ function DrawerActions({
         aria-busy={isMutating || undefined}
       >
         {selectionCount === 0 ? (
-          <Trans>Select clients to apply</Trans>
+          <Trans>Select obligations to apply</Trans>
         ) : (
-          <Plural value={selectionCount} one="Apply to # client" other="Apply to # clients" />
+          <Plural
+            value={selectionCount}
+            one="Apply deadline exception to # obligation"
+            other="Apply deadline exception to # obligations"
+          />
         )}
       </Button>
       {canApplyReviewed ? (

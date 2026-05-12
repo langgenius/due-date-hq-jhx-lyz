@@ -547,6 +547,9 @@ shadcn Sidebar（base-vega）打包了 3 种 collapse 模式（`offcanvas` / `ic
 - Pulse Changes tab 承接原 firm alert review queue。Owner / Manager 在这里 review
   受影响客户、apply 临时 exception、dismiss noise、revisit closed changes；通知深链使用
   `/rules?tab=pulse&alert=<id>` 打开对应 drawer。
+- Pulse Changes list 先按业务影响分层（needs action / needs review / no matches / closed），再按
+  firm alert status 和 source 过滤。这里吸收参考 Alerts 工作台的 triage 优点，但不恢复独立
+  `/alerts` 路由，也不把非本所匹配的公告混入 firm decision queue。
 - Temporary Rules tab 直接展示已 apply 的 Pulse-backed `exception_rule` overlays：active /
   reverted / retracted 状态、覆盖辖区与 forms、override due date、active obligation count、
   official source link，以及回到 Pulse detail 的 revert/follow-up 入口。

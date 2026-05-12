@@ -342,8 +342,8 @@ msgid "{selectedCount} selected · {excludedCount} excluded"
 msgstr "已选择 {selectedCount} 个 · 已排除 {excludedCount} 个"
 
 #: src/features/pulse/PulseDetailDrawer.tsx
-msgid "{selectionCount, plural, one {Apply to # client} other {Apply to # clients}}"
-msgstr "{selectionCount, plural, other {应用到 # 个客户}}"
+msgid "{selectionCount, plural, one {Apply deadline exception to # obligation} other {Apply deadline exception to # obligations}}"
+msgstr "{selectionCount, plural, other {将截止日例外应用到 # 条义务}}"
 
 #: src/features/migration/Step4Preview.tsx
 msgid "{skipped, plural, one {# row will be skipped (see errors)} other {# rows will be skipped (see errors)}}"
@@ -763,6 +763,10 @@ msgstr "全部实体类型"
 #: src/features/audit/audit-log-labels.ts
 msgid "All ignored"
 msgstr "全部忽略"
+
+#: src/features/pulse/AlertsListPage.tsx
+msgid "All impact"
+msgstr "全部影响"
 
 #: src/features/calendar/calendar-page.tsx
 msgid "All open firm deadlines for owner and manager planning."
@@ -1535,6 +1539,10 @@ msgstr "关闭"
 #: src/features/migration/WizardShell.tsx
 msgid "Close wizard"
 msgstr "关闭向导"
+
+#: src/features/pulse/AlertsListPage.tsx
+msgid "Closed"
+msgstr "已关闭"
 
 #: src/features/rules/generation-preview-tab.tsx
 msgid "Closed source-year obligations eligible for rollover. Only done, paid, and extended rows count as source deadlines."
@@ -2863,6 +2871,10 @@ msgid "Filter by alert status"
 msgstr "按提醒状态筛选"
 
 #: src/features/pulse/AlertsListPage.tsx
+msgid "Filter by impact"
+msgstr "按影响筛选"
+
+#: src/features/pulse/AlertsListPage.tsx
 msgid "Filter by source"
 msgstr "按来源筛选"
 
@@ -3774,6 +3786,10 @@ msgstr "需要帮助"
 msgid "Needs {labels}"
 msgstr "需要 {labels}"
 
+#: src/features/pulse/AlertsListPage.tsx
+msgid "Needs action"
+msgstr "需处理"
+
 #: src/routes/dashboard.tsx
 #: src/routes/obligations.tsx
 msgid "Needs evidence"
@@ -3805,6 +3821,7 @@ msgstr "需要输入"
 #: src/features/evidence/EvidenceDrawerProvider.tsx
 #: src/features/migration/Step3Normalize.tsx
 #: src/features/obligations/status-control.tsx
+#: src/features/pulse/AlertsListPage.tsx
 #: src/features/pulse/components/AffectedClientsTable.tsx
 #: src/features/rules/rule-library-tab.tsx
 #: src/routes/dashboard.tsx
@@ -4026,6 +4043,10 @@ msgstr "尚无导入批次"
 #: src/routes/obligations.tsx
 msgid "No matched rule"
 msgstr "没有匹配规则"
+
+#: src/features/pulse/AlertsListPage.tsx
+msgid "No matches"
+msgstr "无匹配"
 
 #: src/features/pulse/components/PulseAlertCard.tsx
 msgid "No matching clients in this practice."
@@ -6243,13 +6264,13 @@ msgstr "请至少选择一条待审核规则。"
 msgid "Select clients and apply again."
 msgstr "请选择客户后再次应用。"
 
-#: src/features/pulse/PulseDetailDrawer.tsx
-msgid "Select clients to apply"
-msgstr "请选择客户后再应用"
-
 #: src/components/primitives/iso-date-picker.tsx
 msgid "Select date"
 msgstr "选择日期"
+
+#: src/features/pulse/PulseDetailDrawer.tsx
+msgid "Select obligations to apply"
+msgstr "选择要应用的义务"
 
 #: src/features/rules/rule-library-tab.tsx
 msgid "Select pending rules from the table."

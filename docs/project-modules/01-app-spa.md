@@ -74,6 +74,8 @@ Migration Step 2 支持 `Filing states` 目标；Step 3 的 matrix counts 会把
 ### Pulse
 
 - `/rules?tab=pulse` 面向事务所用户，承载 owner/manager 对 Pulse 影响客户的 review/apply/dismiss/snooze。
+- Pulse Changes 列表使用 impact-first 过滤：needs action、needs review、no matches、closed；
+  status/source 过滤作为二级排查工具。
 - Pulse detail drawer 展示来源状态、置信度、结构化字段、影响客户、安全 checklist 和操作按钮。
 - apply/revert/reactivate 会触发 server 端锁或状态流、数据更新、罚金重算、audit/evidence 和
   dashboard queue；undo 后 alert 回到 `matched`，历史 `reverted` alert 可重新激活再 apply。

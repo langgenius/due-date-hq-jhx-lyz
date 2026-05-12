@@ -342,8 +342,8 @@ msgid "{selectedCount} selected · {excludedCount} excluded"
 msgstr "{selectedCount} selected · {excludedCount} excluded"
 
 #: src/features/pulse/PulseDetailDrawer.tsx
-msgid "{selectionCount, plural, one {Apply to # client} other {Apply to # clients}}"
-msgstr "{selectionCount, plural, one {Apply to # client} other {Apply to # clients}}"
+msgid "{selectionCount, plural, one {Apply deadline exception to # obligation} other {Apply deadline exception to # obligations}}"
+msgstr "{selectionCount, plural, one {Apply deadline exception to # obligation} other {Apply deadline exception to # obligations}}"
 
 #: src/features/migration/Step4Preview.tsx
 msgid "{skipped, plural, one {# row will be skipped (see errors)} other {# rows will be skipped (see errors)}}"
@@ -763,6 +763,10 @@ msgstr "All entity types"
 #: src/features/audit/audit-log-labels.ts
 msgid "All ignored"
 msgstr "All ignored"
+
+#: src/features/pulse/AlertsListPage.tsx
+msgid "All impact"
+msgstr "All impact"
 
 #: src/features/calendar/calendar-page.tsx
 msgid "All open firm deadlines for owner and manager planning."
@@ -1535,6 +1539,10 @@ msgstr "Close"
 #: src/features/migration/WizardShell.tsx
 msgid "Close wizard"
 msgstr "Close wizard"
+
+#: src/features/pulse/AlertsListPage.tsx
+msgid "Closed"
+msgstr "Closed"
 
 #: src/features/rules/generation-preview-tab.tsx
 msgid "Closed source-year obligations eligible for rollover. Only done, paid, and extended rows count as source deadlines."
@@ -2863,6 +2871,10 @@ msgid "Filter by alert status"
 msgstr "Filter by alert status"
 
 #: src/features/pulse/AlertsListPage.tsx
+msgid "Filter by impact"
+msgstr "Filter by impact"
+
+#: src/features/pulse/AlertsListPage.tsx
 msgid "Filter by source"
 msgstr "Filter by source"
 
@@ -3774,6 +3786,10 @@ msgstr "Need help"
 msgid "Needs {labels}"
 msgstr "Needs {labels}"
 
+#: src/features/pulse/AlertsListPage.tsx
+msgid "Needs action"
+msgstr "Needs action"
+
 #: src/routes/dashboard.tsx
 #: src/routes/obligations.tsx
 msgid "Needs evidence"
@@ -3805,6 +3821,7 @@ msgstr "Needs input"
 #: src/features/evidence/EvidenceDrawerProvider.tsx
 #: src/features/migration/Step3Normalize.tsx
 #: src/features/obligations/status-control.tsx
+#: src/features/pulse/AlertsListPage.tsx
 #: src/features/pulse/components/AffectedClientsTable.tsx
 #: src/features/rules/rule-library-tab.tsx
 #: src/routes/dashboard.tsx
@@ -4026,6 +4043,10 @@ msgstr "No import batches yet"
 #: src/routes/obligations.tsx
 msgid "No matched rule"
 msgstr "No matched rule"
+
+#: src/features/pulse/AlertsListPage.tsx
+msgid "No matches"
+msgstr "No matches"
 
 #: src/features/pulse/components/PulseAlertCard.tsx
 msgid "No matching clients in this practice."
@@ -6243,13 +6264,13 @@ msgstr "Select at least one pending rule."
 msgid "Select clients and apply again."
 msgstr "Select clients and apply again."
 
-#: src/features/pulse/PulseDetailDrawer.tsx
-msgid "Select clients to apply"
-msgstr "Select clients to apply"
-
 #: src/components/primitives/iso-date-picker.tsx
 msgid "Select date"
 msgstr "Select date"
+
+#: src/features/pulse/PulseDetailDrawer.tsx
+msgid "Select obligations to apply"
+msgstr "Select obligations to apply"
 
 #: src/features/rules/rule-library-tab.tsx
 msgid "Select pending rules from the table."
