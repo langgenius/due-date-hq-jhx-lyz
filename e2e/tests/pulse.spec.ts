@@ -36,7 +36,7 @@ test.describe('seeded Pulse alerts', () => {
     await expect(drawer.getByText('Bright Studio S-Corp')).toBeVisible()
     await expect(drawer.getByText('Pulse evidence linked to each obligation')).toBeVisible()
 
-    await drawer.getByRole('button', { name: /Apply to 1 client/ }).click()
+    await drawer.getByRole('button', { name: /Apply to 1 obligation/ }).click()
     await expect(authenticatedPage.getByText(/Applied to 1 clients?/)).toBeVisible()
 
     await obligationQueuePage.goto()
@@ -115,7 +115,7 @@ test.describe('seeded Pulse alerts', () => {
       await expect(
         drawer.getByText('Only Owners and Managers can apply Pulse changes.'),
       ).toBeVisible()
-      await expect(drawer.getByRole('button', { name: /Apply to 1 client/ })).toBeDisabled()
+      await expect(drawer.getByRole('button', { name: /Apply to 1 obligation/ })).toBeDisabled()
       await expect(drawer.getByRole('button', { name: 'Dismiss' })).toBeDisabled()
       await expect(drawer.getByRole('button', { name: 'Snooze 24h' })).toBeDisabled()
     })
@@ -136,12 +136,13 @@ test.describe('seeded Pulse alerts', () => {
       const drawer = authenticatedPage.getByRole('dialog')
 
       await expect(drawer.getByText('Read-only view')).toBeVisible()
-      await expect(drawer.getByRole('button', { name: /Apply to 1 client/ })).toBeDisabled()
+      await expect(drawer.getByRole('button', { name: /Apply to 1 obligation/ })).toBeDisabled()
       await expect(drawer.getByRole('button', { name: 'Dismiss' })).toBeDisabled()
       await expect(drawer.getByRole('button', { name: 'Snooze 24h' })).toBeDisabled()
-      await expect(drawer.getByRole('button', { name: 'Request review' })).toBeVisible()
+      const requestReviewButton = drawer.getByRole('button', { name: 'Request review' }).first()
+      await expect(requestReviewButton).toBeVisible()
 
-      await drawer.getByRole('button', { name: 'Request review' }).click()
+      await requestReviewButton.click()
       const requestDialog = authenticatedPage.getByRole('dialog', { name: 'Request Pulse review' })
       await requestDialog
         .getByLabel('Optional note')

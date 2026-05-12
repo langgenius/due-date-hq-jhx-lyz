@@ -54,7 +54,7 @@ test.describe('role permission surfaces', () => {
       const drawer = authenticatedPage.getByRole('dialog')
 
       await expect(drawer.getByText('Read-only view')).toBeVisible()
-      await expect(drawer.getByRole('button', { name: /Apply to 1 client/ })).toBeDisabled()
+      await expect(drawer.getByRole('button', { name: /Apply to 1 obligation/ })).toBeDisabled()
     })
   })
 
