@@ -40,8 +40,8 @@ replacement for review by a CPA, EA, attorney, or other qualified professional.
   exposure.
 - **Rules and Pulse**: source registry, coverage, rule library, generation preview,
   candidate review, firm-scoped verification decisions, official-source monitoring,
-  Pulse Changes impact triage, apply/dismiss/snooze/revert flows, and source-health
-  operations.
+  Pulse Changes impact triage, source-backed suggested actions,
+  apply/dismiss/snooze/revert flows, and source-health operations.
 - **Practice operations**: audit log, notifications, readiness portal, calendar
   subscription, billing checkout handoff, members, and team workload surfaces.
 - **Marketing site**: static bilingual public site for product, pricing, rules, and

@@ -342,8 +342,16 @@ msgid "{selectedCount} selected · {excludedCount} excluded"
 msgstr "{selectedCount} selected · {excludedCount} excluded"
 
 #: src/features/pulse/PulseDetailDrawer.tsx
+msgid "{selectionCount, plural, one {# selected obligation will get the temporary due-date exception.} other {# selected obligations will get the temporary due-date exception.}}"
+msgstr "{selectionCount, plural, one {# selected obligation will get the temporary due-date exception.} other {# selected obligations will get the temporary due-date exception.}}"
+
+#: src/features/pulse/PulseDetailDrawer.tsx
 msgid "{selectionCount, plural, one {Apply deadline exception to # obligation} other {Apply deadline exception to # obligations}}"
 msgstr "{selectionCount, plural, one {Apply deadline exception to # obligation} other {Apply deadline exception to # obligations}}"
+
+#: src/features/pulse/PulseDetailDrawer.tsx
+msgid "{selectionCount, plural, one {Apply to # obligation} other {Apply to # obligations}}"
+msgstr "{selectionCount, plural, one {Apply to # obligation} other {Apply to # obligations}}"
 
 #: src/features/migration/Step4Preview.tsx
 msgid "{skipped, plural, one {# row will be skipped (see errors)} other {# rows will be skipped (see errors)}}"
@@ -909,6 +917,10 @@ msgid "Applied to {0} clients"
 msgstr "Applied to {0} clients"
 
 #: src/features/pulse/PulseDetailDrawer.tsx
+msgid "Apply deadline exception"
+msgstr "Apply deadline exception"
+
+#: src/features/pulse/PulseDetailDrawer.tsx
 msgid "Apply reviewed set"
 msgstr "Apply reviewed set"
 
@@ -1061,6 +1073,10 @@ msgstr "Authenticator setup QR code"
 #: src/routes/account.security.tsx
 msgid "Authenticator setup started"
 msgstr "Authenticator setup started"
+
+#: src/features/pulse/components/PulseStructuredFields.tsx
+msgid "Authority"
+msgstr "Authority"
 
 #: src/features/migration/Step2Mapping.tsx
 msgid "Automatic field matching is unavailable — using default suggestions"
@@ -1665,8 +1681,16 @@ msgid "Copy"
 msgstr "Copy"
 
 #: src/features/pulse/PulseDetailDrawer.tsx
+msgid "Copy a reviewable client email draft with the official source link."
+msgstr "Copy a reviewable client email draft with the official source link."
+
+#: src/features/pulse/PulseDetailDrawer.tsx
 msgid "Copy client email draft"
 msgstr "Copy client email draft"
+
+#: src/features/pulse/PulseDetailDrawer.tsx
+msgid "Copy draft"
+msgstr "Copy draft"
 
 #: src/routes/obligations.tsx
 msgid "Copy link"
@@ -2219,6 +2243,10 @@ msgstr "Deadline reminders"
 msgid "Deadline risk workbench"
 msgstr "Deadline risk workbench"
 
+#: src/features/pulse/components/PulseStructuredFields.tsx
+msgid "Deadline shift"
+msgstr "Deadline shift"
+
 #: src/features/audit/audit-log-labels.ts
 msgid "Deadline status changed"
 msgstr "Deadline status changed"
@@ -2391,7 +2419,6 @@ msgstr "Due {0}"
 
 #: src/features/audit/audit-log-labels.ts
 #: src/features/evidence/EvidenceDrawerProvider.tsx
-#: src/features/pulse/components/PulseStructuredFields.tsx
 #: src/features/rules/generation-preview-tab.tsx
 #: src/routes/obligations.tsx
 msgid "Due date"
@@ -2467,8 +2494,8 @@ msgid "Edit"
 msgstr "Edit"
 
 #: src/features/pulse/components/PulseStructuredFields.tsx
-msgid "Effective from"
-msgstr "Effective from"
+msgid "Effective"
+msgstr "Effective"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
 #: src/features/clients/CreateClientDialog.tsx
@@ -3265,6 +3292,10 @@ msgstr "Invite member"
 #: src/features/audit/audit-event-drawer.tsx
 msgid "IP hash"
 msgstr "IP hash"
+
+#: src/features/pulse/components/PulseStructuredFields.tsx
+msgid "Issued"
+msgstr "Issued"
 
 #: src/features/rules/rule-library-tab.tsx
 #: src/features/rules/sources-tab.tsx
@@ -4171,6 +4202,7 @@ msgid "No user-facing field change was recorded."
 msgstr "No user-facing field change was recorded."
 
 #: src/features/audit/audit-log-labels.ts
+#: src/features/pulse/components/PulseStructuredFields.tsx
 #: src/routes/obligations.tsx
 msgid "None"
 msgstr "None"
@@ -4684,6 +4716,10 @@ msgstr "Paid feature"
 msgid "Paid subscriptions bill the practice, not an individual user."
 msgstr "Paid subscriptions bill the practice, not an individual user."
 
+#: src/features/pulse/components/PulseStructuredFields.tsx
+msgid "Parsed scope"
+msgstr "Parsed scope"
+
 #: src/features/pulse/AlertsListPage.tsx
 #: src/features/pulse/components/PulseStatusBadge.tsx
 msgid "Partially applied"
@@ -5052,6 +5088,10 @@ msgstr "Practices"
 msgid "Preferences"
 msgstr "Preferences"
 
+#: src/features/pulse/PulseDetailDrawer.tsx
+msgid "Prepare client draft"
+msgstr "Prepare client draft"
+
 #: src/components/patterns/app-shell-nav.tsx
 #: src/components/patterns/app-shell-user-menu.tsx
 #: src/features/audit/audit-log-labels.ts
@@ -5373,6 +5413,10 @@ msgstr "Read columns"
 #: src/features/migration/WizardShell.tsx
 msgid "Read field values"
 msgstr "Read field values"
+
+#: src/features/pulse/components/PulseStructuredFields.tsx
+msgid "Read official source"
+msgstr "Read official source"
 
 #: src/features/permissions/permission-gate.tsx
 #: src/features/pulse/PulseDetailDrawer.tsx
@@ -6269,6 +6313,14 @@ msgid "Select date"
 msgstr "Select date"
 
 #: src/features/pulse/PulseDetailDrawer.tsx
+msgid "Select eligible obligations before applying."
+msgstr "Select eligible obligations before applying."
+
+#: src/features/pulse/PulseDetailDrawer.tsx
+msgid "Select obligations"
+msgstr "Select obligations"
+
+#: src/features/pulse/PulseDetailDrawer.tsx
 msgid "Select obligations to apply"
 msgstr "Select obligations to apply"
 
@@ -6551,6 +6603,10 @@ msgstr "Source checked"
 msgid "Source checked, but still needs attention"
 msgstr "Source checked, but still needs attention"
 
+#: src/features/pulse/components/PulseStructuredFields.tsx
+msgid "Source context"
+msgstr "Source context"
+
 #: src/features/rules/generation-preview-tab.tsx
 msgid "Source deadlines"
 msgstr "Source deadlines"
@@ -6755,6 +6811,10 @@ msgstr "Success pages wait for webhook confirmation before showing activation."
 #: src/features/migration/WizardShell.tsx
 msgid "Suggest clean values"
 msgstr "Suggest clean values"
+
+#: src/features/pulse/PulseDetailDrawer.tsx
+msgid "Suggested actions"
+msgstr "Suggested actions"
 
 #: src/features/migration/Step3Normalize.tsx
 msgid "Suggested tax types (from entity × state matrix)"
@@ -7420,6 +7480,10 @@ msgstr "Use a whole number from 0 to 99"
 #: src/routes/obligations.tsx
 msgid "Use table headers to filter by client, geography, form, owner, risk, and timing."
 msgstr "Use table headers to filter by client, geography, form, owner, risk, and timing."
+
+#: src/features/pulse/PulseDetailDrawer.tsx
+msgid "Use the source-backed path for deadline changes, then prepare client communication from the same selected obligations."
+msgstr "Use the source-backed path for deadline changes, then prepare client communication from the same selected obligations."
 
 #: src/features/audit/audit-event-drawer.tsx
 msgid "User agent hash"

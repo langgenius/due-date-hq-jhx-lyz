@@ -8,6 +8,8 @@
   route or rename the Pulse contract/schema.
 - Added an impact-first filter to Pulse Changes: all impact, needs action, needs review, no matches,
   and closed.
+- Upgraded the detail drawer into a source-backed action workbench: source context, parsed scope,
+  official-source link, selected-obligation suggested actions, and reviewable client draft copy.
 - Tightened the drawer primary CTA so it describes the actual write path: applying a deadline
   exception to selected obligations.
 - Added a focused model test for the impact mapping so the product lanes stay independent from
@@ -20,6 +22,18 @@ The reference Alerts surface is a broad announcement workbench. In this reposito
 product row is the firm-scoped `pulse_firm_alert`: global `pulse` is the source fact, and
 `pulse_application` is the actual applied change. This change only brings over the triage strength
 of Alerts, not its route or data model.
+
+## Product Design Gain
+
+The Alerts prototype's useful core is not the standalone page; it is the progression from source
+signal to client impact to next action. Pulse Changes now carries that progression inside the
+current Rules surface:
+
+- List triage starts with business impact instead of raw status.
+- Drawer evidence starts with authority, issued/effective dates, due-date shift, and parsed scope.
+- Affected-client rows stay obligation-scoped so the write path is precise.
+- Suggested actions make the next step explicit: apply the deadline exception or prepare a
+  source-linked client draft from the same selected obligations.
 
 ## Verification
 

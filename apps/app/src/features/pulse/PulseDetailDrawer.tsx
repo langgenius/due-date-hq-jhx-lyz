@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Plural, Trans, useLingui } from '@lingui/react/macro'
 import {
   AlertCircleIcon,
+  CheckCircle2Icon,
   MailIcon,
   MessageSquareIcon,
   RotateCcwIcon,
@@ -401,6 +402,25 @@ export function PulseDetailDrawer({ alertId, onClose }: PulseDetailDrawerProps) 
     revertMutation.isPending ||
     snoozeMutation.isPending
 
+  const handleApply = () => {
+    if (!detail) return
+    applyMutation.mutate({
+      alertId: detail.alert.id,
+      obligationIds: Array.from(selection),
+      confirmedObligationIds: Array.from(selection).filter((obligationId) =>
+        confirmedReviewIds.has(obligationId),
+      ),
+    })
+  }
+
+  const handleCopyDraft = () => {
+    if (!detail) return
+    void navigator.clipboard.writeText(buildClientEmailDraft(detail, selection)).then(
+      () => toast.success(t`Client email draft copied`),
+      () => toast.error(t`Couldn't copy client email draft`),
+    )
+  }
+
   return (
     <Sheet open={open} onOpenChange={(next) => (next ? null : onClose())}>
       <SheetContent
@@ -540,6 +560,22 @@ export function PulseDetailDrawer({ alertId, onClose }: PulseDetailDrawerProps) 
                 />
               ) : null}
 
+              <SuggestedActionsPanel
+                selectionCount={stats?.selectedCount ?? 0}
+                canApply={canApply}
+                canRequestReview={canRequestPulseReview({
+                  role: permissions.role,
+                  alertStatus: detail.alert.status,
+                  sourceStatus: detail.alert.sourceStatus,
+                })}
+                sourceRevoked={detail.alert.sourceStatus === 'source_revoked'}
+                isClosed={detail.alert.status === 'dismissed' || detail.alert.status === 'reverted'}
+                isMutating={isMutating}
+                onApply={handleApply}
+                onCopyDraft={handleCopyDraft}
+                onRequestReview={() => setReviewDialogOpen(true)}
+              />
+
               <ApplySafetyChecklist />
             </>
           ) : null}
@@ -560,15 +596,7 @@ export function PulseDetailDrawer({ alertId, onClose }: PulseDetailDrawerProps) 
               canApplyReviewed={permissions.canManagePriorityReview}
               reviewedSetReady={priorityReview?.status === 'reviewed'}
               isMutating={isMutating}
-              onApply={() =>
-                applyMutation.mutate({
-                  alertId: detail.alert.id,
-                  obligationIds: Array.from(selection),
-                  confirmedObligationIds: Array.from(selection).filter((obligationId) =>
-                    confirmedReviewIds.has(obligationId),
-                  ),
-                })
-              }
+              onApply={handleApply}
               onApplyReviewed={() => applyReviewedMutation.mutate({ alertId: detail.alert.id })}
               onDismiss={() => dismissMutation.mutate({ alertId: detail.alert.id })}
               onSnooze={() =>
@@ -580,12 +608,7 @@ export function PulseDetailDrawer({ alertId, onClose }: PulseDetailDrawerProps) 
               onRevert={() => revertMutation.mutate({ alertId: detail.alert.id })}
               onReactivate={() => reactivateMutation.mutate({ alertId: detail.alert.id })}
               onRequestReview={() => setReviewDialogOpen(true)}
-              onCopyDraft={() => {
-                void navigator.clipboard.writeText(buildClientEmailDraft(detail)).then(
-                  () => toast.success(t`Client email draft copied`),
-                  () => toast.error(t`Couldn't copy client email draft`),
-                )
-              }}
+              onCopyDraft={handleCopyDraft}
             />
           ) : null}
         </SheetFooter>
@@ -606,6 +629,116 @@ export function PulseDetailDrawer({ alertId, onClose }: PulseDetailDrawerProps) 
         />
       ) : null}
     </Sheet>
+  )
+}
+
+function SuggestedActionsPanel({
+  selectionCount,
+  canApply,
+  canRequestReview,
+  sourceRevoked,
+  isClosed,
+  isMutating,
+  onApply,
+  onCopyDraft,
+  onRequestReview,
+}: {
+  selectionCount: number
+  canApply: boolean
+  canRequestReview: boolean
+  sourceRevoked: boolean
+  isClosed: boolean
+  isMutating: boolean
+  onApply: () => void
+  onCopyDraft: () => void
+  onRequestReview: () => void
+}) {
+  const applyDisabled = !canApply || isMutating || isClosed || sourceRevoked || selectionCount === 0
+  return (
+    <section className="grid gap-3 rounded-md border border-divider-subtle bg-background-section p-3">
+      <header className="flex flex-col gap-1">
+        <h3 className="text-xs font-medium uppercase tracking-wider text-text-tertiary">
+          <Trans>Suggested actions</Trans>
+        </h3>
+        <p className="text-sm text-text-secondary">
+          <Trans>
+            Use the source-backed path for deadline changes, then prepare client communication from
+            the same selected obligations.
+          </Trans>
+        </p>
+      </header>
+
+      <div className="grid gap-2 md:grid-cols-2">
+        <article className="flex items-start gap-3 rounded-md border border-divider-subtle bg-background-default p-3">
+          <span
+            aria-hidden
+            className="inline-flex size-8 shrink-0 items-center justify-center rounded-md bg-state-accent-hover text-text-accent"
+          >
+            <CheckCircle2Icon className="size-4" />
+          </span>
+          <div className="grid min-w-0 flex-1 gap-2">
+            <div className="grid gap-0.5">
+              <h4 className="text-sm font-semibold text-text-primary">
+                <Trans>Apply deadline exception</Trans>
+              </h4>
+              <p className="text-sm text-text-secondary">
+                {selectionCount === 0 ? (
+                  <Trans>Select eligible obligations before applying.</Trans>
+                ) : (
+                  <Plural
+                    value={selectionCount}
+                    one="# selected obligation will get the temporary due-date exception."
+                    other="# selected obligations will get the temporary due-date exception."
+                  />
+                )}
+              </p>
+            </div>
+            <Button size="sm" disabled={applyDisabled} onClick={onApply}>
+              {selectionCount === 0 ? (
+                <Trans>Select obligations</Trans>
+              ) : (
+                <Plural
+                  value={selectionCount}
+                  one="Apply to # obligation"
+                  other="Apply to # obligations"
+                />
+              )}
+            </Button>
+          </div>
+        </article>
+
+        <article className="flex items-start gap-3 rounded-md border border-divider-subtle bg-background-default p-3">
+          <span
+            aria-hidden
+            className="inline-flex size-8 shrink-0 items-center justify-center rounded-md bg-state-base-hover text-text-secondary"
+          >
+            <MailIcon className="size-4" />
+          </span>
+          <div className="grid min-w-0 flex-1 gap-2">
+            <div className="grid gap-0.5">
+              <h4 className="text-sm font-semibold text-text-primary">
+                <Trans>Prepare client draft</Trans>
+              </h4>
+              <p className="text-sm text-text-secondary">
+                <Trans>Copy a reviewable client email draft with the official source link.</Trans>
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <Button variant="outline" size="sm" disabled={isMutating} onClick={onCopyDraft}>
+                <MailIcon data-icon="inline-start" />
+                <Trans>Copy draft</Trans>
+              </Button>
+              {canRequestReview ? (
+                <Button variant="outline" size="sm" disabled={isMutating} onClick={onRequestReview}>
+                  <MessageSquareIcon data-icon="inline-start" />
+                  <Trans>Request review</Trans>
+                </Button>
+              ) : null}
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
   )
 }
 
@@ -868,9 +1001,9 @@ function PulseReviewRequestDialog({
   )
 }
 
-function buildClientEmailDraft(detail: PulseDetail): string {
+function buildClientEmailDraft(detail: PulseDetail, selection: ReadonlySet<string>): string {
   const affectedClients = detail.affectedClients
-    .filter((row) => row.matchStatus === 'eligible' || row.matchStatus === 'already_applied')
+    .filter((row) => selection.has(row.obligationId))
     .map((row) => `- ${row.clientName}: ${row.currentDueDate} -> ${row.newDueDate}`)
   return [
     `Subject: Deadline update: ${detail.alert.title}`,
@@ -885,7 +1018,7 @@ function buildClientEmailDraft(detail: PulseDetail): string {
     'Affected client deadlines:',
     ...(affectedClients.length > 0
       ? affectedClients
-      : ['- No client-specific deadline has been applied yet.']),
+      : ['- No client-specific deadline is selected yet.']),
     '',
     `Source: ${detail.alert.sourceUrl}`,
     '',

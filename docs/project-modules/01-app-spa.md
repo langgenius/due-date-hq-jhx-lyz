@@ -8,19 +8,19 @@
 
 ## 关键路径
 
-| 路径                                             | 职责                                                            |
-| ------------------------------------------------ | --------------------------------------------------------------- |
-| `apps/app/src/main.tsx`                          | React root、QueryClient、i18n、tooltip、router、toaster         |
-| `apps/app/src/router.tsx`                        | 路由表、loader gating、locale handoff、404                      |
-| `apps/app/src/lib/rpc.ts`                        | oRPC client、locale header、credentials                         |
-| `apps/app/src/lib/auth.ts`                       | Better Auth client、One Tap helper、organization/stripe plugins |
-| `apps/app/src/routes/_layout.tsx`                | 登录后应用框架、practice/session 数据加载                       |
-| `apps/app/src/components/patterns/app-shell.tsx` | Sidebar、header、mobile shell、pending indicator                |
-| `apps/app/src/features/migration`                | Migration Copilot 四步向导                                      |
-| `apps/app/src/features/pulse`                    | Pulse alert 列表、详情 drawer、apply/dismiss/snooze/revert      |
-| `apps/app/src/features/evidence`                 | Evidence drawer 和审计时间线                                    |
-| `apps/app/src/routes/obligations.tsx`            | Obligations 表格、过滤、状态更新、罚金输入                      |
-| `apps/app/src/routes/rules.tsx`                  | Rules Console                                                   |
+| 路径                                             | 职责                                                                       |
+| ------------------------------------------------ | -------------------------------------------------------------------------- |
+| `apps/app/src/main.tsx`                          | React root、QueryClient、i18n、tooltip、router、toaster                    |
+| `apps/app/src/router.tsx`                        | 路由表、loader gating、locale handoff、404                                 |
+| `apps/app/src/lib/rpc.ts`                        | oRPC client、locale header、credentials                                    |
+| `apps/app/src/lib/auth.ts`                       | Better Auth client、One Tap helper、organization/stripe plugins            |
+| `apps/app/src/routes/_layout.tsx`                | 登录后应用框架、practice/session 数据加载                                  |
+| `apps/app/src/components/patterns/app-shell.tsx` | Sidebar、header、mobile shell、pending indicator                           |
+| `apps/app/src/features/migration`                | Migration Copilot 四步向导                                                 |
+| `apps/app/src/features/pulse`                    | Pulse alert 列表、详情 drawer、source context、apply/dismiss/snooze/revert |
+| `apps/app/src/features/evidence`                 | Evidence drawer 和审计时间线                                               |
+| `apps/app/src/routes/obligations.tsx`            | Obligations 表格、过滤、状态更新、罚金输入                                 |
+| `apps/app/src/routes/rules.tsx`                  | Rules Console                                                              |
 
 ## 主要功能
 
@@ -76,7 +76,8 @@ Migration Step 2 支持 `Filing states` 目标；Step 3 的 matrix counts 会把
 - `/rules?tab=pulse` 面向事务所用户，承载 owner/manager 对 Pulse 影响客户的 review/apply/dismiss/snooze。
 - Pulse Changes 列表使用 impact-first 过滤：needs action、needs review、no matches、closed；
   status/source 过滤作为二级排查工具。
-- Pulse detail drawer 展示来源状态、置信度、结构化字段、影响客户、安全 checklist 和操作按钮。
+- Pulse detail drawer 展示来源状态、置信度、source context、parsed scope、影响客户、suggested
+  actions、安全 checklist 和操作按钮。
 - apply/revert/reactivate 会触发 server 端锁或状态流、数据更新、罚金重算、audit/evidence 和
   dashboard queue；undo 后 alert 回到 `matched`，历史 `reverted` alert 可重新激活再 apply。
 

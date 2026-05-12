@@ -25,8 +25,10 @@ This repository's canonical implementation is narrower and more operational:
 | `Affecting you` / resolved triage tabs      | Impact lanes in `Rules > Pulse Changes`: all impact, needs action, needs review, no matches, closed                    | Keep inside Rules; do not restore standalone `/alerts`.                                           |
 | All-announcement archive                    | Marketing / future public source archive, not app decision workflow                                                    | Do not mix non-firm announcements into firm apply UI.                                             |
 | Alert type taxonomy and type-specific verbs | Phase 0 Pulse supports deadline-shift exceptions only                                                                  | Use deadline-exception CTA copy; do not add non-date action routers until contracts support them. |
-| Source authority and confidence chips       | Existing source badge, source-status badge, confidence badge, source excerpt                                           | Retain as glass-box evidence in the drawer.                                                       |
+| Source authority and confidence chips       | Source context block, official-source link, source badge, source-status badge, confidence badge, source excerpt        | Retain as glass-box evidence in the drawer.                                                       |
+| Structured alert metadata                   | Parsed scope block for jurisdiction, counties, forms, entity types, issued/effective dates, and due-date shift         | Show as review evidence; do not add a separate alert schema.                                      |
 | Per-client exclusion and confirmation       | Existing affected-client table selection, needs-review confirmation, manager exclusion when priority review is enabled | Keep rows obligation-scoped, not client-only.                                                     |
+| Suggested actions / client communication    | Drawer suggested actions: apply selected obligations or copy a source-linked client draft                              | Keep communication draft local until email outbox/send workflow is productized.                   |
 | First-land blocking modal                   | Dashboard Pulse banner + deep link to `Rules > Pulse Changes`                                                          | Avoid blocking modals for regulatory changes.                                                     |
 | Alert digest settings                       | Notification preferences and email outbox                                                                              | No env change; delivery configuration remains server-owned.                                       |
 
@@ -38,6 +40,11 @@ This repository's canonical implementation is narrower and more operational:
 - **Needs review**: alerts with obligations that require human applicability confirmation.
 - **No matches**: retained watch-only rows in demo or future no-match review contexts.
 - **Closed**: applied, dismissed, or reverted alerts.
+
+The drawer follows the same sequence: source context -> parsed scope -> affected obligations ->
+suggested actions -> safety checklist. That sequence brings over the reference Alerts workbench's
+"what changed, who is affected, what should I do" loop while preserving this product's actual
+server transaction boundary.
 
 This maps the reference Alerts product strength into the current architecture without reviving the
 old standalone Alerts route or widening Pulse beyond source-backed due-date changes.
