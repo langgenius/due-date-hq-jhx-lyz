@@ -694,6 +694,8 @@ async function seedObligationQueue(db: ReturnType<typeof createDb>, firmId: stri
     county: 'Los Angeles',
     entityType: 'llc' as const,
     assigneeName: 'M. Chen',
+    importanceWeight: 3,
+    equityOwnerCount: 2,
   }
   const northstar = {
     id: crypto.randomUUID(),
@@ -712,6 +714,7 @@ async function seedObligationQueue(db: ReturnType<typeof createDb>, firmId: stri
     county: 'Travis',
     entityType: 'c_corp' as const,
     assigneeName: 'K. Patel',
+    lateFilingCountLast12mo: 2,
   }
   const foundry = {
     id: crypto.randomUUID(),

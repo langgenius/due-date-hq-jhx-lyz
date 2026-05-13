@@ -69,8 +69,17 @@ test.describe('seeded Pulse alerts', () => {
     await expect(obligationQueuePage.rowFor('Arbor & Vale LLC')).toContainText('2026-10-15')
 
     await appShellPage.goto('/rules?tab=pulse')
-    await authenticatedPage.getByRole('button', { name: 'Review' }).first().click()
-    await authenticatedPage.getByRole('button', { name: 'Undo (24h)' }).click()
+    const appliedAlert = authenticatedPage.getByRole('region', {
+      name: /Pulse alert: IRS CA storm relief/,
+    })
+    await appliedAlert.getByRole('button', { name: 'Review', exact: true }).click()
+    const appliedDrawer = authenticatedPage.getByRole('dialog')
+    await expect(
+      appliedDrawer.getByRole('heading', {
+        name: 'IRS CA storm relief extends selected filing deadlines for Los Angeles County.',
+      }),
+    ).toBeVisible()
+    await appliedDrawer.getByRole('button', { name: 'Undo (24h)' }).click()
     await expect(authenticatedPage.getByText(/Reverted 1 clients?/)).toBeVisible()
 
     await obligationQueuePage.goto()

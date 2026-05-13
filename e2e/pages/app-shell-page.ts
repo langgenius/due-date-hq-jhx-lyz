@@ -5,6 +5,7 @@ export class AppShellPage {
   readonly dashboardLink: Locator
   readonly obligationQueueLink: Locator
   readonly clientsLink: Locator
+  readonly opportunitiesLink: Locator
   readonly rulesLink: Locator
   readonly importClientsButton: Locator
   readonly commandDialog: Locator
@@ -16,6 +17,7 @@ export class AppShellPage {
     this.dashboardLink = page.getByRole('link', { name: /Dashboard/ })
     this.obligationQueueLink = page.getByRole('link', { name: /Obligations/ })
     this.clientsLink = page.getByRole('link', { name: 'Clients' })
+    this.opportunitiesLink = page.getByRole('link', { name: 'Opportunities' })
     this.rulesLink = page.getByRole('link', { name: 'Rules' })
     this.importClientsButton = page
       .getByRole('button', { name: /^(Import clients|Run migration)$/ })
