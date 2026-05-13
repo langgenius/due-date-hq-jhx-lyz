@@ -19,7 +19,10 @@ question: "What should the team handle next, and why?"
 4. Triage work by due date, readiness, evidence, owner, and projected penalty risk.
 5. Review Pulse updates from official sources before applying them to affected
    clients and obligations.
-6. Keep audit evidence for important import, rule, status, billing, and team
+6. Run reminder automation from the dedicated Reminders surface: review the
+   30/7/1-day schedule, adjust firm message templates, and monitor delivery or
+   suppression status.
+7. Keep audit evidence for important import, rule, status, billing, and team
    events.
 
 DueDateHQ is an alpha product codebase. It supports operational review and
@@ -43,8 +46,9 @@ replacement for review by a CPA, EA, attorney, or other qualified professional.
   candidate review, firm-scoped verification decisions, official-source monitoring,
   Pulse Changes impact triage, source-backed suggested actions,
   apply/dismiss/snooze/revert flows, and source-health operations.
-- **Practice operations**: audit log, notifications, readiness portal, calendar
-  subscription, billing checkout handoff, members, and team workload surfaces.
+- **Practice operations**: audit log, reminders, personal notifications,
+  readiness portal, calendar subscription, billing checkout handoff, members,
+  and team workload surfaces.
 - **Marketing site**: static bilingual public site for product, pricing, rules, and
   state-coverage entry points.
 

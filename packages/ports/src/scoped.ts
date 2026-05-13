@@ -11,6 +11,7 @@ import type { NotificationsRepo } from './notifications'
 import type { ObligationsRepo } from './obligations'
 import type { PulseRepo } from './pulse'
 import type { ReadinessRepo } from './readiness'
+import type { RemindersRepo } from './reminders'
 import type { RulesRepo } from './rules'
 import type { ObligationQueueRepo } from './obligation-queue'
 import type { WorkloadRepo } from './workload'
@@ -31,6 +32,7 @@ export interface ScopedRepo {
   readonly rules: RulesRepo
   readonly migration: MigrationRepo
   readonly notifications?: NotificationsRepo
+  readonly reminders?: RemindersRepo
   readonly evidence: EvidenceRepo
   readonly audit: AuditRepo
 }

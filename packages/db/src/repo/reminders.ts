@@ -1,0 +1,460 @@
+import { and, count, desc, eq, gte, inArray, isNull, or } from 'drizzle-orm'
+import { OPEN_OBLIGATION_STATUSES } from '@duedatehq/core/obligation-workflow'
+import type {
+  ReminderChannel,
+  ReminderDeliveryStatus,
+  ReminderRecipientKind,
+  ReminderTemplateKind,
+  ReminderTemplatePatch,
+  ReminderTemplateRow,
+} from '@duedatehq/ports/reminders'
+import type { Db } from '../client'
+import { client } from '../schema/clients'
+import { firmProfile } from '../schema/firm'
+import { obligationInstance, type ObligationStatus } from '../schema/obligations'
+import {
+  clientEmailSuppression,
+  emailOutbox,
+  reminder,
+  reminderTemplate,
+} from '../schema/notifications'
+
+const OPEN_STATUSES = [...OPEN_OBLIGATION_STATUSES] satisfies ObligationStatus[]
+const DEFAULT_LIMIT = 25
+const MAX_LIMIT = 100
+
+type TemplateDefault = Omit<
+  ReminderTemplateRow,
+  'id' | 'firmId' | 'usageCount' | 'lastSentAt' | 'createdAt' | 'updatedAt'
+>
+
+export const DEFAULT_REMINDER_TEMPLATES: readonly TemplateDefault[] = [
+  {
+    templateKey: 'member-deadline-reminder',
+    kind: 'deadline_reminder',
+    name: 'Internal deadline reminder',
+    subject: '{{client_name}} due in {{offset_days}} days',
+    bodyText: '{{tax_type}} is due {{due_date}}.\n\nOpen the obligation: {{obligation_url}}',
+    active: true,
+    isSystem: true,
+  },
+  {
+    templateKey: 'client-deadline-reminder',
+    kind: 'client_deadline_reminder',
+    name: 'Client deadline reminder',
+    subject: '{{client_name}}: {{tax_type}} due {{due_date}}',
+    bodyText:
+      'A deadline is coming up: {{tax_type}} is due {{due_date}}.\n\nUnsubscribe from client deadline reminders: {{unsubscribe_url}}',
+    active: true,
+    isSystem: true,
+  },
+]
+
+export type ReminderTemplateVariables = Record<string, string | number | null | undefined>
+
+export function renderReminderTemplate(
+  template: Pick<ReminderTemplateRow, 'subject' | 'bodyText'>,
+  variables: ReminderTemplateVariables,
+): { subject: string; text: string } {
+  const replace = (value: string) =>
+    value.replace(/\{\{\s*([a-z_]+)\s*\}\}/g, (_, key: string) => {
+      const variable = variables[key]
+      return variable === null || variable === undefined ? '' : String(variable)
+    })
+  return {
+    subject: replace(template.subject),
+    text: replace(template.bodyText),
+  }
+}
+
+function clampLimit(limit: number | undefined): number {
+  return Math.min(Math.max(limit ?? DEFAULT_LIMIT, 1), MAX_LIMIT)
+}
+
+function dateInTimezone(timezone: string, date: Date): string {
+  const parts = new Intl.DateTimeFormat('en-CA', {
+    timeZone: timezone,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).formatToParts(date)
+  const year = parts.find((part) => part.type === 'year')?.value
+  const month = parts.find((part) => part.type === 'month')?.value
+  const day = parts.find((part) => part.type === 'day')?.value
+  return `${year}-${month}-${day}`
+}
+
+function addDays(dateOnly: string, days: number): string {
+  const date = new Date(`${dateOnly}T12:00:00.000Z`)
+  date.setUTCDate(date.getUTCDate() + days)
+  return date.toISOString().slice(0, 10)
+}
+
+function deliveryStatus(input: {
+  reminderStatus: ReminderDeliveryStatus
+  outboxStatus?: string | null
+}): ReminderDeliveryStatus {
+  if (input.outboxStatus === 'sent') return 'sent'
+  if (input.outboxStatus === 'failed') return 'failed'
+  if (input.outboxStatus === 'pending' || input.outboxStatus === 'sending') return 'queued'
+  return input.reminderStatus
+}
+
+function emptyTemplateRow(template: TemplateDefault): ReminderTemplateRow {
+  return {
+    ...template,
+    id: null,
+    firmId: null,
+    usageCount: 0,
+    lastSentAt: null,
+    createdAt: null,
+    updatedAt: null,
+  }
+}
+
+export function makeRemindersRepo(db: Db, firmId: string) {
+  async function practiceTimezone(): Promise<string> {
+    const [row] = await db
+      .select({ timezone: firmProfile.timezone })
+      .from(firmProfile)
+      .where(eq(firmProfile.id, firmId))
+      .limit(1)
+    return row?.timezone ?? 'America/New_York'
+  }
+
+  async function readTemplates(): Promise<ReminderTemplateRow[]> {
+    const rows = await db
+      .select()
+      .from(reminderTemplate)
+      .where(or(eq(reminderTemplate.firmId, firmId), isNull(reminderTemplate.firmId)))
+
+    const reminderRows = await db
+      .select({
+        templateId: reminder.templateId,
+        sentAt: reminder.sentAt,
+        createdAt: reminder.createdAt,
+      })
+      .from(reminder)
+      .where(and(eq(reminder.firmId, firmId), eq(reminder.status, 'sent')))
+
+    const stats = new Map<string, { usageCount: number; lastSentAt: Date | null }>()
+    for (const row of reminderRows) {
+      if (!row.templateId) continue
+      const current = stats.get(row.templateId) ?? { usageCount: 0, lastSentAt: null }
+      const sentAt = row.sentAt ?? row.createdAt
+      current.usageCount += 1
+      if (!current.lastSentAt || sentAt > current.lastSentAt) current.lastSentAt = sentAt
+      stats.set(row.templateId, current)
+    }
+
+    const byKey = new Map<string, ReminderTemplateRow>()
+    for (const row of rows) {
+      const current = byKey.get(row.templateKey)
+      const shouldReplace = !current || (current.firmId === null && row.firmId === firmId)
+      if (!shouldReplace) continue
+      const rowStats = stats.get(row.id) ?? { usageCount: 0, lastSentAt: null }
+      byKey.set(row.templateKey, {
+        id: row.id,
+        firmId: row.firmId,
+        templateKey: row.templateKey,
+        kind: row.kind,
+        name: row.name,
+        subject: row.subject,
+        bodyText: row.bodyText,
+        active: row.active,
+        isSystem: row.isSystem,
+        usageCount: rowStats.usageCount,
+        lastSentAt: rowStats.lastSentAt,
+        createdAt: row.createdAt,
+        updatedAt: row.updatedAt,
+      })
+    }
+
+    for (const template of DEFAULT_REMINDER_TEMPLATES) {
+      if (!byKey.has(template.templateKey))
+        byKey.set(template.templateKey, emptyTemplateRow(template))
+    }
+
+    return Array.from(byKey.values()).toSorted((left, right) =>
+      left.templateKey.localeCompare(right.templateKey),
+    )
+  }
+
+  async function writeFirmTemplate(
+    templateKey: string,
+    patch: ReminderTemplatePatch,
+  ): Promise<ReminderTemplateRow> {
+    const current = (await readTemplates()).find((template) => template.templateKey === templateKey)
+    if (!current) throw new Error('Reminder template was not found.')
+
+    const update = {
+      subject: patch.subject ?? current.subject,
+      bodyText: patch.bodyText ?? current.bodyText,
+      active: patch.active ?? current.active,
+      updatedAt: new Date(),
+    }
+
+    if (current.firmId === firmId && current.id) {
+      await db.update(reminderTemplate).set(update).where(eq(reminderTemplate.id, current.id))
+    } else {
+      await db.insert(reminderTemplate).values({
+        id: crypto.randomUUID(),
+        firmId,
+        templateKey: current.templateKey,
+        kind: current.kind,
+        name: current.name,
+        subject: update.subject,
+        bodyText: update.bodyText,
+        active: update.active,
+        isSystem: false,
+      })
+    }
+
+    const updated = (await readTemplates()).find((template) => template.templateKey === templateKey)
+    if (!updated) throw new Error('Reminder template could not be read after update.')
+    return updated
+  }
+
+  async function upcomingCandidates(limit: number) {
+    const timezone = await practiceTimezone()
+    const today = dateInTimezone(timezone, new Date())
+    const targets = new Map([
+      [addDays(today, 30), 30],
+      [addDays(today, 7), 7],
+      [addDays(today, 1), 1],
+    ])
+
+    const rows = await db
+      .select({
+        obligationId: obligationInstance.id,
+        clientId: client.id,
+        clientName: client.name,
+        clientEmail: client.email,
+        taxType: obligationInstance.taxType,
+        status: obligationInstance.status,
+        currentDueDate: obligationInstance.currentDueDate,
+      })
+      .from(obligationInstance)
+      .innerJoin(client, eq(client.id, obligationInstance.clientId))
+      .where(
+        and(
+          eq(obligationInstance.firmId, firmId),
+          inArray(obligationInstance.status, OPEN_STATUSES),
+          isNull(client.deletedAt),
+        ),
+      )
+      .orderBy(obligationInstance.currentDueDate)
+
+    const existingRows = await db
+      .select({
+        obligationId: reminder.obligationInstanceId,
+        recipientKind: reminder.recipientKind,
+        offsetDays: reminder.offsetDays,
+        scheduledFor: reminder.scheduledFor,
+        status: reminder.status,
+        outboxStatus: emailOutbox.status,
+      })
+      .from(reminder)
+      .leftJoin(emailOutbox, eq(emailOutbox.id, reminder.emailOutboxId))
+      .where(eq(reminder.firmId, firmId))
+
+    const statusByKey = new Map<string, ReminderDeliveryStatus>()
+    for (const row of existingRows) {
+      const key = `${row.obligationId}:${row.recipientKind}:${row.offsetDays}:${row.scheduledFor}`
+      const status = deliveryStatus({ reminderStatus: row.status, outboxStatus: row.outboxStatus })
+      const current = statusByKey.get(key)
+      if (!current || current === 'pending' || current === 'queued') statusByKey.set(key, status)
+    }
+
+    const suppressions = await db
+      .select({ email: clientEmailSuppression.email })
+      .from(clientEmailSuppression)
+      .where(eq(clientEmailSuppression.firmId, firmId))
+    const suppressedEmails = new Set(suppressions.map((row) => row.email.toLowerCase()))
+
+    const items = rows.flatMap((row) => {
+      const dueDate = dateInTimezone(timezone, row.currentDueDate)
+      const offsetDays = targets.get(dueDate) ?? (dueDate < today ? 0 : null)
+      if (offsetDays === null) return []
+      const scheduledFor = offsetDays === 0 ? today : dueDate
+      const internalKey = `${row.obligationId}:member:${offsetDays}:${scheduledFor}`
+      const clientEmail = row.clientEmail?.trim().toLowerCase() ?? null
+      const memberItem = {
+        id: `${row.obligationId}:member:${offsetDays}:${scheduledFor}`,
+        obligationId: row.obligationId,
+        clientId: row.clientId,
+        clientName: row.clientName,
+        clientEmail,
+        taxType: row.taxType,
+        status: row.status,
+        recipientKind: 'member' as const,
+        channel: (offsetDays === 0 ? 'in_app' : 'email') as ReminderChannel,
+        offsetDays,
+        dueDate,
+        scheduledFor,
+        deliveryStatus: statusByKey.get(internalKey) ?? 'pending',
+        templateKey: offsetDays === 0 ? null : 'member-deadline-reminder',
+      }
+      if (
+        !clientEmail ||
+        offsetDays === 0 ||
+        row.status === 'review' ||
+        suppressedEmails.has(clientEmail)
+      ) {
+        return [memberItem]
+      }
+      const clientKey = `${row.obligationId}:client:${offsetDays}:${scheduledFor}`
+      return [
+        memberItem,
+        {
+          ...memberItem,
+          id: `${row.obligationId}:client:${offsetDays}:${scheduledFor}`,
+          recipientKind: 'client' as const,
+          channel: 'email' as const,
+          deliveryStatus: statusByKey.get(clientKey) ?? 'pending',
+          templateKey: 'client-deadline-reminder',
+        },
+      ]
+    })
+
+    return items.slice(0, limit)
+  }
+
+  return {
+    firmId,
+
+    async overview() {
+      const timezone = await practiceTimezone()
+      const today = dateInTimezone(timezone, new Date())
+      const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+      const templates = await readTemplates()
+      const upcoming = await upcomingCandidates(MAX_LIMIT)
+      const [queuedToday] = await db
+        .select({ value: count() })
+        .from(reminder)
+        .where(
+          and(
+            eq(reminder.firmId, firmId),
+            eq(reminder.status, 'queued'),
+            eq(reminder.scheduledFor, today),
+          ),
+        )
+      const [sentLast7Days] = await db
+        .select({ value: count() })
+        .from(reminder)
+        .where(
+          and(
+            eq(reminder.firmId, firmId),
+            eq(reminder.status, 'sent'),
+            gte(reminder.sentAt, sevenDaysAgo),
+          ),
+        )
+      const [failedLast7Days] = await db
+        .select({ value: count() })
+        .from(reminder)
+        .where(
+          and(
+            eq(reminder.firmId, firmId),
+            eq(reminder.status, 'failed'),
+            gte(reminder.createdAt, sevenDaysAgo),
+          ),
+        )
+      const [suppressed] = await db
+        .select({ value: count() })
+        .from(clientEmailSuppression)
+        .where(eq(clientEmailSuppression.firmId, firmId))
+
+      return {
+        practiceTimezone: timezone,
+        activeTemplateCount: templates.filter((template) => template.active).length,
+        upcomingCount: upcoming.length,
+        queuedTodayCount: queuedToday?.value ?? 0,
+        sentLast7DaysCount: sentLast7Days?.value ?? 0,
+        failedLast7DaysCount: failedLast7Days?.value ?? 0,
+        suppressedEmailCount: suppressed?.value ?? 0,
+      }
+    },
+
+    listTemplates: readTemplates,
+
+    updateTemplate: writeFirmTemplate,
+
+    async resolveTemplate(kind: ReminderTemplateKind) {
+      const templates = await readTemplates()
+      return templates.find((template) => template.kind === kind && template.active) ?? null
+    },
+
+    async listUpcoming(input: { limit?: number } = {}) {
+      return upcomingCandidates(clampLimit(input.limit))
+    },
+
+    async listRecentSends(input: { limit?: number } = {}) {
+      const rows = await db
+        .select({
+          id: reminder.id,
+          obligationId: reminder.obligationInstanceId,
+          clientId: client.id,
+          clientName: client.name,
+          taxType: obligationInstance.taxType,
+          recipientKind: reminder.recipientKind,
+          recipientEmail: reminder.recipientEmail,
+          channel: reminder.channel,
+          offsetDays: reminder.offsetDays,
+          scheduledFor: reminder.scheduledFor,
+          reminderStatus: reminder.status,
+          outboxStatus: emailOutbox.status,
+          templateName: reminderTemplate.name,
+          failureReason: reminder.failureReason,
+          outboxFailureReason: emailOutbox.failureReason,
+          createdAt: reminder.createdAt,
+          sentAt: reminder.sentAt,
+          outboxSentAt: emailOutbox.sentAt,
+        })
+        .from(reminder)
+        .innerJoin(client, eq(client.id, reminder.clientId))
+        .innerJoin(obligationInstance, eq(obligationInstance.id, reminder.obligationInstanceId))
+        .leftJoin(emailOutbox, eq(emailOutbox.id, reminder.emailOutboxId))
+        .leftJoin(reminderTemplate, eq(reminderTemplate.id, reminder.templateId))
+        .where(eq(reminder.firmId, firmId))
+        .orderBy(desc(reminder.createdAt))
+        .limit(clampLimit(input.limit))
+
+      return rows.map((row) => ({
+        id: row.id,
+        obligationId: row.obligationId,
+        clientId: row.clientId,
+        clientName: row.clientName,
+        taxType: row.taxType,
+        recipientKind: row.recipientKind as ReminderRecipientKind,
+        recipientEmail: row.recipientEmail,
+        channel: row.channel as ReminderChannel,
+        offsetDays: row.offsetDays,
+        scheduledFor: row.scheduledFor,
+        deliveryStatus: deliveryStatus({
+          reminderStatus: row.reminderStatus,
+          outboxStatus: row.outboxStatus,
+        }),
+        templateName: row.templateName,
+        failureReason: row.failureReason ?? row.outboxFailureReason,
+        createdAt: row.createdAt,
+        sentAt: row.sentAt ?? row.outboxSentAt,
+      }))
+    },
+
+    async listSuppressions(input: { limit?: number } = {}) {
+      return db
+        .select({
+          id: clientEmailSuppression.id,
+          email: clientEmailSuppression.email,
+          reason: clientEmailSuppression.reason,
+          createdAt: clientEmailSuppression.createdAt,
+        })
+        .from(clientEmailSuppression)
+        .where(eq(clientEmailSuppression.firmId, firmId))
+        .orderBy(desc(clientEmailSuppression.createdAt))
+        .limit(clampLimit(input.limit))
+    },
+  }
+}
+
+export type RemindersRepo = ReturnType<typeof makeRemindersRepo>

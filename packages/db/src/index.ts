@@ -11,6 +11,11 @@ import { makeFirmsRepo } from './repo/firms'
 import { makeMembersRepo } from './repo/members'
 import { makePulseOpsRepo } from './repo/pulse'
 import { makeReadinessPortalRepo } from './repo/readiness'
+import {
+  makeRemindersRepo,
+  renderReminderTemplate,
+  DEFAULT_REMINDER_TEMPLATES,
+} from './repo/reminders'
 import { makeRulesRepo } from './repo/rules'
 import { makeCalendarFeedRepo, makeCalendarRepo } from './repo/calendar'
 
@@ -37,6 +42,7 @@ export { makeCalendarFeedRepo }
 export { makeMembersRepo }
 export { makePulseOpsRepo }
 export { makeReadinessPortalRepo }
+export { makeRemindersRepo, renderReminderTemplate, DEFAULT_REMINDER_TEMPLATES }
 export { makeRulesRepo }
 export type {
   Db,

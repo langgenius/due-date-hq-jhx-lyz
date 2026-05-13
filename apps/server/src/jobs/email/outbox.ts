@@ -1,7 +1,7 @@
 import { and, asc, eq, lte } from 'drizzle-orm'
 import { Resend } from 'resend'
 import { createDb } from '@duedatehq/db'
-import { emailOutbox } from '@duedatehq/db/schema/notifications'
+import { emailOutbox, reminder } from '@duedatehq/db/schema/notifications'
 import type { EmailOutbox } from '@duedatehq/db/schema/notifications'
 import type { Env } from '../../env'
 import { recordPulseMetric } from '../pulse/metrics'
@@ -80,16 +80,21 @@ async function processOutboxRow(
 ): Promise<FlushRowResult> {
   const recipients = readRecipients(row.payloadJson)
   if (!resend || recipients.length === 0) {
+    const failureReason = !resend
+      ? 'RESEND_API_KEY is not configured.'
+      : 'No recipients were present in the outbox payload.'
     await db
       .update(emailOutbox)
       .set({
         status: 'failed',
         failedAt: new Date(),
-        failureReason: !resend
-          ? 'RESEND_API_KEY is not configured.'
-          : 'No recipients were present in the outbox payload.',
+        failureReason,
       })
       .where(eq(emailOutbox.id, row.id))
+    await db
+      .update(reminder)
+      .set({ status: 'failed', failureReason })
+      .where(eq(reminder.emailOutboxId, row.id))
     return 'failed'
   }
 
@@ -120,16 +125,25 @@ async function processOutboxRow(
       .update(emailOutbox)
       .set({ status: 'sent', sentAt: new Date(), failureReason: null })
       .where(eq(emailOutbox.id, row.id))
+    await db
+      .update(reminder)
+      .set({ status: 'sent', sentAt: new Date(), failureReason: null })
+      .where(eq(reminder.emailOutboxId, row.id))
     return 'sent'
   } catch (error) {
+    const failureReason = error instanceof Error ? error.message : 'Resend send failed.'
     await db
       .update(emailOutbox)
       .set({
         status: 'failed',
         failedAt: new Date(),
-        failureReason: error instanceof Error ? error.message : 'Resend send failed.',
+        failureReason,
       })
       .where(eq(emailOutbox.id, row.id))
+    await db
+      .update(reminder)
+      .set({ status: 'failed', failureReason })
+      .where(eq(reminder.emailOutboxId, row.id))
     return 'failed'
   }
 }

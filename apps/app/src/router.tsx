@@ -407,6 +407,16 @@ export function createAppRouter() {
               },
             },
             {
+              path: 'reminders',
+              handle: routeHandle(routeSummaries.reminders),
+              HydrateFallback: RouteHydrateFallback,
+              lazy: async () => {
+                const { RemindersRoute } = await import('@/routes/reminders')
+
+                return { Component: RemindersRoute }
+              },
+            },
+            {
               path: 'clients',
               handle: routeHandle(routeSummaries.clients),
               HydrateFallback: RouteHydrateFallback,

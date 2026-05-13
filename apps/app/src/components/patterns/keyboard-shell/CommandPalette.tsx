@@ -2,6 +2,7 @@ import { useMemo } from 'react'
 import { useNavigate } from 'react-router'
 import { Trans, useLingui } from '@lingui/react/macro'
 import {
+  AlarmClockIcon,
   BellIcon,
   BotIcon,
   Building2Icon,
@@ -85,6 +86,14 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
         group: 'navigate',
         icon: BellIcon,
         onSelect: () => navigate('/notifications'),
+      },
+      {
+        id: 'reminders',
+        label: t`Reminders`,
+        description: t`Manage deadline reminder templates and delivery status.`,
+        group: 'navigate',
+        icon: AlarmClockIcon,
+        onSelect: () => navigate('/reminders'),
       },
       {
         id: 'workload',

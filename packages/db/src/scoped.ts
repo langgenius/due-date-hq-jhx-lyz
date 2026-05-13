@@ -12,6 +12,7 @@ import { makeNotificationsRepo } from './repo/notifications'
 import { makeObligationsRepo } from './repo/obligations'
 import { makePulseRepo } from './repo/pulse'
 import { makeReadinessRepo } from './repo/readiness'
+import { makeRemindersRepo } from './repo/reminders'
 import { makeRulesRepo } from './repo/rules'
 import { makeObligationQueueRepo } from './repo/obligation-queue'
 import { makeWorkloadRepo } from './repo/workload'
@@ -50,6 +51,7 @@ export function scoped(db: Db, firmId: string): ScopedRepo {
     rules: makeRulesRepo(db, firmId),
     migration: makeMigrationRepo(db, firmId),
     notifications: makeNotificationsRepo(db, firmId),
+    reminders: makeRemindersRepo(db, firmId),
     evidence: makeEvidenceRepo(db, firmId),
     audit: makeAuditRepo(db, firmId),
   }

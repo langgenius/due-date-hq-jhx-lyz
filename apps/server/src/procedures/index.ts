@@ -12,6 +12,7 @@ import { obligationsHandlers } from './obligations'
 import { opportunitiesHandlers } from './opportunities'
 import { pulseHandlers } from './pulse'
 import { readinessHandlers } from './readiness'
+import { remindersHandlers } from './reminders'
 import { rulesHandlers } from './rules'
 import { securityHandlers } from './security'
 import { workloadHandlers } from './workload'
@@ -164,6 +165,14 @@ export const router = os.router({
     sendRequest: readinessHandlers.sendRequest,
     revokeRequest: readinessHandlers.revokeRequest,
     listByObligation: readinessHandlers.listByObligation,
+  },
+  reminders: {
+    overview: remindersHandlers.overview,
+    listTemplates: remindersHandlers.listTemplates,
+    updateTemplate: remindersHandlers.updateTemplate,
+    listUpcoming: remindersHandlers.listUpcoming,
+    listRecentSends: remindersHandlers.listRecentSends,
+    listSuppressions: remindersHandlers.listSuppressions,
   },
   rules: {
     listSources: rulesHandlers.listSources,

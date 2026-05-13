@@ -334,6 +334,10 @@ msgstr "{needsReviewCount, plural, other {# 个值需要人工复核}}"
 msgid "{obligationCount, plural, one {# obligation (full tax year)} other {# obligations (full tax year)}}"
 msgstr "{obligationCount, plural, other {# 条义务（全年）}}"
 
+#: src/features/reminders/reminders-page.tsx
+msgid "{offsetDays} days before"
+msgstr "提前 {offsetDays} 天"
+
 #: src/components/patterns/app-shell-nav.tsx
 msgid "{ownedFirmCount} of 1 included"
 msgstr "已使用 {ownedFirmCount} / 1 个"
@@ -427,6 +431,10 @@ msgstr "0 条活跃"
 msgid "1 active practice"
 msgstr "1 个活跃事务所"
 
+#: src/features/reminders/reminders-page.tsx
+msgid "1 day before"
+msgstr "提前 1 天"
+
 #: src/routes/billing.checkout.tsx
 #: src/routes/billing.tsx
 msgid "1 owner seat"
@@ -454,6 +462,10 @@ msgstr "10+ 个席位"
 #: src/routes/billing.tsx
 msgid "3 seats included"
 msgstr "包含 3 个席位"
+
+#: src/features/reminders/reminders-page.tsx
+msgid "30 / 7 / 1 day and overdue"
+msgstr "30 / 7 / 1 天和逾期"
 
 #: src/routes/dashboard.tsx
 #: src/routes/obligations.tsx
@@ -608,6 +620,7 @@ msgstr "已生效"
 #: src/features/calendar/calendar-page.tsx
 #: src/features/members/members-page.tsx
 #: src/features/pulse/AlertsListPage.tsx
+#: src/features/reminders/reminders-page.tsx
 #: src/features/rules/rule-detail-drawer.tsx
 #: src/features/rules/rule-library-tab.tsx
 #: src/features/rules/temporary-rules-tab.tsx
@@ -656,6 +669,10 @@ msgstr "已生效规则"
 #: src/routes/account.security.tsx
 msgid "Active sessions"
 msgstr "活跃会话"
+
+#: src/features/reminders/reminders-page.tsx
+msgid "Active templates"
+msgstr "启用模板"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
 msgid "Activity log"
@@ -1244,6 +1261,10 @@ msgstr "无法加载账单状态"
 msgid "Billing status is not ready yet."
 msgstr "账单状态尚未准备好。"
 
+#: src/features/reminders/reminders-page.tsx
+msgid "Body"
+msgstr "正文"
+
 #: src/features/migration/WizardShell.tsx
 msgid "Building the import preview"
 msgstr "正在生成导入预览"
@@ -1318,6 +1339,7 @@ msgstr "日历 URL 已重新生成"
 #: src/features/members/members-page.tsx
 #: src/features/migration/ImportHistoryDrawer.tsx
 #: src/features/pulse/PulseDetailDrawer.tsx
+#: src/features/reminders/reminders-page.tsx
 #: src/routes/obligations.tsx
 #: src/routes/practice.tsx
 msgid "Cancel"
@@ -1502,6 +1524,7 @@ msgstr "点击更多以更改角色、暂停或移除"
 #: src/features/audit/audit-log-page.tsx
 #: src/features/clients/ClientFactsWorkspace.tsx
 #: src/features/pulse/components/AffectedClientsTable.tsx
+#: src/features/reminders/reminders-page.tsx
 #: src/features/rules/generation-preview-tab.tsx
 #: src/routes/dashboard.tsx
 #: src/routes/obligations.tsx
@@ -1545,6 +1568,10 @@ msgstr "客户详情"
 #: src/features/pulse/PulseDetailDrawer.tsx
 msgid "Client email draft copied"
 msgstr "客户邮件草稿已复制"
+
+#: src/features/reminders/reminders-page.tsx
+msgid "Client email opt-outs"
+msgstr "客户邮件退订"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
 #: src/routes/clients.tsx
@@ -1593,6 +1620,10 @@ msgstr "客户回复"
 #: src/features/clients/ClientFactsWorkspace.tsx
 msgid "Client Risk Summary"
 msgstr "客户风险摘要"
+
+#: src/features/reminders/reminders-page.tsx
+msgid "Client suppressions"
+msgstr "客户抑制列表"
 
 #: src/routes/obligations.tsx
 msgid "Client-facing detail"
@@ -1858,6 +1889,10 @@ msgstr "无法加载导入历史"
 msgid "Could not load notifications"
 msgstr "无法加载通知"
 
+#: src/features/reminders/reminders-page.tsx
+msgid "Could not load reminder overview."
+msgstr "无法加载提醒概览。"
+
 #: src/features/rules/rule-library-tab.tsx
 msgid "Could not load rule library."
 msgstr "无法加载规则库。"
@@ -1941,6 +1976,10 @@ msgstr "无法更新日历订阅"
 #: src/routes/practice.tsx
 msgid "Could not update practice."
 msgstr "无法更新事务所。"
+
+#: src/features/reminders/reminders-page.tsx
+msgid "Could not update reminder template"
+msgstr "无法更新提醒模板"
 
 #: src/routes/practice.tsx
 msgid "Could not update Smart Priority."
@@ -2185,6 +2224,7 @@ msgid "Create practice"
 msgstr "创建事务所"
 
 #: src/features/calendar/calendar-page.tsx
+#: src/features/reminders/reminders-page.tsx
 #: src/features/rules/generation-preview-tab.tsx
 msgid "Created"
 msgstr "创建时间"
@@ -2492,6 +2532,7 @@ msgid "Dry-Run"
 msgstr "试运行"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
+#: src/features/reminders/reminders-page.tsx
 #: src/routes/practice.tsx
 msgid "Due"
 msgstr "到期日"
@@ -2576,6 +2617,7 @@ msgid "Each county must be 120 characters or fewer"
 msgstr "每个县名最多 120 个字符"
 
 #: src/features/migration/Step2Mapping.tsx
+#: src/features/reminders/reminders-page.tsx
 msgid "Edit"
 msgstr "编辑"
 
@@ -2885,6 +2927,7 @@ msgstr "事实"
 
 #: src/features/audit/audit-log-labels.ts
 #: src/features/clients/ClientFactsWorkspace.tsx
+#: src/features/reminders/reminders-page.tsx
 #: src/routes/obligations.tsx
 msgid "Failed"
 msgstr "失败"
@@ -3016,6 +3059,10 @@ msgstr "筛选辖区"
 #: src/features/audit/audit-log-labels.ts
 msgid "Firm"
 msgstr "Firm"
+
+#: src/features/reminders/reminders-page.tsx
+msgid "Firm-level delivery copy"
+msgstr "事务所级投递文案"
 
 #: src/features/calendar/calendar-page.tsx
 msgid "Firm-wide calendar"
@@ -3560,6 +3607,10 @@ msgstr "正在加载义务…"
 msgid "Loading readiness check…"
 msgstr "正在加载准备状态检查…"
 
+#: src/features/reminders/reminders-page.tsx
+msgid "Loading recent delivery."
+msgstr "正在加载最近投递。"
+
 #: src/features/rules/rule-library-tab.tsx
 msgid "Loading rule library."
 msgstr "正在加载规则库。"
@@ -3572,13 +3623,25 @@ msgstr "正在加载规则来源。"
 msgid "Loading rules coverage."
 msgstr "正在加载规则覆盖。"
 
+#: src/features/reminders/reminders-page.tsx
+msgid "Loading suppressions."
+msgstr "正在加载抑制列表。"
+
 #: src/features/workload/workload-page.tsx
 msgid "Loading team workload"
 msgstr "正在加载团队负载"
 
+#: src/features/reminders/reminders-page.tsx
+msgid "Loading templates."
+msgstr "正在加载模板。"
+
 #: src/features/rules/temporary-rules-tab.tsx
 msgid "Loading temporary rules."
 msgstr "正在加载临时规则。"
+
+#: src/features/reminders/reminders-page.tsx
+msgid "Loading upcoming reminders."
+msgstr "正在加载即将触发的提醒。"
 
 #: src/features/workload/workload-page.tsx
 msgid "Loading workload metrics…"
@@ -3632,12 +3695,20 @@ msgid "Manage client facts and readiness."
 msgstr "管理客户事实与就绪度。"
 
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
+msgid "Manage deadline reminder templates and delivery status."
+msgstr "管理截止日提醒模板和投递状态。"
+
+#: src/components/patterns/keyboard-shell/CommandPalette.tsx
 msgid "Manage external deadline calendar feeds."
 msgstr "管理外部截止日日历订阅源。"
 
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
 msgid "Manage practice seats, roles, and invitations."
 msgstr "管理事务所席位、角色和邀请。"
+
+#: src/features/reminders/reminders-page.tsx
+msgid "Manage the reminder schedule, message templates, recent delivery status, and client email suppressions for deadline work."
+msgstr "管理截止日工作的提醒排期、消息模板、最近投递状态和客户邮件抑制列表。"
 
 #: src/components/patterns/app-shell-nav.tsx
 #: src/components/patterns/app-shell-user-menu.tsx
@@ -4116,6 +4187,10 @@ msgstr "暂无审计事件。"
 msgid "No audited client changes yet"
 msgstr "暂无已审计的客户变更"
 
+#: src/features/reminders/reminders-page.tsx
+msgid "No client emails are suppressed."
+msgstr "没有被抑制的客户邮箱。"
+
 #: src/routes/obligations.tsx
 msgid "No client response yet."
 msgstr "客户尚未回复。"
@@ -4293,6 +4368,10 @@ msgstr "没有就绪状态"
 msgid "no reminder"
 msgstr "无提醒"
 
+#: src/features/reminders/reminders-page.tsx
+msgid "No reminder deliveries have been recorded yet."
+msgstr "尚未记录提醒投递。"
+
 #: src/features/rules/rules-console-primitives.tsx
 msgid "no rule"
 msgstr "无规则"
@@ -4349,6 +4428,10 @@ msgstr "暂无临时规则"
 #: src/features/firm/timezone-select.tsx
 msgid "No timezone found."
 msgstr "未找到时区。"
+
+#: src/features/reminders/reminders-page.tsx
+msgid "No upcoming reminders match the current 30 / 7 / 1-day windows."
+msgstr "当前没有匹配 30 / 7 / 1 天窗口的即将触发提醒。"
 
 #: src/features/audit/audit-log-labels.ts
 msgid "No user-facing field change was recorded."
@@ -4746,6 +4829,7 @@ msgid "Opens the existing duplicate obligation or the newly created obligation a
 msgstr "打开已存在的重复义务，或在 Generate 成功后打开新创建的义务。"
 
 #: src/components/patterns/app-shell-nav.tsx
+#: src/features/reminders/reminders-page.tsx
 #: src/routes/route-summary.ts
 msgid "Operations"
 msgstr "运营"
@@ -4791,11 +4875,16 @@ msgstr "其他日历 -> 通过 URL 添加"
 msgid "Other sessions revoked"
 msgstr "其他会话已撤销"
 
+#: src/features/reminders/reminders-page.tsx
+msgid "Outbox-confirmed sends"
+msgstr "Outbox 已确认发送"
+
 #: src/features/calendar/calendar-page.tsx
 msgid "Outlook"
 msgstr "Outlook"
 
 #: src/features/notifications/notifications-page.tsx
+#: src/features/reminders/reminders-page.tsx
 #: src/features/workload/workload-page.tsx
 #: src/routes/dashboard.tsx
 msgid "Overdue"
@@ -4953,6 +5042,7 @@ msgid "Paste rows"
 msgstr "粘贴行数据"
 
 #: src/features/pulse/AlertsListPage.tsx
+#: src/features/reminders/reminders-page.tsx
 #: src/features/rules/rules-console-primitives.tsx
 #: src/features/rules/sources-tab.tsx
 msgid "Paused"
@@ -5047,6 +5137,7 @@ msgstr "罚金豁免"
 #: src/features/audit/audit-log-labels.ts
 #: src/features/clients/ClientFactsWorkspace.tsx
 #: src/features/members/members-page.tsx
+#: src/features/reminders/reminders-page.tsx
 #: src/routes/obligations.tsx
 msgid "Pending"
 msgstr "待处理"
@@ -5094,6 +5185,10 @@ msgstr "需要权限"
 msgid "Personal & fiduciary"
 msgstr "个人与信托"
 
+#: src/features/reminders/reminders-page.tsx
+msgid "Personal inbox"
+msgstr "个人收件箱"
+
 #: src/routes/obligations.tsx
 msgid "Pin view"
 msgstr "置顶视图"
@@ -5134,6 +5229,7 @@ msgstr "请至少输入 2 个字符。"
 #: src/features/notifications/notifications-page.tsx
 #: src/features/opportunities/opportunities-page.tsx
 #: src/features/pulse/AlertsListPage.tsx
+#: src/features/reminders/reminders-page.tsx
 #: src/features/workload/workload-page.tsx
 #: src/routes/accept-invite.tsx
 #: src/routes/clients.tsx
@@ -5580,6 +5676,7 @@ msgid "Queue controls"
 msgstr "队列控制"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
+#: src/features/reminders/reminders-page.tsx
 msgid "Queued"
 msgstr "已入队"
 
@@ -5708,9 +5805,17 @@ msgstr "收入区间"
 msgid "Recent audited changes for this client record."
 msgstr "该客户记录最近的已审计变更。"
 
+#: src/features/reminders/reminders-page.tsx
+msgid "Recent delivery"
+msgstr "最近投递"
+
 #: src/routes/obligations.tsx
 msgid "Recently updated"
 msgstr "最近更新"
+
+#: src/features/reminders/reminders-page.tsx
+msgid "Recipient"
+msgstr "收件人"
 
 #: src/routes/billing.tsx
 msgid "Recommended"
@@ -5798,6 +5903,10 @@ msgstr "已拒绝"
 msgid "Rejected from rule detail review."
 msgstr "已从规则详情审核中拒绝。"
 
+#: src/features/reminders/reminders-page.tsx
+msgid "Reminder"
+msgstr "提醒"
+
 #: src/features/rules/generation-preview-tab.tsx
 msgid "reminder ready"
 msgstr "提醒就绪"
@@ -5807,9 +5916,24 @@ msgstr "提醒就绪"
 msgid "REMINDER READY — {0} obligation, will fire 30 / 7 / 1-day reminders"
 msgstr "提醒就绪 — {0} 项义务，将触发 30 / 7 / 1 天提醒"
 
+#: src/features/reminders/reminders-page.tsx
+msgid "Reminder template updated"
+msgstr "提醒模板已更新"
+
+#: src/features/reminders/reminders-page.tsx
+msgid "Reminder templates"
+msgstr "提醒模板"
+
 #: src/features/concepts/concept-help.tsx
 msgid "Reminder-ready"
 msgstr "提醒就绪"
+
+#: src/components/patterns/app-shell-nav.tsx
+#: src/components/patterns/keyboard-shell/CommandPalette.tsx
+#: src/features/reminders/reminders-page.tsx
+#: src/routes/route-summary.ts
+msgid "Reminders"
+msgstr "提醒"
 
 #: src/routes/obligations.tsx
 msgid "Remove checklist item"
@@ -6366,6 +6490,10 @@ msgstr "保存风险输入"
 msgid "Save Smart Priority"
 msgstr "保存 Smart Priority"
 
+#: src/features/reminders/reminders-page.tsx
+msgid "Save template"
+msgstr "保存模板"
+
 #: src/features/pulse/PulseDetailDrawer.tsx
 msgid "Save the reviewed client set before applying when a Pulse has low confidence, review flags, or a preparer escalation."
 msgstr "当 Pulse 置信度较低、带复核标记，或由经办人升级时，请先保存已审核客户集合再应用。"
@@ -6604,10 +6732,18 @@ msgstr "发送请求"
 msgid "Sending…"
 msgstr "发送中…"
 
+#: src/features/reminders/reminders-page.tsx
+msgid "Sent"
+msgstr "已发送"
+
 #. placeholder {0}: formatInvitationDate(invitation.createdAt, firmTimezone)
 #: src/features/members/members-page.tsx
 msgid "Sent {0}"
 msgstr "已发送 {0}"
+
+#: src/features/reminders/reminders-page.tsx
+msgid "Sent last 7 days"
+msgstr "近 7 天已发送"
 
 #: src/features/audit/audit-log-labels.ts
 #: src/routes/account.security.tsx
@@ -6733,6 +6869,7 @@ msgstr "正在退出…"
 msgid "Skip for now"
 msgstr "暂时跳过"
 
+#: src/features/reminders/reminders-page.tsx
 #: src/features/rules/generation-preview-tab.tsx
 #: src/features/rules/rule-library-tab.tsx
 msgid "Skipped"
@@ -6975,6 +7112,7 @@ msgstr "覆盖州"
 #: src/features/audit/audit-log-labels.ts
 #: src/features/clients/ClientFactsWorkspace.tsx
 #: src/features/pulse/AlertsListPage.tsx
+#: src/features/reminders/reminders-page.tsx
 #: src/features/rules/generation-preview-tab.tsx
 #: src/routes/dashboard.tsx
 #: src/routes/obligations.tsx
@@ -7005,6 +7143,10 @@ msgstr "仍在准备中。你可以离开此页面，稍后再回来查看。"
 #: src/routes/billing.success.tsx
 msgid "Still waiting on confirmation"
 msgstr "仍在等待确认"
+
+#: src/features/reminders/reminders-page.tsx
+msgid "Subject"
+msgstr "主题"
 
 #: src/routes/readiness.tsx
 msgid "Submit readiness response"
@@ -7053,6 +7195,10 @@ msgstr "建议动作"
 #: src/features/migration/Step3Normalize.tsx
 msgid "Suggested tax types (from entity × state matrix)"
 msgstr "建议税种（来自实体 × 州矩阵）"
+
+#: src/features/reminders/reminders-page.tsx
+msgid "Suppressed"
+msgstr "已抑制"
 
 #: src/features/members/members-page.tsx
 msgid "Suspend access"
@@ -7166,6 +7312,7 @@ msgstr "税务年度"
 #: src/components/patterns/app-shell-user-menu.tsx
 #: src/components/patterns/app-shell.tsx
 #: src/features/audit/audit-log-page.tsx
+#: src/features/reminders/reminders-page.tsx
 #: src/routes/billing.checkout.tsx
 #: src/routes/billing.success.tsx
 #: src/routes/billing.tsx
@@ -7207,6 +7354,14 @@ msgstr "团队规模的合理使用保护"
 #: src/features/workload/workload-page.tsx
 msgid "Team+"
 msgstr "Team+"
+
+#: src/features/reminders/reminders-page.tsx
+msgid "Template"
+msgstr "模板"
+
+#: src/features/reminders/reminders-page.tsx
+msgid "Template active"
+msgstr "启用模板"
 
 #: src/features/rules/rule-library-tab.tsx
 msgid "Template not found"
@@ -7652,6 +7807,14 @@ msgstr "不支持"
 msgid "Unsupported"
 msgstr "暂不支持"
 
+#: src/features/reminders/reminders-page.tsx
+msgid "Upcoming"
+msgstr "即将触发"
+
+#: src/features/reminders/reminders-page.tsx
+msgid "Upcoming schedule"
+msgstr "即将触发排期"
+
 #: src/routes/obligations.tsx
 msgid "Update active view"
 msgstr "更新当前视图"
@@ -7704,6 +7867,10 @@ msgstr "上传行数据"
 msgid "Urgency window"
 msgstr "紧急窗口"
 
+#: src/features/reminders/reminders-page.tsx
+msgid "Usage"
+msgstr "使用次数"
+
 #: src/features/clients/ClientFactsWorkspace.tsx
 msgid "Use 2-letter state codes"
 msgstr "使用 2 位州代码"
@@ -7735,6 +7902,10 @@ msgstr "UTC 时间"
 #: src/routes/clients.tsx
 msgid "Validate the practice client facts that generate obligations, dashboard risk, and Pulse matches."
 msgstr "核验事务所客户事实，这些事实会生成义务、仪表盘风险和 Pulse 匹配。"
+
+#: src/features/reminders/reminders-page.tsx
+msgid "Variables use double braces, for example client_name, tax_type, due_date, offset_days, obligation_url, or unsubscribe_url."
+msgstr "变量使用双花括号，例如 client_name、tax_type、due_date、offset_days、obligation_url 或 unsubscribe_url。"
 
 #: src/features/auth/email-otp-sign-in-form.tsx
 #: src/routes/account-security-two-factor-setup.tsx
@@ -7892,6 +8063,10 @@ msgstr "该截止日是否具备推进所需条件，例如客户资料、复核
 #: src/features/rules/generation-preview-tab.tsx
 msgid "Will create"
 msgstr "将创建"
+
+#: src/features/reminders/reminders-page.tsx
+msgid "Window"
+msgstr "窗口"
 
 #: src/features/migration/mapping-target-labels.ts
 msgid "Withholding report count"

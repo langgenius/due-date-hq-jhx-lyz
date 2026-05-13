@@ -37,6 +37,9 @@ export type ReminderChannel = (typeof REMINDER_CHANNELS)[number]
 export const REMINDER_STATUSES = ['pending', 'queued', 'sent', 'skipped', 'failed'] as const
 export type ReminderStatus = (typeof REMINDER_STATUSES)[number]
 
+export const REMINDER_TEMPLATE_KINDS = ['deadline_reminder', 'client_deadline_reminder'] as const
+export type ReminderTemplateKind = (typeof REMINDER_TEMPLATE_KINDS)[number]
+
 export const CLIENT_EMAIL_SUPPRESSION_REASONS = ['unsubscribe', 'bounce', 'manual'] as const
 export type ClientEmailSuppressionReason = (typeof CLIENT_EMAIL_SUPPRESSION_REASONS)[number]
 
@@ -100,6 +103,37 @@ export const inAppNotification = sqliteTable(
   ],
 )
 
+export const reminderTemplate = sqliteTable(
+  'reminder_template',
+  {
+    id: text('id').primaryKey(),
+    firmId: text('firm_id').references(() => firmProfile.id, { onDelete: 'cascade' }),
+    templateKey: text('template_key').notNull(),
+    kind: text('kind', { enum: REMINDER_TEMPLATE_KINDS }).notNull(),
+    name: text('name').notNull(),
+    subject: text('subject').notNull(),
+    bodyText: text('body_text').notNull(),
+    active: integer('active', { mode: 'boolean' }).notNull().default(true),
+    isSystem: integer('is_system', { mode: 'boolean' }).notNull().default(false),
+    createdAt: integer('created_at', { mode: 'timestamp_ms' })
+      .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
+      .notNull(),
+    updatedAt: integer('updated_at', { mode: 'timestamp_ms' })
+      .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
+      .$onUpdate(() => /* @__PURE__ */ new Date())
+      .notNull(),
+  },
+  (table) => [
+    uniqueIndex('uq_reminder_template_firm_key')
+      .on(table.firmId, table.templateKey)
+      .where(sql`firm_id is not null`),
+    uniqueIndex('uq_reminder_template_system_key')
+      .on(table.templateKey)
+      .where(sql`firm_id is null`),
+    index('idx_reminder_template_firm_kind').on(table.firmId, table.kind),
+  ],
+)
+
 export const reminder = sqliteTable(
   'reminder',
   {
@@ -126,6 +160,7 @@ export const reminder = sqliteTable(
     notificationId: text('notification_id').references(() => inAppNotification.id, {
       onDelete: 'set null',
     }),
+    templateId: text('template_id').references(() => reminderTemplate.id, { onDelete: 'set null' }),
     dedupeKey: text('dedupe_key').notNull(),
     sentAt: integer('sent_at', { mode: 'timestamp_ms' }),
     clickedAt: integer('clicked_at', { mode: 'timestamp_ms' }),
@@ -231,6 +266,18 @@ export const reminderRelations = relations(reminder, ({ one }) => ({
     fields: [reminder.emailOutboxId],
     references: [emailOutbox.id],
   }),
+  template: one(reminderTemplate, {
+    fields: [reminder.templateId],
+    references: [reminderTemplate.id],
+  }),
+}))
+
+export const reminderTemplateRelations = relations(reminderTemplate, ({ one, many }) => ({
+  firm: one(firmProfile, {
+    fields: [reminderTemplate.firmId],
+    references: [firmProfile.id],
+  }),
+  reminders: many(reminder),
 }))
 
 export type EmailOutbox = typeof emailOutbox.$inferSelect
@@ -239,6 +286,8 @@ export type InAppNotification = typeof inAppNotification.$inferSelect
 export type NewInAppNotification = typeof inAppNotification.$inferInsert
 export type Reminder = typeof reminder.$inferSelect
 export type NewReminder = typeof reminder.$inferInsert
+export type ReminderTemplate = typeof reminderTemplate.$inferSelect
+export type NewReminderTemplate = typeof reminderTemplate.$inferInsert
 export type NotificationPreference = typeof notificationPreference.$inferSelect
 export type NewNotificationPreference = typeof notificationPreference.$inferInsert
 export type ClientEmailSuppression = typeof clientEmailSuppression.$inferSelect

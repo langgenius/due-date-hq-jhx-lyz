@@ -23,6 +23,7 @@ export const routeSummaries = {
   calendarSync: { eyebrow: msg`Obligations`, title: msg`Calendar sync` },
   workload: { eyebrow: msg`Practice`, title: msg`Team workload` },
   notifications: { eyebrow: msg`Operations`, title: msg`Notifications` },
+  reminders: { eyebrow: msg`Operations`, title: msg`Reminders` },
   clients: { eyebrow: msg`Clients`, title: msg`Clients` },
   opportunities: { eyebrow: msg`Clients`, title: msg`Opportunities` },
   audit: { eyebrow: msg`Practice`, title: msg`Audit log` },

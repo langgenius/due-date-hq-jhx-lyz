@@ -19,6 +19,7 @@ import { migrationContract } from './migration'
 import { membersContract } from './members'
 import { notificationsContract } from './notifications'
 import { readinessContract } from './readiness'
+import { remindersContract } from './reminders'
 import { rulesContract } from './rules'
 import { securityContract } from './security'
 
@@ -37,6 +38,7 @@ export const appContract = oc.router({
   members: membersContract,
   notifications: notificationsContract,
   readiness: readinessContract,
+  reminders: remindersContract,
   rules: rulesContract,
   security: securityContract,
 })
@@ -671,6 +673,34 @@ export {
   NotificationStatusFilterSchema,
   NotificationTypeSchema,
 } from './notifications'
+
+export type {
+  ReminderChannel,
+  ReminderDeliveryStatus,
+  ReminderOverview,
+  ReminderRecentSend,
+  ReminderRecipientKind,
+  ReminderSuppression,
+  ReminderTemplateKind,
+  ReminderTemplatePublic,
+  ReminderTemplateUpdateInput,
+  ReminderUpcomingItem,
+  RemindersContract,
+} from './reminders'
+export {
+  ReminderChannelSchema,
+  ReminderDeliveryStatusSchema,
+  ReminderListInputSchema,
+  ReminderOverviewSchema,
+  ReminderRecentSendSchema,
+  ReminderRecipientKindSchema,
+  remindersContract,
+  ReminderSuppressionSchema,
+  ReminderTemplateKindSchema,
+  ReminderTemplatePublicSchema,
+  ReminderTemplateUpdateInputSchema,
+  ReminderUpcomingItemSchema,
+} from './reminders'
 
 export type {
   ApplyResult,

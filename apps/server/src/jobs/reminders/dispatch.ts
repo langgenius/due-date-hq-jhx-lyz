@@ -1,6 +1,13 @@
 import { and, eq, inArray, isNull } from 'drizzle-orm'
 import { OPEN_OBLIGATION_STATUSES } from '@duedatehq/core/obligation-workflow'
-import { createDb, authSchema, firmSchema } from '@duedatehq/db'
+import {
+  createDb,
+  authSchema,
+  firmSchema,
+  makeRemindersRepo,
+  renderReminderTemplate,
+} from '@duedatehq/db'
+import type { ReminderTemplateRow } from '@duedatehq/ports/reminders'
 import { client } from '@duedatehq/db/schema/clients'
 import { obligationInstance, type ObligationStatus } from '@duedatehq/db/schema/obligations'
 import {
@@ -190,6 +197,7 @@ async function writeInternalReminder(input: {
   offsetDays: number
   scheduledFor: string
   dueDate: string
+  memberTemplate: ReminderTemplateRow | null
 }): Promise<void> {
   if (!input.member.remindersEnabled) return
   const db = createDb(input.env.DB)
@@ -235,22 +243,36 @@ async function writeInternalReminder(input: {
   }
 
   if (input.member.emailEnabled && input.offsetDays !== 0) {
+    if (!input.memberTemplate) return
     const outboxId = crypto.randomUUID()
+    const externalId = `reminder:${input.firmId}:${input.obligation.obligationId}:${input.member.userId}:${input.offsetDays}:${input.scheduledFor}`
+    const rendered = renderReminderTemplate(input.memberTemplate, {
+      client_name: input.obligation.clientName,
+      tax_type: input.obligation.taxType,
+      due_date: input.dueDate,
+      offset_days: input.offsetDays,
+      obligation_url: `/obligations?obligation=${input.obligation.obligationId}`,
+    })
     await db
       .insert(emailOutbox)
       .values({
         id: outboxId,
         firmId: input.firmId,
-        externalId: `reminder:${input.firmId}:${input.obligation.obligationId}:${input.member.userId}:${input.offsetDays}:${input.scheduledFor}`,
+        externalId,
         type: 'deadline_reminder',
         status: 'pending',
         payloadJson: {
           recipients: [input.member.email],
-          subject: title,
-          text: body,
+          subject: rendered.subject,
+          text: rendered.text,
         },
       })
       .onConflictDoNothing({ target: emailOutbox.externalId })
+    const [outboxRow] = await db
+      .select({ id: emailOutbox.id })
+      .from(emailOutbox)
+      .where(eq(emailOutbox.externalId, externalId))
+      .limit(1)
     await db
       .insert(reminder)
       .values({
@@ -265,7 +287,8 @@ async function writeInternalReminder(input: {
         offsetDays: input.offsetDays,
         scheduledFor: input.scheduledFor,
         status: 'queued',
-        emailOutboxId: outboxId,
+        emailOutboxId: outboxRow?.id ?? outboxId,
+        templateId: input.memberTemplate.id,
         dedupeKey: `email:${input.firmId}:${input.obligation.obligationId}:${input.member.userId}:${input.offsetDays}:${input.scheduledFor}`,
       })
       .onConflictDoNothing({ target: reminder.dedupeKey })
@@ -279,39 +302,49 @@ async function writeClientReminder(input: {
   offsetDays: number
   scheduledFor: string
   dueDate: string
+  clientTemplate: ReminderTemplateRow | null
 }): Promise<void> {
   const email = input.obligation.clientEmail?.trim().toLowerCase()
   if (!email || input.offsetDays === 0 || input.obligation.status === 'review') return
+  if (!input.clientTemplate) return
   if (await isSuppressed(input.env, input.firmId, email)) return
   const db = createDb(input.env.DB)
   const outboxId = crypto.randomUUID()
-  const subject = `${input.obligation.clientName}: ${input.obligation.taxType} due ${input.dueDate}`
   const unsubscribeToken = await signClientUnsubscribeToken({
     secret: input.env.AUTH_SECRET,
     firmId: input.firmId,
     email,
   })
   const unsubscribeUrl = `${input.env.APP_URL}/api/notifications/unsubscribe?t=${encodeURIComponent(unsubscribeToken)}`
+  const externalId = `client-reminder:${input.firmId}:${input.obligation.obligationId}:${email}:${input.offsetDays}:${input.scheduledFor}`
+  const rendered = renderReminderTemplate(input.clientTemplate, {
+    client_name: input.obligation.clientName,
+    tax_type: input.obligation.taxType,
+    due_date: input.dueDate,
+    offset_days: input.offsetDays,
+    unsubscribe_url: unsubscribeUrl,
+  })
   await db
     .insert(emailOutbox)
     .values({
       id: outboxId,
       firmId: input.firmId,
-      externalId: `client-reminder:${input.firmId}:${input.obligation.obligationId}:${email}:${input.offsetDays}:${input.scheduledFor}`,
+      externalId,
       type: 'client_deadline_reminder',
       status: 'pending',
       payloadJson: {
         recipients: [email],
-        subject,
-        text: [
-          `A deadline is coming up: ${input.obligation.taxType} is due ${input.dueDate}.`,
-          '',
-          `Unsubscribe from client deadline reminders: ${unsubscribeUrl}`,
-        ].join('\n'),
+        subject: rendered.subject,
+        text: rendered.text,
         unsubscribeUrl,
       },
     })
     .onConflictDoNothing({ target: emailOutbox.externalId })
+  const [outboxRow] = await db
+    .select({ id: emailOutbox.id })
+    .from(emailOutbox)
+    .where(eq(emailOutbox.externalId, externalId))
+    .limit(1)
   await db
     .insert(reminder)
     .values({
@@ -325,7 +358,8 @@ async function writeClientReminder(input: {
       offsetDays: input.offsetDays,
       scheduledFor: input.scheduledFor,
       status: 'queued',
-      emailOutboxId: outboxId,
+      emailOutboxId: outboxRow?.id ?? outboxId,
+      templateId: input.clientTemplate.id,
       dedupeKey: `client-email:${input.firmId}:${input.obligation.obligationId}:${email}:${input.offsetDays}:${input.scheduledFor}`,
     })
     .onConflictDoNothing({ target: reminder.dedupeKey })
@@ -353,6 +387,9 @@ export async function dispatchDeadlineReminders(env: Env, now = new Date()): Pro
       ])
       const members = await loadMembers(env, firm.id)
       const obligations = await loadOpenObligations(env, firm.id)
+      const reminders = makeRemindersRepo(db, firm.id)
+      const memberTemplate = await reminders.resolveTemplate('deadline_reminder')
+      const clientTemplate = await reminders.resolveTemplate('client_deadline_reminder')
       await Promise.all(
         obligations.map(async (obligation) => {
           const dueDate = dateInTimezone(firm.timezone, obligation.currentDueDate)
@@ -369,6 +406,7 @@ export async function dispatchDeadlineReminders(env: Env, now = new Date()): Pro
                 offsetDays,
                 scheduledFor,
                 dueDate,
+                memberTemplate,
               }),
             ),
           )
@@ -379,6 +417,7 @@ export async function dispatchDeadlineReminders(env: Env, now = new Date()): Pro
             offsetDays,
             scheduledFor,
             dueDate,
+            clientTemplate,
           })
         }),
       )

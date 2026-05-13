@@ -6,6 +6,7 @@ import { msg } from '@lingui/core/macro'
 import type { I18n } from '@lingui/core'
 import {
   Building2Icon,
+  AlarmClockIcon,
   CalendarClockIcon,
   CheckIcon,
   ChevronsUpDownIcon,
@@ -424,6 +425,12 @@ function useNavItems(firm: FirmPublic): NavConfig {
           icon: FileCheck2Icon,
           end: false,
           ...(pulseBadge !== undefined ? { badge: pulseBadge } : {}),
+        },
+        {
+          href: '/reminders',
+          label: t`Reminders`,
+          icon: AlarmClockIcon,
+          end: false,
         },
       ],
       clients: [
