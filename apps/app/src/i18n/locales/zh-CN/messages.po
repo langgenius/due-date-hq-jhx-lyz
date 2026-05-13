@@ -687,6 +687,10 @@ msgstr "先添加邮箱，再生成客户通知草稿。"
 msgid "Add at least one provider record to continue."
 msgstr "至少添加一条服务商记录才能继续。"
 
+#: src/features/opportunities/opportunities-page.tsx
+msgid "Add client facts, filing profiles, and due-date work before the guidance queue has enough signal."
+msgstr "先补充客户事实、filing profiles 和截止日工作，业务提示队列才会有足够信号。"
+
 #: src/features/pulse/PulseDetailDrawer.tsx
 msgid "Add context for the reviewer"
 msgstr "补充给审核人的说明"
@@ -702,6 +706,14 @@ msgstr "先补充罚金输入，再按预计风险排序。"
 #: src/components/patterns/app-shell-nav.tsx
 msgid "Add practice"
 msgstr "添加事务所"
+
+#: src/features/opportunities/opportunity-ui.tsx
+msgid "Advisory"
+msgstr "顾问对话"
+
+#: src/features/opportunities/opportunities-page.tsx
+msgid "Advisory conversations"
+msgstr "顾问对话"
 
 #: src/features/pulse/PulseDetailDrawer.tsx
 msgid "Affected clients"
@@ -1249,6 +1261,10 @@ msgstr "批量状态已更新"
 msgid "Business"
 msgstr "企业"
 
+#: src/features/opportunities/opportunities-page.tsx
+msgid "Business guidance queue"
+msgstr "业务提示队列"
+
 #: src/routes/login.tsx
 msgid "By signing in you agree to the <termsLink>Terms</termsLink> and <privacyLink>Privacy Policy</privacyLink>. Trouble signing in? Email <supportLink>support@duedatehq.com</supportLink>."
 msgstr "登录即表示您同意 <termsLink>条款</termsLink> 和 <privacyLink>隐私政策</privacyLink>。登录遇到问题？请发送邮件至 <supportLink>support@duedatehq.com</supportLink>。"
@@ -1362,6 +1378,10 @@ msgstr "请检查规则版本后重试。"
 #: src/features/rules/rule-library-tab.tsx
 msgid "Check the selected rows and try again."
 msgstr "请检查所选行后重试。"
+
+#: src/features/opportunities/opportunity-ui.tsx
+msgid "Check-in"
+msgstr "关系跟进"
 
 #: src/features/pulse/AlertsListPage.tsx
 msgid "Checking {label}…"
@@ -1585,6 +1605,7 @@ msgstr "客户"
 #: src/components/patterns/app-shell-nav.tsx
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
 #: src/features/audit/audit-log-labels.ts
+#: src/features/opportunities/opportunities-page.tsx
 #: src/features/rules/generation-preview-tab.tsx
 #: src/routes/clients.tsx
 #: src/routes/route-summary.ts
@@ -2003,6 +2024,10 @@ msgstr "无法加载义务详情。"
 #: src/routes/obligations.tsx
 msgid "Couldn't load obligations."
 msgstr "无法加载义务。"
+
+#: src/features/opportunities/opportunities-page.tsx
+msgid "Couldn't load opportunities"
+msgstr "无法加载业务机会"
 
 #: src/features/pulse/PulseDetailDrawer.tsx
 msgid "Couldn't load this alert"
@@ -3068,6 +3093,10 @@ msgstr "显示完整客户名"
 msgid "Full practice AI workflows"
 msgstr "完整事务所 AI 工作流"
 
+#: src/features/opportunities/client-opportunities-card.tsx
+msgid "Future business cues"
+msgstr "未来业务提示"
+
 #: src/features/clients/ClientFactsWorkspace.tsx
 msgid "Future edits to facts, risk inputs, or deletion will appear here."
 msgstr "后续事实、风险输入或删除相关修改会显示在这里。"
@@ -3154,6 +3183,7 @@ msgstr "高"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
 #: src/features/clients/CreateClientDialog.tsx
+#: src/features/opportunities/opportunity-ui.tsx
 msgid "High"
 msgstr "高"
 
@@ -3470,6 +3500,10 @@ msgstr "最新状态"
 msgid "Light"
 msgstr "浅色"
 
+#: src/features/opportunities/opportunities-page.tsx
+msgid "Lightweight client conversation cues for future service, retention, and engagement scope. DueDateHQ does not generate tax strategies here."
+msgstr "面向未来服务、留存和 engagement 范围的轻量客户对话提示。DueDateHQ 不在这里生成税务策略。"
+
 #: src/routes/readiness.tsx
 msgid "Link unavailable"
 msgstr "链接不可用"
@@ -3569,6 +3603,7 @@ msgstr "长期"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
 #: src/features/clients/CreateClientDialog.tsx
+#: src/features/opportunities/opportunity-ui.tsx
 msgid "Low"
 msgstr "低"
 
@@ -3717,6 +3752,7 @@ msgstr "中"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
 #: src/features/clients/CreateClientDialog.tsx
+#: src/features/opportunities/opportunity-ui.tsx
 msgid "Medium"
 msgstr "中"
 
@@ -3994,6 +4030,7 @@ msgstr "最新的事务所范围审计事件会优先显示。"
 msgid "Next"
 msgstr "下一页"
 
+#: src/features/opportunities/opportunity-ui.tsx
 #: src/routes/dashboard.tsx
 msgid "Next 30 days"
 msgstr "未来 30 天"
@@ -4020,6 +4057,10 @@ msgstr "下个月"
 #: src/features/rules/rules-console-primitives.tsx
 msgid "Next page"
 msgstr "下一页"
+
+#: src/features/opportunities/opportunity-ui.tsx
+msgid "Next quarter"
+msgstr "下个季度"
 
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "Next review"
@@ -4163,6 +4204,10 @@ msgstr "尚未生成义务。"
 msgid "No import batches yet"
 msgstr "尚无导入批次"
 
+#: src/features/opportunities/client-opportunities-card.tsx
+msgid "No lightweight opportunity cues for this client yet."
+msgstr "这个客户暂时还没有轻量业务提示。"
+
 #: src/routes/obligations.tsx
 msgid "No matched rule"
 msgstr "没有匹配规则"
@@ -4210,6 +4255,10 @@ msgstr "没有可预览的未完成义务。"
 #: src/features/workload/workload-page.tsx
 msgid "No open obligations match the workload window."
 msgstr "当前负载窗口内没有匹配的未完成义务。"
+
+#: src/features/opportunities/opportunities-page.tsx
+msgid "No opportunity cues yet"
+msgstr "暂无业务提示"
 
 #: src/features/rules/rule-library-tab.tsx
 #: src/features/rules/sources-tab.tsx
@@ -4394,6 +4443,10 @@ msgstr "通知"
 msgid "Notifications, {unreadCount} unread"
 msgstr "通知 · {unreadCount} 条未读"
 
+#: src/features/opportunities/opportunity-ui.tsx
+msgid "Now"
+msgstr "现在"
+
 #: src/features/migration/mapping-target-labels.ts
 msgid "NY PTET election made"
 msgstr "NY PTET 已选择"
@@ -4575,6 +4628,10 @@ msgstr "打开账单"
 msgid "Open billing for {plan} plan"
 msgstr "打开 {plan} 计划的账单"
 
+#: src/features/opportunities/opportunities-page.tsx
+msgid "Open client"
+msgstr "打开客户"
+
 #. placeholder {0}: row.original.name
 #: src/features/clients/ClientFactsWorkspace.tsx
 msgid "Open client detail for {0}"
@@ -4656,6 +4713,10 @@ msgstr "打开来源"
 msgid "Open the Apple Calendar link"
 msgstr "打开 Apple Calendar 链接"
 
+#: src/features/opportunities/opportunities-page.tsx
+msgid "Open the client to review facts before deciding whether to follow up."
+msgstr "先打开客户并复核事实，再决定是否跟进。"
+
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
 msgid "Open the Migration Copilot wizard."
 msgstr "打开 Migration Copilot 向导。"
@@ -4692,6 +4753,13 @@ msgstr "运营"
 #: src/routes/dashboard.tsx
 msgid "Operations command"
 msgstr "运营指挥台"
+
+#: src/components/patterns/app-shell-nav.tsx
+#: src/components/patterns/keyboard-shell/CommandPalette.tsx
+#: src/features/opportunities/opportunities-page.tsx
+#: src/routes/route-summary.ts
+msgid "Opportunities"
+msgstr "业务机会"
 
 #: src/features/pulse/PulseDetailDrawer.tsx
 #: src/routes/readiness.tsx
@@ -5064,6 +5132,7 @@ msgstr "请至少输入 2 个字符。"
 #: src/features/migration/ImportHistoryDrawer.tsx
 #: src/features/migration/Wizard.tsx
 #: src/features/notifications/notifications-page.tsx
+#: src/features/opportunities/opportunities-page.tsx
 #: src/features/pulse/AlertsListPage.tsx
 #: src/features/workload/workload-page.tsx
 #: src/routes/accept-invite.tsx
@@ -5834,6 +5903,10 @@ msgstr "重新开始支付"
 msgid "Resulting readiness"
 msgstr "最终准备状态"
 
+#: src/features/opportunities/opportunities-page.tsx
+msgid "Retention check-ins"
+msgstr "留存跟进"
+
 #: src/features/rules/temporary-rules-tab.tsx
 msgid "Retracted"
 msgstr "已撤回"
@@ -5902,6 +5975,10 @@ msgstr "复核 —— 需 CPA 确认"
 #: src/features/migration/Step2Mapping.tsx
 msgid "Review and confirm column mapping"
 msgstr "请审阅并确认字段映射"
+
+#: src/components/patterns/keyboard-shell/CommandPalette.tsx
+msgid "Review lightweight client business cues."
+msgstr "查看轻量客户业务提示。"
 
 #: src/features/rules/rules-console.tsx
 msgid "Review pending templates, activate practice rules, and inspect active, rejected, or archived rule evidence in one table. Only active practice rules can generate client obligations or reminders."
@@ -6359,6 +6436,14 @@ msgstr "扫描二维码"
 #: src/features/audit/audit-log-labels.ts
 msgid "Scope"
 msgstr "范围"
+
+#: src/features/opportunities/opportunity-ui.tsx
+msgid "Scope review"
+msgstr "范围复核"
+
+#: src/features/opportunities/opportunities-page.tsx
+msgid "Scope reviews"
+msgstr "范围复核"
 
 #: src/features/priority/SmartPriorityBadge.tsx
 #: src/routes/practice.tsx
@@ -7690,6 +7775,10 @@ msgstr "查看"
 #: src/features/migration/ImportHistoryDrawer.tsx
 msgid "View {0}"
 msgstr "查看 {0}"
+
+#: src/features/opportunities/client-opportunities-card.tsx
+msgid "View all opportunities"
+msgstr "查看全部业务机会"
 
 #: src/features/audit/audit-log-table.tsx
 msgid "View audit detail"

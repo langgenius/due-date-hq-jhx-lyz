@@ -2,7 +2,7 @@
 
 ## 功能定位
 
-`apps/app` 是 DueDateHQ 的主产品前端，基于 Vite、React 19、React Router 7、TanStack Query、oRPC client、Better Auth client 和 `@duedatehq/ui` 构建。它承载事务所用户的日常操作：登录、onboarding、dashboard、Obligations（`/obligations`）、导入、Pulse、审计、规则预览、成员、事务所设置和计费。
+`apps/app` 是 DueDateHQ 的主产品前端，基于 Vite、React 19、React Router 7、TanStack Query、oRPC client、Better Auth client 和 `@duedatehq/ui` 构建。它承载事务所用户的日常操作：登录、onboarding、dashboard、Obligations（`/obligations`）、导入、Pulse、Opportunities、审计、规则预览、成员、事务所设置和计费。
 
 前端的核心职责不是保存业务事实，而是把 server 合约暴露的状态组织成高效、可审计、可键盘操作的工作台。
 
@@ -19,6 +19,7 @@
 | `apps/app/src/features/migration`                | Migration Copilot 四步向导                                                 |
 | `apps/app/src/features/pulse`                    | Pulse alert 列表、详情 drawer、source context、apply/dismiss/snooze/revert |
 | `apps/app/src/features/evidence`                 | Evidence drawer 和审计时间线                                               |
+| `apps/app/src/features/opportunities`            | 轻量未来业务提示页面和 Client detail 小卡片                                |
 | `apps/app/src/routes/obligations.tsx`            | Obligations 表格、过滤、状态更新、罚金输入                                 |
 | `apps/app/src/routes/rules.tsx`                  | Rules Console                                                              |
 
@@ -66,9 +67,19 @@
 Clients 使用 `/clients?client=<id>` 的同页详情态管理客户事实，不新增 `/clients/:id` route，
 也不再用右侧侧栏承载完整档案。列表列和 State/Jurisdiction 筛选按任一 active filing profile
 匹配；详情页顶部展示客户身份、readiness 和 Pulse impact，主体展示 work plan、filing
-jurisdictions、risk summary、contact chain、activity log、notes 和删除入口。`Filing
+jurisdictions、risk summary、contact chain、轻量未来业务提示、activity log、notes 和删除入口。`Filing
 jurisdictions` 保存时调用 `clients.replaceFilingProfiles`，让 server 统一维护 profile
 archive、primary mirror、exposure 重算和缓存刷新。
+
+### Opportunities
+
+- `/opportunities` 面向 partner 提供轻量未来业务提示，用来发现哪些客户可能值得 service、
+  scope 或 relationship conversation。
+- V1 只从现有 client facts 和 obligations 派生 deterministic cues：advisory conversation、
+  scope review、retention check-in。
+- 该页面不是税务建议、不是避税策略生成器、不是 pricing benchmark，也不持久化 opportunity
+  lifecycle；主操作只回到 Client detail。
+- Client detail 右侧 rail 展示最多三条当前客户的 future business cues。
 
 Migration Step 2 支持 `Filing states` 目标；Step 3 的 matrix counts 会把逗号/分号/竖线分隔的
 多州输入拆开统计，使一行多州列表和一行一州重复客户都能进入同一 preview/apply 路径。

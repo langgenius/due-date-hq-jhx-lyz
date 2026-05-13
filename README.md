@@ -32,7 +32,7 @@ replacement for review by a CPA, EA, attorney, or other qualified professional.
   role-aware surfaces, practice switching, account security, and bilingual app copy.
 - **Client facts**: client profiles, filing jurisdictions, owners, contact details,
   import history, readiness signals, client detail workspace, work plan context,
-  Pulse impact, activity log, and fact review.
+  Pulse impact, lightweight future-business cues, activity log, and fact review.
 - **Migration Copilot**: CSV, TSV, XLSX, pasted tables, and provider-export-shaped
   data with field mapping, risky-input blocking, preview, generated clients,
   generated obligations, and audit evidence.

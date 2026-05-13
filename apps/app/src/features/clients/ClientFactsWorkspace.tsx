@@ -93,6 +93,7 @@ import { UpgradeCtaButton } from '@/features/billing/upgrade-cta-button'
 import { useCurrentFirm } from '@/features/billing/use-billing-data'
 import { resolveUSFirmTimezone } from '@/features/firm/timezone-model'
 import { useFirmPermission } from '@/features/permissions/permission-gate'
+import { ClientOpportunitiesCard } from '@/features/opportunities/client-opportunities-card'
 
 import {
   CLIENT_ENTITY_TYPES,
@@ -1005,6 +1006,7 @@ function ClientDetailWorkspace({
 
           <aside className="flex min-w-0 flex-col gap-5">
             <ClientContactPlanPanel plan={contactPlan} />
+            <ClientOpportunitiesCard clientId={client.id} />
             <ClientRiskInputsPanel
               key={`${client.id}:risk`}
               client={client}

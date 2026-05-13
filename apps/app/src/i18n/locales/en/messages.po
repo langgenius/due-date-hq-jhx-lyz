@@ -687,6 +687,10 @@ msgstr "Add an email before client notification drafts."
 msgid "Add at least one provider record to continue."
 msgstr "Add at least one provider record to continue."
 
+#: src/features/opportunities/opportunities-page.tsx
+msgid "Add client facts, filing profiles, and due-date work before the guidance queue has enough signal."
+msgstr "Add client facts, filing profiles, and due-date work before the guidance queue has enough signal."
+
 #: src/features/pulse/PulseDetailDrawer.tsx
 msgid "Add context for the reviewer"
 msgstr "Add context for the reviewer"
@@ -702,6 +706,14 @@ msgstr "Add penalty inputs before ranking by projected risk."
 #: src/components/patterns/app-shell-nav.tsx
 msgid "Add practice"
 msgstr "Add practice"
+
+#: src/features/opportunities/opportunity-ui.tsx
+msgid "Advisory"
+msgstr "Advisory"
+
+#: src/features/opportunities/opportunities-page.tsx
+msgid "Advisory conversations"
+msgstr "Advisory conversations"
 
 #: src/features/pulse/PulseDetailDrawer.tsx
 msgid "Affected clients"
@@ -1249,6 +1261,10 @@ msgstr "Bulk status updated"
 msgid "Business"
 msgstr "Business"
 
+#: src/features/opportunities/opportunities-page.tsx
+msgid "Business guidance queue"
+msgstr "Business guidance queue"
+
 #: src/routes/login.tsx
 msgid "By signing in you agree to the <termsLink>Terms</termsLink> and <privacyLink>Privacy Policy</privacyLink>. Trouble signing in? Email <supportLink>support@duedatehq.com</supportLink>."
 msgstr "By signing in you agree to the <termsLink>Terms</termsLink> and <privacyLink>Privacy Policy</privacyLink>. Trouble signing in? Email <supportLink>support@duedatehq.com</supportLink>."
@@ -1362,6 +1378,10 @@ msgstr "Check the rule version and try again."
 #: src/features/rules/rule-library-tab.tsx
 msgid "Check the selected rows and try again."
 msgstr "Check the selected rows and try again."
+
+#: src/features/opportunities/opportunity-ui.tsx
+msgid "Check-in"
+msgstr "Check-in"
 
 #: src/features/pulse/AlertsListPage.tsx
 msgid "Checking {label}…"
@@ -1585,6 +1605,7 @@ msgstr "clients"
 #: src/components/patterns/app-shell-nav.tsx
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
 #: src/features/audit/audit-log-labels.ts
+#: src/features/opportunities/opportunities-page.tsx
 #: src/features/rules/generation-preview-tab.tsx
 #: src/routes/clients.tsx
 #: src/routes/route-summary.ts
@@ -2003,6 +2024,10 @@ msgstr "Couldn't load obligation detail."
 #: src/routes/obligations.tsx
 msgid "Couldn't load obligations."
 msgstr "Couldn't load obligations."
+
+#: src/features/opportunities/opportunities-page.tsx
+msgid "Couldn't load opportunities"
+msgstr "Couldn't load opportunities"
 
 #: src/features/pulse/PulseDetailDrawer.tsx
 msgid "Couldn't load this alert"
@@ -3068,6 +3093,10 @@ msgstr "Full client names"
 msgid "Full practice AI workflows"
 msgstr "Full practice AI workflows"
 
+#: src/features/opportunities/client-opportunities-card.tsx
+msgid "Future business cues"
+msgstr "Future business cues"
+
 #: src/features/clients/ClientFactsWorkspace.tsx
 msgid "Future edits to facts, risk inputs, or deletion will appear here."
 msgstr "Future edits to facts, risk inputs, or deletion will appear here."
@@ -3154,6 +3183,7 @@ msgstr "high"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
 #: src/features/clients/CreateClientDialog.tsx
+#: src/features/opportunities/opportunity-ui.tsx
 msgid "High"
 msgstr "High"
 
@@ -3470,6 +3500,10 @@ msgstr "Latest status"
 msgid "Light"
 msgstr "Light"
 
+#: src/features/opportunities/opportunities-page.tsx
+msgid "Lightweight client conversation cues for future service, retention, and engagement scope. DueDateHQ does not generate tax strategies here."
+msgstr "Lightweight client conversation cues for future service, retention, and engagement scope. DueDateHQ does not generate tax strategies here."
+
 #: src/routes/readiness.tsx
 msgid "Link unavailable"
 msgstr "Link unavailable"
@@ -3569,6 +3603,7 @@ msgstr "Long-term"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
 #: src/features/clients/CreateClientDialog.tsx
+#: src/features/opportunities/opportunity-ui.tsx
 msgid "Low"
 msgstr "Low"
 
@@ -3717,6 +3752,7 @@ msgstr "medium"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
 #: src/features/clients/CreateClientDialog.tsx
+#: src/features/opportunities/opportunity-ui.tsx
 msgid "Medium"
 msgstr "Medium"
 
@@ -3994,6 +4030,7 @@ msgstr "Newest practice-scoped audit events appear first."
 msgid "Next"
 msgstr "Next"
 
+#: src/features/opportunities/opportunity-ui.tsx
 #: src/routes/dashboard.tsx
 msgid "Next 30 days"
 msgstr "Next 30 days"
@@ -4020,6 +4057,10 @@ msgstr "Next month"
 #: src/features/rules/rules-console-primitives.tsx
 msgid "Next page"
 msgstr "Next page"
+
+#: src/features/opportunities/opportunity-ui.tsx
+msgid "Next quarter"
+msgstr "Next quarter"
 
 #: src/features/rules/rule-detail-drawer.tsx
 msgid "Next review"
@@ -4163,6 +4204,10 @@ msgstr "No generated obligations yet."
 msgid "No import batches yet"
 msgstr "No import batches yet"
 
+#: src/features/opportunities/client-opportunities-card.tsx
+msgid "No lightweight opportunity cues for this client yet."
+msgstr "No lightweight opportunity cues for this client yet."
+
 #: src/routes/obligations.tsx
 msgid "No matched rule"
 msgstr "No matched rule"
@@ -4210,6 +4255,10 @@ msgstr "No open obligations available for preview."
 #: src/features/workload/workload-page.tsx
 msgid "No open obligations match the workload window."
 msgstr "No open obligations match the workload window."
+
+#: src/features/opportunities/opportunities-page.tsx
+msgid "No opportunity cues yet"
+msgstr "No opportunity cues yet"
 
 #: src/features/rules/rule-library-tab.tsx
 #: src/features/rules/sources-tab.tsx
@@ -4394,6 +4443,10 @@ msgstr "Notifications"
 msgid "Notifications, {unreadCount} unread"
 msgstr "Notifications, {unreadCount} unread"
 
+#: src/features/opportunities/opportunity-ui.tsx
+msgid "Now"
+msgstr "Now"
+
 #: src/features/migration/mapping-target-labels.ts
 msgid "NY PTET election made"
 msgstr "NY PTET election made"
@@ -4575,6 +4628,10 @@ msgstr "Open Billing"
 msgid "Open billing for {plan} plan"
 msgstr "Open billing for {plan} plan"
 
+#: src/features/opportunities/opportunities-page.tsx
+msgid "Open client"
+msgstr "Open client"
+
 #. placeholder {0}: row.original.name
 #: src/features/clients/ClientFactsWorkspace.tsx
 msgid "Open client detail for {0}"
@@ -4656,6 +4713,10 @@ msgstr "Open source"
 msgid "Open the Apple Calendar link"
 msgstr "Open the Apple Calendar link"
 
+#: src/features/opportunities/opportunities-page.tsx
+msgid "Open the client to review facts before deciding whether to follow up."
+msgstr "Open the client to review facts before deciding whether to follow up."
+
 #: src/components/patterns/keyboard-shell/CommandPalette.tsx
 msgid "Open the Migration Copilot wizard."
 msgstr "Open the Migration Copilot wizard."
@@ -4692,6 +4753,13 @@ msgstr "Operations"
 #: src/routes/dashboard.tsx
 msgid "Operations command"
 msgstr "Operations command"
+
+#: src/components/patterns/app-shell-nav.tsx
+#: src/components/patterns/keyboard-shell/CommandPalette.tsx
+#: src/features/opportunities/opportunities-page.tsx
+#: src/routes/route-summary.ts
+msgid "Opportunities"
+msgstr "Opportunities"
 
 #: src/features/pulse/PulseDetailDrawer.tsx
 #: src/routes/readiness.tsx
@@ -5064,6 +5132,7 @@ msgstr "Please enter at least 2 characters."
 #: src/features/migration/ImportHistoryDrawer.tsx
 #: src/features/migration/Wizard.tsx
 #: src/features/notifications/notifications-page.tsx
+#: src/features/opportunities/opportunities-page.tsx
 #: src/features/pulse/AlertsListPage.tsx
 #: src/features/workload/workload-page.tsx
 #: src/routes/accept-invite.tsx
@@ -5834,6 +5903,10 @@ msgstr "Restart checkout"
 msgid "Resulting readiness"
 msgstr "Resulting readiness"
 
+#: src/features/opportunities/opportunities-page.tsx
+msgid "Retention check-ins"
+msgstr "Retention check-ins"
+
 #: src/features/rules/temporary-rules-tab.tsx
 msgid "Retracted"
 msgstr "Retracted"
@@ -5902,6 +5975,10 @@ msgstr "review — needs CPA confirmation"
 #: src/features/migration/Step2Mapping.tsx
 msgid "Review and confirm column mapping"
 msgstr "Review and confirm column mapping"
+
+#: src/components/patterns/keyboard-shell/CommandPalette.tsx
+msgid "Review lightweight client business cues."
+msgstr "Review lightweight client business cues."
 
 #: src/features/rules/rules-console.tsx
 msgid "Review pending templates, activate practice rules, and inspect active, rejected, or archived rule evidence in one table. Only active practice rules can generate client obligations or reminders."
@@ -6359,6 +6436,14 @@ msgstr "Scan the QR code"
 #: src/features/audit/audit-log-labels.ts
 msgid "Scope"
 msgstr "Scope"
+
+#: src/features/opportunities/opportunity-ui.tsx
+msgid "Scope review"
+msgstr "Scope review"
+
+#: src/features/opportunities/opportunities-page.tsx
+msgid "Scope reviews"
+msgstr "Scope reviews"
 
 #: src/features/priority/SmartPriorityBadge.tsx
 #: src/routes/practice.tsx
@@ -7690,6 +7775,10 @@ msgstr "View"
 #: src/features/migration/ImportHistoryDrawer.tsx
 msgid "View {0}"
 msgstr "View {0}"
+
+#: src/features/opportunities/client-opportunities-card.tsx
+msgid "View all opportunities"
+msgstr "View all opportunities"
 
 #: src/features/audit/audit-log-table.tsx
 msgid "View audit detail"

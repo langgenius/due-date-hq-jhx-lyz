@@ -9,6 +9,7 @@ import { auditContract } from './audit'
 import { calendarContract } from './calendar'
 import { clientsContract } from './clients'
 import { obligationsContract } from './obligations'
+import { opportunitiesContract } from './opportunities'
 import { dashboardContract } from './dashboard'
 import { evidenceContract } from './evidence'
 import { firmsContract } from './firms'
@@ -27,6 +28,7 @@ export const appContract = oc.router({
   firms: firmsContract,
   clients: clientsContract,
   obligations: obligationsContract,
+  opportunities: opportunitiesContract,
   dashboard: dashboardContract,
   evidence: evidenceContract,
   workload: workloadContract,
@@ -221,6 +223,31 @@ export {
   ClientRiskSummaryRefreshOutputSchema,
   clientsContract,
 } from './clients'
+
+export type {
+  OpportunitiesContract,
+  OpportunityClient,
+  OpportunityEvidence,
+  OpportunityKind,
+  OpportunityListInput,
+  OpportunityListOutput,
+  OpportunityPublic,
+  OpportunitySeverity,
+  OpportunitySummary,
+  OpportunityTiming,
+} from './opportunities'
+export {
+  opportunitiesContract,
+  OpportunityClientSchema,
+  OpportunityEvidenceSchema,
+  OpportunityKindSchema,
+  OpportunityListInputSchema,
+  OpportunityListOutputSchema,
+  OpportunityPublicSchema,
+  OpportunitySeveritySchema,
+  OpportunitySummarySchema,
+  OpportunityTimingSchema,
+} from './opportunities'
 
 export type {
   AnnualRolloverDisposition,

@@ -91,6 +91,12 @@ import {
   DashboardTriageTabKeySchema,
   dashboardContract,
 } from './dashboard'
+import {
+  OpportunityKindSchema,
+  OpportunityListInputSchema,
+  OpportunityListOutputSchema,
+  opportunitiesContract,
+} from './opportunities'
 import { EvidencePublicSchema, evidenceContract } from './evidence'
 import {
   PulseAffectedClientSchema,
@@ -1514,6 +1520,49 @@ describe('@duedatehq/contracts', () => {
     ).toBe('CA')
   })
 
+  it('freezes opportunities.list lightweight business guidance shape', () => {
+    expect(Object.keys(opportunitiesContract)).toEqual(['list'])
+    expect(OpportunityKindSchema.options).toEqual([
+      'advisory_conversation',
+      'scope_review',
+      'retention_check_in',
+    ])
+
+    expect(OpportunityListInputSchema.parse({ limit: 3 })?.limit).toBe(3)
+    expect(
+      OpportunityListOutputSchema.parse({
+        opportunities: [
+          {
+            id: 'scope_review:client:11111111-1111-4111-8111-111111111111',
+            kind: 'scope_review',
+            client: {
+              id: '11111111-1111-4111-8111-111111111111',
+              name: 'Riverside Holdings LLC',
+              entityType: 'llc',
+              state: 'CA',
+              assigneeName: 'Mina',
+            },
+            title: 'Review engagement scope before renewal',
+            summary: 'Workload footprint suggests a human-led scope conversation.',
+            timing: 'next_quarter',
+            severity: 'medium',
+            evidence: [{ label: 'Open obligations', value: '4' }],
+            primaryAction: {
+              label: 'Open client',
+              href: '/clients?client=11111111-1111-4111-8111-111111111111',
+            },
+          },
+        ],
+        summary: {
+          total: 1,
+          advisoryConversationCount: 0,
+          scopeReviewCount: 1,
+          retentionCheckInCount: 0,
+        },
+      }).summary.scopeReviewCount,
+    ).toBe(1)
+  })
+
   it('mounts every domain on appContract', () => {
     expect(Object.keys(appContract)).toEqual(
       expect.arrayContaining([
@@ -1523,6 +1572,7 @@ describe('@duedatehq/contracts', () => {
         'evidence',
         'workload',
         'pulse',
+        'opportunities',
         'migration',
         'rules',
       ]),

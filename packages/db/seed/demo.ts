@@ -17,15 +17,15 @@ if (!existsSync(sqlPath)) {
 const seedStatements = splitSqlStatements(readFileSync(sqlPath, 'utf8')).filter(
   (statement) => !isTransactionBoundary(statement),
 )
-const chunks = chunkSqlStatements(seedStatements, maxSqlChunkBytes)
+const sqlChunks = chunkSqlStatements(seedStatements, maxSqlChunkBytes)
 const tempDir = mkdtempSync(join(tmpdir(), 'duedatehq-seed-demo-'))
 let failedStatus: number | null = null
 
 try {
-  for (const [index, chunk] of chunks.entries()) {
+  for (const [index, chunk] of sqlChunks.entries()) {
     const chunkPath = join(tempDir, `demo-${index + 1}.sql`)
     writeFileSync(chunkPath, chunk)
-    console.log(`[seed:demo] Executing SQL chunk ${index + 1}/${chunks.length}`)
+    console.log(`[seed:demo] Executing SQL chunk ${index + 1}/${sqlChunks.length}`)
 
     const result = spawnSync(
       'pnpm',

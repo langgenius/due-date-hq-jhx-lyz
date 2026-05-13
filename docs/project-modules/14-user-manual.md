@@ -165,8 +165,31 @@ Pulse 匹配以 active filing profiles 与 obligation jurisdiction 为准。
 
 - Migration Copilot：批量导入客户。
 - Obligations：客户负责人会影响义务分配和团队负载。
+- Opportunities：客户事实和义务状态会生成轻量未来业务提示。
 - Rules：客户事实决定哪些规则可生成义务。
 - Pulse：filing state、profile counties 和客户事实决定匹配范围。
+
+### Opportunities
+
+**模块功能**
+
+Opportunities 用现有客户事实和义务状态生成轻量未来业务提示，帮助 partner 发现哪些客户可能值得
+服务范围、关系维护或人工 advisory conversation。它不是税务建议页面，不提供避税方法，也不替代
+专业判断。
+
+**如何使用**
+
+1. 从 sidebar 点击 `Opportunities`。
+2. 查看 `Advisory conversations`、`Scope reviews` 和 `Retention check-ins` 计数。
+3. 阅读每条 cue 的 evidence chips，例如等待项数量、open obligations 数量或 owner count。
+4. 点击 `Open client` 回到 Client detail，结合事实、work plan、Pulse 和 notes 决定是否跟进。
+5. 在 Client detail 右侧的 `Future business cues` 小卡片查看当前客户的最多三条提示。
+
+**边界**
+
+- 不生成税务策略或避税建议。
+- 不做 billing/hour pricing benchmark。
+- 不提供 resolve、snooze、assign 或独立任务状态。
 
 ### Migration Copilot
 

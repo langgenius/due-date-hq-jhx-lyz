@@ -15,6 +15,7 @@ import {
   LayoutDashboardIcon,
   PlusIcon,
   ScaleIcon,
+  SparklesIcon,
   UsersIcon,
   type LucideIcon,
 } from 'lucide-react'
@@ -425,7 +426,10 @@ function useNavItems(firm: FirmPublic): NavConfig {
           ...(pulseBadge !== undefined ? { badge: pulseBadge } : {}),
         },
       ],
-      clients: [{ href: '/clients', label: t`Clients`, icon: UsersIcon, end: false }],
+      clients: [
+        { href: '/clients', label: t`Clients`, icon: UsersIcon, end: false },
+        { href: '/opportunities', label: t`Opportunities`, icon: SparklesIcon, end: false },
+      ],
       practice: [
         { href: '/practice', label: t`Practice profile`, icon: Building2Icon, end: false },
         {

@@ -9,6 +9,7 @@ import { membersHandlers } from './members'
 import { notificationsHandlers } from './notifications'
 import { obligationQueueHandlers } from './obligation-queue'
 import { obligationsHandlers } from './obligations'
+import { opportunitiesHandlers } from './opportunities'
 import { pulseHandlers } from './pulse'
 import { readinessHandlers } from './readiness'
 import { rulesHandlers } from './rules'
@@ -87,6 +88,9 @@ export const router = os.router({
     listByClient: obligationsHandlers.listByClient,
     getDeadlineTip: obligationsHandlers.getDeadlineTip,
     requestDeadlineTipRefresh: obligationsHandlers.requestDeadlineTipRefresh,
+  },
+  opportunities: {
+    list: opportunitiesHandlers.list,
   },
   dashboard: {
     load: dashboardHandlers.load,

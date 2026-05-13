@@ -199,6 +199,7 @@ describe('route metadata', () => {
 
   it('formats browser titles with the app suffix', () => {
     expect(formatDocumentTitle('Clients')).toBe('Clients | DueDateHQ')
+    expect(formatDocumentTitle('Opportunities')).toBe('Opportunities | DueDateHQ')
     expect(formatDocumentTitle('DueDateHQ')).toBe('DueDateHQ')
   })
 })
