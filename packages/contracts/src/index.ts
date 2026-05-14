@@ -661,12 +661,20 @@ export {
 
 export type {
   InAppNotificationPublic,
+  MorningDigestDay,
+  MorningDigestPreviewOutput,
+  NotificationDigestRunPublic,
+  NotificationDigestRunStatus,
   NotificationPreferencePublic,
   NotificationsContract,
   NotificationType,
 } from './notifications'
 export {
   InAppNotificationPublicSchema,
+  MorningDigestDaySchema,
+  MorningDigestPreviewOutputSchema,
+  NotificationDigestRunPublicSchema,
+  NotificationDigestRunStatusSchema,
   NotificationListInputSchema,
   NotificationPreferencePublicSchema,
   notificationsContract,

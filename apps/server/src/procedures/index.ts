@@ -159,6 +159,8 @@ export const router = os.router({
     markAllRead: notificationsHandlers.markAllRead,
     getPreferences: notificationsHandlers.getPreferences,
     updatePreferences: notificationsHandlers.updatePreferences,
+    listMorningDigestRuns: notificationsHandlers.listMorningDigestRuns,
+    previewMorningDigest: notificationsHandlers.previewMorningDigest,
   },
   readiness: {
     generateChecklist: readinessHandlers.generateChecklist,

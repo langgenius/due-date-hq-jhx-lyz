@@ -13,6 +13,16 @@ export const NotificationTypeSchema = z.enum([
 export type NotificationType = z.infer<typeof NotificationTypeSchema>
 
 export const NotificationStatusFilterSchema = z.enum(['unread', 'read', 'all'])
+export const MorningDigestDaySchema = z.enum(['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'])
+export type MorningDigestDay = z.infer<typeof MorningDigestDaySchema>
+
+export const NotificationDigestRunStatusSchema = z.enum([
+  'queued',
+  'sent',
+  'skipped_quiet',
+  'failed',
+])
+export type NotificationDigestRunStatus = z.infer<typeof NotificationDigestRunStatusSchema>
 
 export const InAppNotificationPublicSchema = z.object({
   id: EntityIdSchema,
@@ -36,8 +46,37 @@ export const NotificationPreferencePublicSchema = z.object({
   remindersEnabled: z.boolean(),
   pulseEnabled: z.boolean(),
   unassignedRemindersEnabled: z.boolean(),
+  morningDigestEnabled: z.boolean(),
+  morningDigestHour: z.number().int().min(0).max(23),
+  morningDigestDays: z.array(MorningDigestDaySchema).min(1),
 })
 export type NotificationPreferencePublic = z.infer<typeof NotificationPreferencePublicSchema>
+
+export const NotificationDigestRunPublicSchema = z.object({
+  id: EntityIdSchema,
+  firmId: TenantIdSchema,
+  userId: z.string().min(1),
+  localDate: z.string().min(1),
+  status: NotificationDigestRunStatusSchema,
+  urgentCount: z.number().int().min(0),
+  pulseCount: z.number().int().min(0),
+  failedReminderCount: z.number().int().min(0),
+  unassignedCount: z.number().int().min(0),
+  emailOutboxId: EntityIdSchema.nullable(),
+  failureReason: z.string().nullable(),
+  createdAt: z.iso.datetime(),
+  sentAt: z.iso.datetime().nullable(),
+})
+export type NotificationDigestRunPublic = z.infer<typeof NotificationDigestRunPublicSchema>
+
+export const MorningDigestPreviewOutputSchema = z.object({
+  status: NotificationDigestRunStatusSchema,
+  urgentCount: z.number().int().min(0),
+  pulseCount: z.number().int().min(0),
+  failedReminderCount: z.number().int().min(0),
+  unassignedCount: z.number().int().min(0),
+})
+export type MorningDigestPreviewOutput = z.infer<typeof MorningDigestPreviewOutputSchema>
 
 export const NotificationListInputSchema = z
   .object({
@@ -62,6 +101,12 @@ export const notificationsContract = oc.router({
   updatePreferences: oc
     .input(NotificationPreferencePublicSchema.partial())
     .output(NotificationPreferencePublicSchema),
+  listMorningDigestRuns: oc.input(z.undefined()).output(
+    z.object({
+      runs: z.array(NotificationDigestRunPublicSchema),
+    }),
+  ),
+  previewMorningDigest: oc.input(z.undefined()).output(MorningDigestPreviewOutputSchema),
 })
 
 export type NotificationsContract = typeof notificationsContract

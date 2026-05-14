@@ -1,15 +1,51 @@
 import { and, count, desc, eq, isNotNull, isNull, lt } from 'drizzle-orm'
 import type { SQL } from 'drizzle-orm'
 import type {
+  MorningDigestDay,
   NotificationListInput,
   NotificationPreferencePatch,
+  NotificationPreferenceRow,
   NotificationType,
 } from '@duedatehq/ports/notifications'
 import type { Db } from '../client'
-import { emailOutbox, inAppNotification, notificationPreference } from '../schema/notifications'
+import {
+  emailOutbox,
+  inAppNotification,
+  notificationDigestRun,
+  notificationPreference,
+} from '../schema/notifications'
 
 const DEFAULT_LIMIT = 50
 const MAX_LIMIT = 100
+const DEFAULT_MORNING_DIGEST_DAYS: MorningDigestDay[] = ['mon', 'tue', 'wed', 'thu', 'fri']
+
+function normalizeDigestDays(value: unknown): MorningDigestDay[] {
+  if (!Array.isArray(value)) return DEFAULT_MORNING_DIGEST_DAYS
+  const days = value.filter((day): day is MorningDigestDay =>
+    ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'].includes(String(day)),
+  )
+  return days.length > 0 ? Array.from(new Set(days)) : DEFAULT_MORNING_DIGEST_DAYS
+}
+
+function toPreferenceRow(
+  row: typeof notificationPreference.$inferSelect,
+): NotificationPreferenceRow {
+  return {
+    id: row.id,
+    firmId: row.firmId,
+    userId: row.userId,
+    emailEnabled: row.emailEnabled,
+    inAppEnabled: row.inAppEnabled,
+    remindersEnabled: row.remindersEnabled,
+    pulseEnabled: row.pulseEnabled,
+    unassignedRemindersEnabled: row.unassignedRemindersEnabled,
+    morningDigestEnabled: row.morningDigestEnabled,
+    morningDigestHour: row.morningDigestHour,
+    morningDigestDays: normalizeDigestDays(row.morningDigestDaysJson),
+    createdAt: row.createdAt,
+    updatedAt: row.updatedAt,
+  }
+}
 
 function encodeCursor(row: { createdAt: Date; id: string }): string {
   return Buffer.from(`${row.createdAt.toISOString()}|${row.id}`, 'utf8').toString('base64url')
@@ -143,7 +179,7 @@ export function makeNotificationsRepo(db: Db, firmId: string) {
     },
 
     async getPreference(userId: string) {
-      return ensurePreference(userId)
+      return toPreferenceRow(await ensurePreference(userId))
     },
 
     async updatePreference(userId: string, patch: NotificationPreferencePatch) {
@@ -155,6 +191,15 @@ export function makeNotificationsRepo(db: Db, firmId: string) {
       if (patch.pulseEnabled !== undefined) update.pulseEnabled = patch.pulseEnabled
       if (patch.unassignedRemindersEnabled !== undefined) {
         update.unassignedRemindersEnabled = patch.unassignedRemindersEnabled
+      }
+      if (patch.morningDigestEnabled !== undefined) {
+        update.morningDigestEnabled = patch.morningDigestEnabled
+      }
+      if (patch.morningDigestHour !== undefined) {
+        update.morningDigestHour = patch.morningDigestHour
+      }
+      if (patch.morningDigestDays !== undefined) {
+        update.morningDigestDaysJson = patch.morningDigestDays
       }
       if (Object.keys(update).length > 0) {
         update.updatedAt = new Date()
@@ -168,7 +213,19 @@ export function makeNotificationsRepo(db: Db, firmId: string) {
             ),
           )
       }
-      return ensurePreference(userId)
+      return toPreferenceRow(await ensurePreference(userId))
+    },
+
+    async listDigestRuns(userId: string, input: { limit?: number } = {}) {
+      const limit = Math.min(Math.max(input.limit ?? 14, 1), 30)
+      return db
+        .select()
+        .from(notificationDigestRun)
+        .where(
+          and(eq(notificationDigestRun.firmId, firmId), eq(notificationDigestRun.userId, userId)),
+        )
+        .orderBy(desc(notificationDigestRun.createdAt))
+        .limit(limit)
     },
 
     async create(input: {
@@ -202,6 +259,7 @@ export function makeNotificationsRepo(db: Db, firmId: string) {
       type:
         | 'pulse_digest'
         | 'pulse_review_request'
+        | 'morning_digest'
         | 'deadline_reminder'
         | 'client_deadline_reminder'
         | 'audit_evidence_package_ready'

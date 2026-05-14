@@ -6,6 +6,9 @@ export type NotificationType =
   | 'audit_package_ready'
   | 'system'
 
+export type MorningDigestDay = 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat' | 'sun'
+export type NotificationDigestRunStatus = 'queued' | 'sent' | 'skipped_quiet' | 'failed'
+
 export interface InAppNotificationRow {
   id: string
   firmId: string
@@ -30,8 +33,27 @@ export interface NotificationPreferenceRow {
   remindersEnabled: boolean
   pulseEnabled: boolean
   unassignedRemindersEnabled: boolean
+  morningDigestEnabled: boolean
+  morningDigestHour: number
+  morningDigestDays: MorningDigestDay[]
   createdAt: Date
   updatedAt: Date
+}
+
+export interface NotificationDigestRunRow {
+  id: string
+  firmId: string
+  userId: string
+  localDate: string
+  status: NotificationDigestRunStatus
+  urgentCount: number
+  pulseCount: number
+  failedReminderCount: number
+  unassignedCount: number
+  emailOutboxId: string | null
+  failureReason: string | null
+  createdAt: Date
+  sentAt: Date | null
 }
 
 export interface NotificationListInput {
@@ -52,6 +74,9 @@ export interface NotificationPreferencePatch {
   remindersEnabled?: boolean
   pulseEnabled?: boolean
   unassignedRemindersEnabled?: boolean
+  morningDigestEnabled?: boolean
+  morningDigestHour?: number
+  morningDigestDays?: MorningDigestDay[]
 }
 
 export interface NotificationsRepo {
@@ -65,6 +90,7 @@ export interface NotificationsRepo {
     userId: string,
     patch: NotificationPreferencePatch,
   ): Promise<NotificationPreferenceRow>
+  listDigestRuns(userId: string, input?: { limit?: number }): Promise<NotificationDigestRunRow[]>
   create(input: {
     userId: string
     type: NotificationType
@@ -80,6 +106,7 @@ export interface NotificationsRepo {
     type:
       | 'pulse_digest'
       | 'pulse_review_request'
+      | 'morning_digest'
       | 'deadline_reminder'
       | 'client_deadline_reminder'
       | 'audit_evidence_package_ready'

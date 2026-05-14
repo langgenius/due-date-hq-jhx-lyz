@@ -243,6 +243,14 @@ msgstr "{0} 到 {1}"
 msgid "{0} unsupported"
 msgstr "{0} 个暂不支持"
 
+#. placeholder {0}: run.urgentCount
+#. placeholder {1}: run.pulseCount
+#. placeholder {2}: run.failedReminderCount
+#. placeholder {3}: run.unassignedCount
+#: src/features/notifications/notifications-page.tsx
+msgid "{0} urgent · {1} Pulse · {2} failed reminders · {3} unassigned"
+msgstr "{0} 个紧急 · {1} 个 Pulse · {2} 个提醒失败 · {3} 个未分配"
+
 #. placeholder {0}: pendingRemoval.name
 #: src/features/members/members-page.tsx
 msgid "{0} will lose access to this practice. Audit history stays retained."
@@ -1921,6 +1929,10 @@ msgstr "无法将通知标记为已读"
 msgid "Could not preview selected rules"
 msgstr "无法预览所选规则"
 
+#: src/features/notifications/notifications-page.tsx
+msgid "Could not queue morning digest preview"
+msgstr "无法排队 morning digest 预览"
+
 #: src/features/calendar/calendar-page.tsx
 msgid "Could not regenerate calendar URL"
 msgstr "无法重新生成日历 URL"
@@ -2326,6 +2338,7 @@ msgstr "Dashboard 风险"
 msgid "Data cleanup warning"
 msgstr "资料整理提醒"
 
+#: src/features/notifications/notifications-page.tsx
 #: src/routes/obligations.tsx
 msgid "Days"
 msgstr "天数"
@@ -2927,6 +2940,7 @@ msgstr "事实"
 
 #: src/features/audit/audit-log-labels.ts
 #: src/features/clients/ClientFactsWorkspace.tsx
+#: src/features/notifications/notifications-page.tsx
 #: src/features/reminders/reminders-page.tsx
 #: src/routes/obligations.tsx
 msgid "Failed"
@@ -3611,6 +3625,10 @@ msgstr "正在加载准备状态检查…"
 msgid "Loading recent delivery."
 msgstr "正在加载最近投递。"
 
+#: src/features/notifications/notifications-page.tsx
+msgid "Loading recent digest runs."
+msgstr "正在加载最近的 digest 运行记录。"
+
 #: src/features/rules/rule-library-tab.tsx
 msgid "Loading rule library."
 msgstr "正在加载规则库。"
@@ -3968,6 +3986,14 @@ msgstr "每位所有者的月度罚金"
 msgid "Months late"
 msgstr "逾期月数"
 
+#: src/features/notifications/notifications-page.tsx
+msgid "Morning digest"
+msgstr "Morning digest"
+
+#: src/features/notifications/notifications-page.tsx
+msgid "Morning digest preview queued"
+msgstr "Morning digest 预览已排队"
+
 #: src/features/migration/Step1Intake.tsx
 msgid "Most provider exports are CSV or XLSX. Use Paste / Upload with a source template for those. This path is for records copied from integration tools or converted provider reports, and generated obligations still require enough imported facts."
 msgstr "多数服务商导出文件是 CSV 或 XLSX。此类文件请使用“粘贴 / 上传”并选择来源模板。此入口用于从集成工具复制或由服务商报表转换出的记录；生成义务仍需要足够的导入事实。"
@@ -4298,6 +4324,10 @@ msgstr "该事务所没有匹配客户。"
 #: src/features/clients/ClientFactsWorkspace.tsx
 msgid "No matching Pulse changes"
 msgstr "暂无匹配的 Pulse 变更"
+
+#: src/features/notifications/notifications-page.tsx
+msgid "No morning digests have run yet."
+msgstr "还没有 morning digest 运行记录。"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
 msgid "No notes."
@@ -4678,6 +4708,10 @@ msgstr "只有事务所 Owner 可以更改计划或打开 portal。"
 #: src/routes/billing.checkout.tsx
 msgid "Only practice owners can start or change a subscription."
 msgstr "只有事务所 Owner 可以创建或变更订阅。"
+
+#: src/features/notifications/notifications-page.tsx
+msgid "Only sends when deadlines, Pulse changes, or delivery failures need attention."
+msgstr "仅在截止日、Pulse 变化或投递失败需要关注时发送。"
 
 #: src/routes/practice.tsx
 msgid "Only the practice owner can change Smart Priority settings."
@@ -5676,6 +5710,7 @@ msgid "Queue controls"
 msgstr "队列控制"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
+#: src/features/notifications/notifications-page.tsx
 #: src/features/reminders/reminders-page.tsx
 msgid "Queued"
 msgstr "已入队"
@@ -5808,6 +5843,10 @@ msgstr "该客户记录最近的已审计变更。"
 #: src/features/reminders/reminders-page.tsx
 msgid "Recent delivery"
 msgstr "最近投递"
+
+#: src/features/notifications/notifications-page.tsx
+msgid "Recent digest runs"
+msgstr "最近 digest 运行记录"
 
 #: src/routes/obligations.tsx
 msgid "Recently updated"
@@ -6715,9 +6754,21 @@ msgstr "已选规则"
 msgid "Send a 7-day magic link to add a member to this practice."
 msgstr "发送 7 天有效的 magic link，将成员添加到该事务所。"
 
+#: src/features/notifications/notifications-page.tsx
+msgid "Send a morning digest"
+msgstr "发送 morning digest"
+
+#: src/features/notifications/notifications-page.tsx
+msgid "Send hour"
+msgstr "发送时间"
+
 #: src/features/members/members-page.tsx
 msgid "Send invite"
 msgstr "发送邀请"
+
+#: src/features/notifications/notifications-page.tsx
+msgid "Send preview now"
+msgstr "立即发送预览"
 
 #: src/routes/obligations.tsx
 msgid "Send readiness check"
@@ -6732,6 +6783,7 @@ msgstr "发送请求"
 msgid "Sending…"
 msgstr "发送中…"
 
+#: src/features/notifications/notifications-page.tsx
 #: src/features/reminders/reminders-page.tsx
 msgid "Sent"
 msgstr "已发送"
@@ -6874,6 +6926,10 @@ msgstr "暂时跳过"
 #: src/features/rules/rule-library-tab.tsx
 msgid "Skipped"
 msgstr "已跳过"
+
+#: src/features/notifications/notifications-page.tsx
+msgid "Skipped quiet day"
+msgstr "安静日已跳过"
 
 #: src/features/audit/audit-log-labels.ts
 msgid "Skipped rows"

@@ -1,4 +1,9 @@
-import type { InAppNotificationPublic, NotificationPreferencePublic } from '@duedatehq/contracts'
+import type {
+  InAppNotificationPublic,
+  NotificationDigestRunPublic,
+  NotificationPreferencePublic,
+} from '@duedatehq/contracts'
+import { previewMorningDigestForUser } from '../../jobs/notifications/morning-digest'
 import { requireTenant } from '../_context'
 import { requireCurrentFirmRole } from '../_permissions'
 import { os } from '../_root'
@@ -24,6 +29,31 @@ function toPreferencePublic(row: NotificationPreferencePublic): NotificationPref
     remindersEnabled: row.remindersEnabled,
     pulseEnabled: row.pulseEnabled,
     unassignedRemindersEnabled: row.unassignedRemindersEnabled,
+    morningDigestEnabled: row.morningDigestEnabled,
+    morningDigestHour: row.morningDigestHour,
+    morningDigestDays: row.morningDigestDays,
+  }
+}
+
+function toDigestRunPublic(row: {
+  id: string
+  firmId: string
+  userId: string
+  localDate: string
+  status: NotificationDigestRunPublic['status']
+  urgentCount: number
+  pulseCount: number
+  failedReminderCount: number
+  unassignedCount: number
+  emailOutboxId: string | null
+  failureReason: string | null
+  createdAt: Date
+  sentAt: Date | null
+}): NotificationDigestRunPublic {
+  return {
+    ...row,
+    createdAt: row.createdAt.toISOString(),
+    sentAt: row.sentAt ? row.sentAt.toISOString() : null,
   }
 }
 
@@ -92,8 +122,34 @@ const updatePreferences = os.notifications.updatePreferences.handler(async ({ in
       ...(input.unassignedRemindersEnabled !== undefined
         ? { unassignedRemindersEnabled: input.unassignedRemindersEnabled }
         : {}),
+      ...(input.morningDigestEnabled !== undefined
+        ? { morningDigestEnabled: input.morningDigestEnabled }
+        : {}),
+      ...(input.morningDigestHour !== undefined
+        ? { morningDigestHour: input.morningDigestHour }
+        : {}),
+      ...(input.morningDigestDays !== undefined
+        ? { morningDigestDays: input.morningDigestDays }
+        : {}),
     }),
   )
+})
+
+const listMorningDigestRuns = os.notifications.listMorningDigestRuns.handler(
+  async ({ context }) => {
+    await requireCurrentFirmRole(context, ['owner', 'manager', 'preparer', 'coordinator'])
+    const { scoped, userId } = requireTenant(context)
+    const notifications = requireNotificationsRepo(scoped)
+    return {
+      runs: (await notifications.listDigestRuns(userId, { limit: 14 })).map(toDigestRunPublic),
+    }
+  },
+)
+
+const previewMorningDigest = os.notifications.previewMorningDigest.handler(async ({ context }) => {
+  await requireCurrentFirmRole(context, ['owner', 'manager', 'preparer', 'coordinator'])
+  const { tenant, userId } = requireTenant(context)
+  return previewMorningDigestForUser(context.env, userId, tenant.firmId)
 })
 
 export const notificationsHandlers = {
@@ -103,4 +159,6 @@ export const notificationsHandlers = {
   markAllRead,
   getPreferences,
   updatePreferences,
+  listMorningDigestRuns,
+  previewMorningDigest,
 }

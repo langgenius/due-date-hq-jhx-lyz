@@ -1,7 +1,7 @@
 import { and, asc, eq, lte } from 'drizzle-orm'
 import { Resend } from 'resend'
 import { createDb } from '@duedatehq/db'
-import { emailOutbox, reminder } from '@duedatehq/db/schema/notifications'
+import { emailOutbox, notificationDigestRun, reminder } from '@duedatehq/db/schema/notifications'
 import type { EmailOutbox } from '@duedatehq/db/schema/notifications'
 import type { Env } from '../../env'
 import { recordPulseMetric } from '../pulse/metrics'
@@ -44,6 +44,13 @@ function genericSubject(payload: unknown, fallback: string): string {
 function genericText(payload: unknown, fallback: string): string {
   if (!isRecord(payload)) return fallback
   return typeof payload.text === 'string' && payload.text.trim() ? payload.text.trim() : fallback
+}
+
+function readDigestRunId(payload: unknown): string | null {
+  if (!isRecord(payload)) return null
+  return typeof payload.digestRunId === 'string' && payload.digestRunId.trim()
+    ? payload.digestRunId.trim()
+    : null
 }
 
 function pulseDigestText(payload: unknown): string {
@@ -95,6 +102,13 @@ async function processOutboxRow(
       .update(reminder)
       .set({ status: 'failed', failureReason })
       .where(eq(reminder.emailOutboxId, row.id))
+    const digestRunId = readDigestRunId(row.payloadJson)
+    if (digestRunId) {
+      await db
+        .update(notificationDigestRun)
+        .set({ status: 'failed', failureReason })
+        .where(eq(notificationDigestRun.id, digestRunId))
+    }
     return 'failed'
   }
 
@@ -129,6 +143,13 @@ async function processOutboxRow(
       .update(reminder)
       .set({ status: 'sent', sentAt: new Date(), failureReason: null })
       .where(eq(reminder.emailOutboxId, row.id))
+    const digestRunId = readDigestRunId(row.payloadJson)
+    if (digestRunId) {
+      await db
+        .update(notificationDigestRun)
+        .set({ status: 'sent', sentAt: new Date(), failureReason: null })
+        .where(eq(notificationDigestRun.id, digestRunId))
+    }
     return 'sent'
   } catch (error) {
     const failureReason = error instanceof Error ? error.message : 'Resend send failed.'
@@ -144,6 +165,13 @@ async function processOutboxRow(
       .update(reminder)
       .set({ status: 'failed', failureReason })
       .where(eq(reminder.emailOutboxId, row.id))
+    const digestRunId = readDigestRunId(row.payloadJson)
+    if (digestRunId) {
+      await db
+        .update(notificationDigestRun)
+        .set({ status: 'failed', failureReason })
+        .where(eq(notificationDigestRun.id, digestRunId))
+    }
     return 'failed'
   }
 }

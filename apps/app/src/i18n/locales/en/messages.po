@@ -243,6 +243,14 @@ msgstr "{0} to {1}"
 msgid "{0} unsupported"
 msgstr "{0} unsupported"
 
+#. placeholder {0}: run.urgentCount
+#. placeholder {1}: run.pulseCount
+#. placeholder {2}: run.failedReminderCount
+#. placeholder {3}: run.unassignedCount
+#: src/features/notifications/notifications-page.tsx
+msgid "{0} urgent · {1} Pulse · {2} failed reminders · {3} unassigned"
+msgstr "{0} urgent · {1} Pulse · {2} failed reminders · {3} unassigned"
+
 #. placeholder {0}: pendingRemoval.name
 #: src/features/members/members-page.tsx
 msgid "{0} will lose access to this practice. Audit history stays retained."
@@ -1921,6 +1929,10 @@ msgstr "Could not mark notification read"
 msgid "Could not preview selected rules"
 msgstr "Could not preview selected rules"
 
+#: src/features/notifications/notifications-page.tsx
+msgid "Could not queue morning digest preview"
+msgstr "Could not queue morning digest preview"
+
 #: src/features/calendar/calendar-page.tsx
 msgid "Could not regenerate calendar URL"
 msgstr "Could not regenerate calendar URL"
@@ -2326,6 +2338,7 @@ msgstr "Dashboard risk"
 msgid "Data cleanup warning"
 msgstr "Data cleanup warning"
 
+#: src/features/notifications/notifications-page.tsx
 #: src/routes/obligations.tsx
 msgid "Days"
 msgstr "Days"
@@ -2927,6 +2940,7 @@ msgstr "Facts"
 
 #: src/features/audit/audit-log-labels.ts
 #: src/features/clients/ClientFactsWorkspace.tsx
+#: src/features/notifications/notifications-page.tsx
 #: src/features/reminders/reminders-page.tsx
 #: src/routes/obligations.tsx
 msgid "Failed"
@@ -3611,6 +3625,10 @@ msgstr "Loading readiness check…"
 msgid "Loading recent delivery."
 msgstr "Loading recent delivery."
 
+#: src/features/notifications/notifications-page.tsx
+msgid "Loading recent digest runs."
+msgstr "Loading recent digest runs."
+
 #: src/features/rules/rule-library-tab.tsx
 msgid "Loading rule library."
 msgstr "Loading rule library."
@@ -3968,6 +3986,14 @@ msgstr "Monthly penalty per owner"
 msgid "Months late"
 msgstr "Months late"
 
+#: src/features/notifications/notifications-page.tsx
+msgid "Morning digest"
+msgstr "Morning digest"
+
+#: src/features/notifications/notifications-page.tsx
+msgid "Morning digest preview queued"
+msgstr "Morning digest preview queued"
+
 #: src/features/migration/Step1Intake.tsx
 msgid "Most provider exports are CSV or XLSX. Use Paste / Upload with a source template for those. This path is for records copied from integration tools or converted provider reports, and generated obligations still require enough imported facts."
 msgstr "Most provider exports are CSV or XLSX. Use Paste / Upload with a source template for those. This path is for records copied from integration tools or converted provider reports, and generated obligations still require enough imported facts."
@@ -4298,6 +4324,10 @@ msgstr "No matching clients in this practice."
 #: src/features/clients/ClientFactsWorkspace.tsx
 msgid "No matching Pulse changes"
 msgstr "No matching Pulse changes"
+
+#: src/features/notifications/notifications-page.tsx
+msgid "No morning digests have run yet."
+msgstr "No morning digests have run yet."
 
 #: src/features/clients/ClientFactsWorkspace.tsx
 msgid "No notes."
@@ -4678,6 +4708,10 @@ msgstr "Only practice owners can change plans or open the portal."
 #: src/routes/billing.checkout.tsx
 msgid "Only practice owners can start or change a subscription."
 msgstr "Only practice owners can start or change a subscription."
+
+#: src/features/notifications/notifications-page.tsx
+msgid "Only sends when deadlines, Pulse changes, or delivery failures need attention."
+msgstr "Only sends when deadlines, Pulse changes, or delivery failures need attention."
 
 #: src/routes/practice.tsx
 msgid "Only the practice owner can change Smart Priority settings."
@@ -5676,6 +5710,7 @@ msgid "Queue controls"
 msgstr "Queue controls"
 
 #: src/features/clients/ClientFactsWorkspace.tsx
+#: src/features/notifications/notifications-page.tsx
 #: src/features/reminders/reminders-page.tsx
 msgid "Queued"
 msgstr "Queued"
@@ -5808,6 +5843,10 @@ msgstr "Recent audited changes for this client record."
 #: src/features/reminders/reminders-page.tsx
 msgid "Recent delivery"
 msgstr "Recent delivery"
+
+#: src/features/notifications/notifications-page.tsx
+msgid "Recent digest runs"
+msgstr "Recent digest runs"
 
 #: src/routes/obligations.tsx
 msgid "Recently updated"
@@ -6715,9 +6754,21 @@ msgstr "SELECTED RULES"
 msgid "Send a 7-day magic link to add a member to this practice."
 msgstr "Send a 7-day magic link to add a member to this practice."
 
+#: src/features/notifications/notifications-page.tsx
+msgid "Send a morning digest"
+msgstr "Send a morning digest"
+
+#: src/features/notifications/notifications-page.tsx
+msgid "Send hour"
+msgstr "Send hour"
+
 #: src/features/members/members-page.tsx
 msgid "Send invite"
 msgstr "Send invite"
+
+#: src/features/notifications/notifications-page.tsx
+msgid "Send preview now"
+msgstr "Send preview now"
 
 #: src/routes/obligations.tsx
 msgid "Send readiness check"
@@ -6732,6 +6783,7 @@ msgstr "Send request"
 msgid "Sending…"
 msgstr "Sending…"
 
+#: src/features/notifications/notifications-page.tsx
 #: src/features/reminders/reminders-page.tsx
 msgid "Sent"
 msgstr "Sent"
@@ -6874,6 +6926,10 @@ msgstr "Skip for now"
 #: src/features/rules/rule-library-tab.tsx
 msgid "Skipped"
 msgstr "Skipped"
+
+#: src/features/notifications/notifications-page.tsx
+msgid "Skipped quiet day"
+msgstr "Skipped quiet day"
 
 #: src/features/audit/audit-log-labels.ts
 msgid "Skipped rows"

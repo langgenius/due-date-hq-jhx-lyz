@@ -433,6 +433,9 @@ function RecentSendsPanel({
                     <div className="grid gap-1 whitespace-normal">
                       <span className="font-medium text-text-primary">{item.clientName}</span>
                       <span className="text-xs text-text-tertiary">{item.taxType}</span>
+                      {item.failureReason ? (
+                        <span className="text-xs text-text-destructive">{item.failureReason}</span>
+                      ) : null}
                     </div>
                   </TableCell>
                   <TableCell>

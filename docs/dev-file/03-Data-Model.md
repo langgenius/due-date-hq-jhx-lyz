@@ -526,10 +526,12 @@ ready/stale/pending/failed 或 deterministic fallback；刷新 mutation 只入�
 
 ### 2.7 通知
 
-**in_app_notification** · **email_outbox** · **reminder**
+**in_app_notification** · **notification_preference** · **notification_digest_run** · **email_outbox** · **reminder**
 
 - `email_outbox.external_id` 唯一约束（幂等）
 - `email_outbox.status ∈ (pending, sending, sent, failed)`
+- `notification_preference` 是 firm-scoped personal preference；morning digest 使用 `morning_digest_enabled` / `morning_digest_hour` / `morning_digest_days_json`
+- `notification_digest_run.status ∈ (queued, sent, skipped_quiet, failed)`；`UNIQUE(user_id, local_date)` 防止同一 practice day 重复发送
 - `reminder.offset_days ∈ {30, 7, 1}`；`sent_at` / `clicked_at`
 
 > `push_subscription` 表已随 Phase 0 PWA/Web Push 降级整体移除（见 `00-Overview.md §7`、`05 §8`）。恢复时需同步 schema migration + `packages/db/schema/notifications.ts` + 两条 push 相关索引。
@@ -629,6 +631,7 @@ CREATE INDEX idx_exc_firm_status ON exception_rule(firm_id, status, effective_fr
 
 -- Notifications
 CREATE INDEX idx_outbox_status        ON email_outbox(status, created_at);
+CREATE INDEX idx_notification_digest_run_user_time ON notification_digest_run(user_id, created_at);
 -- push_subscription 索引已随 PWA/Web Push 降级移除（见 §2.7 末尾）
 ```
 

@@ -11,6 +11,7 @@ export type EmailOutboxStatus = (typeof EMAIL_OUTBOX_STATUSES)[number]
 export const EMAIL_OUTBOX_TYPES = [
   'pulse_digest',
   'pulse_review_request',
+  'morning_digest',
   'deadline_reminder',
   'client_deadline_reminder',
   'audit_evidence_package_ready',
@@ -42,6 +43,17 @@ export type ReminderTemplateKind = (typeof REMINDER_TEMPLATE_KINDS)[number]
 
 export const CLIENT_EMAIL_SUPPRESSION_REASONS = ['unsubscribe', 'bounce', 'manual'] as const
 export type ClientEmailSuppressionReason = (typeof CLIENT_EMAIL_SUPPRESSION_REASONS)[number]
+
+export const MORNING_DIGEST_DAYS = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'] as const
+export type MorningDigestDay = (typeof MORNING_DIGEST_DAYS)[number]
+
+export const NOTIFICATION_DIGEST_RUN_STATUSES = [
+  'queued',
+  'sent',
+  'skipped_quiet',
+  'failed',
+] as const
+export type NotificationDigestRunStatus = (typeof NOTIFICATION_DIGEST_RUN_STATUSES)[number]
 
 /**
  * email_outbox — transactional notification jobs.
@@ -193,6 +205,14 @@ export const notificationPreference = sqliteTable(
     unassignedRemindersEnabled: integer('unassigned_reminders_enabled', { mode: 'boolean' })
       .notNull()
       .default(true),
+    morningDigestEnabled: integer('morning_digest_enabled', { mode: 'boolean' })
+      .notNull()
+      .default(true),
+    morningDigestHour: integer('morning_digest_hour').notNull().default(7),
+    morningDigestDaysJson: text('morning_digest_days_json', { mode: 'json' })
+      .$type<MorningDigestDay[]>()
+      .notNull()
+      .default(sql`'["mon","tue","wed","thu","fri"]'`),
     createdAt: integer('created_at', { mode: 'timestamp_ms' })
       .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
       .notNull(),
@@ -204,6 +224,38 @@ export const notificationPreference = sqliteTable(
   (table) => [
     uniqueIndex('uq_notification_preference_firm_user').on(table.firmId, table.userId),
     index('idx_notification_preference_user').on(table.userId),
+  ],
+)
+
+export const notificationDigestRun = sqliteTable(
+  'notification_digest_run',
+  {
+    id: text('id').primaryKey(),
+    firmId: text('firm_id')
+      .notNull()
+      .references(() => firmProfile.id, { onDelete: 'cascade' }),
+    userId: text('user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    localDate: text('local_date').notNull(),
+    status: text('status', { enum: NOTIFICATION_DIGEST_RUN_STATUSES }).notNull(),
+    urgentCount: integer('urgent_count').notNull().default(0),
+    pulseCount: integer('pulse_count').notNull().default(0),
+    failedReminderCount: integer('failed_reminder_count').notNull().default(0),
+    unassignedCount: integer('unassigned_count').notNull().default(0),
+    emailOutboxId: text('email_outbox_id').references(() => emailOutbox.id, {
+      onDelete: 'set null',
+    }),
+    failureReason: text('failure_reason'),
+    createdAt: integer('created_at', { mode: 'timestamp_ms' })
+      .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
+      .notNull(),
+    sentAt: integer('sent_at', { mode: 'timestamp_ms' }),
+  },
+  (table) => [
+    uniqueIndex('uq_notification_digest_run_user_local_date').on(table.userId, table.localDate),
+    index('idx_notification_digest_run_firm_time').on(table.firmId, table.createdAt),
+    index('idx_notification_digest_run_user_time').on(table.userId, table.createdAt),
   ],
 )
 
@@ -242,6 +294,21 @@ export const inAppNotificationRelations = relations(inAppNotification, ({ one })
   user: one(user, {
     fields: [inAppNotification.userId],
     references: [user.id],
+  }),
+}))
+
+export const notificationDigestRunRelations = relations(notificationDigestRun, ({ one }) => ({
+  firm: one(firmProfile, {
+    fields: [notificationDigestRun.firmId],
+    references: [firmProfile.id],
+  }),
+  user: one(user, {
+    fields: [notificationDigestRun.userId],
+    references: [user.id],
+  }),
+  emailOutbox: one(emailOutbox, {
+    fields: [notificationDigestRun.emailOutboxId],
+    references: [emailOutbox.id],
   }),
 }))
 
@@ -284,6 +351,8 @@ export type EmailOutbox = typeof emailOutbox.$inferSelect
 export type NewEmailOutbox = typeof emailOutbox.$inferInsert
 export type InAppNotification = typeof inAppNotification.$inferSelect
 export type NewInAppNotification = typeof inAppNotification.$inferInsert
+export type NotificationDigestRun = typeof notificationDigestRun.$inferSelect
+export type NewNotificationDigestRun = typeof notificationDigestRun.$inferInsert
 export type Reminder = typeof reminder.$inferSelect
 export type NewReminder = typeof reminder.$inferInsert
 export type ReminderTemplate = typeof reminderTemplate.$inferSelect
