@@ -24,10 +24,46 @@ export interface ClientRow {
     | 'trust'
     | 'individual'
     | 'other'
+  legalEntity:
+    | 'individual'
+    | 'sole_proprietorship'
+    | 'single_member_llc'
+    | 'multi_member_llc'
+    | 'partnership'
+    | 'corporation'
+    | 'trust'
+    | 'estate'
+    | 'nonprofit'
+    | 'foreign_entity'
+    | 'other'
+    | null
+  taxClassification:
+    | 'individual'
+    | 'disregarded_entity'
+    | 'partnership'
+    | 's_corp'
+    | 'c_corp'
+    | 'trust'
+    | 'estate'
+    | 'nonprofit'
+    | 'foreign_reporting_company'
+    | 'unknown'
+    | null
+  taxYearType: 'calendar' | 'fiscal'
+  fiscalYearEndMonth: number | null
+  fiscalYearEndDay: number | null
   email: string | null
   notes: string | null
   assigneeId: string | null
   assigneeName: string | null
+  ownerCount: number | null
+  hasForeignAccounts: boolean
+  hasPayroll: boolean
+  hasSalesTax: boolean
+  has1099Vendors: boolean
+  hasK1Activity: boolean
+  primaryContactName: string | null
+  primaryContactEmail: string | null
   importanceWeight: number
   lateFilingCountLast12mo: number
   estimatedTaxLiabilityCents: number | null
@@ -46,6 +82,19 @@ export interface ClientCreateInputForRepo {
   state?: string | null
   county?: string | null
   entityType: ClientRow['entityType']
+  legalEntity?: ClientRow['legalEntity']
+  taxClassification?: ClientRow['taxClassification']
+  taxYearType?: ClientRow['taxYearType']
+  fiscalYearEndMonth?: number | null
+  fiscalYearEndDay?: number | null
+  ownerCount?: number | null
+  hasForeignAccounts?: boolean
+  hasPayroll?: boolean
+  hasSalesTax?: boolean
+  has1099Vendors?: boolean
+  hasK1Activity?: boolean
+  primaryContactName?: string | null
+  primaryContactEmail?: string | null
   email?: string | null
   notes?: string | null
   assigneeId?: string | null
@@ -102,10 +151,23 @@ export function toClientPublic(
     state: row.state,
     county: row.county,
     entityType: row.entityType,
+    legalEntity: row.legalEntity,
+    taxClassification: row.taxClassification ?? 'unknown',
+    taxYearType: row.taxYearType,
+    fiscalYearEndMonth: row.fiscalYearEndMonth,
+    fiscalYearEndDay: row.fiscalYearEndDay,
     email: row.email,
     notes: row.notes,
     assigneeId: row.assigneeId,
     assigneeName: row.assigneeName,
+    ownerCount: row.ownerCount,
+    hasForeignAccounts: row.hasForeignAccounts,
+    hasPayroll: row.hasPayroll,
+    hasSalesTax: row.hasSalesTax,
+    has1099Vendors: row.has1099Vendors,
+    hasK1Activity: row.hasK1Activity,
+    primaryContactName: row.primaryContactName,
+    primaryContactEmail: row.primaryContactEmail,
     importanceWeight: row.importanceWeight,
     lateFilingCountLast12mo: row.lateFilingCountLast12mo,
     estimatedTaxLiabilityCents: opts.hideDollars ? null : row.estimatedTaxLiabilityCents,

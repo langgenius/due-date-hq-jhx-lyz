@@ -41,6 +41,7 @@ export interface PermissionState {
 
 const ROLE_LABELS = {
   owner: msg`Owner`,
+  partner: msg`Partner`,
   manager: msg`Manager`,
   preparer: msg`Preparer`,
   coordinator: msg`Coordinator`,

@@ -22,7 +22,286 @@ const AiReadinessChecklistOutputSchema = z.object({
   ),
 })
 
+function checklistItem(input: ReadinessChecklistItem): ReadinessChecklistItem {
+  return input
+}
+
+function basePaymentChecklist(taxType: string): ReadinessChecklistItem {
+  return {
+    id: 'payment-instructions',
+    label: 'Payment instructions',
+    description: `Confirm who will approve payment and when funds will be available for ${taxType}.`,
+    reason: 'Extensions do not extend payment obligations.',
+    sourceHint: 'Client approval',
+  }
+}
+
 function fallbackChecklist(taxType: string): ReadinessChecklistItem[] {
+  const normalized = taxType.toLowerCase().replace(/[^a-z0-9]+/g, '_')
+
+  if (
+    normalized.includes('1040') ||
+    normalized.includes('individual') ||
+    normalized.includes('schedule_c')
+  ) {
+    return [
+      checklistItem({
+        id: 'w2-1099-income',
+        label: 'W-2 and 1099 income',
+        description: 'Upload all W-2, 1099-NEC, 1099-MISC, 1099-K, interest, and dividend forms.',
+        reason: 'Individual return prep starts with complete income source documents.',
+        sourceHint: 'Client tax organizer',
+      }),
+      checklistItem({
+        id: 'schedule-c-records',
+        label: 'Schedule C records',
+        description:
+          'Upload business income, expenses, mileage, home-office, and asset purchase records.',
+        reason: 'Single-member LLC and sole proprietor facts determine Schedule C readiness.',
+        sourceHint: 'Client books',
+      }),
+      checklistItem({
+        id: 'k1-packages',
+        label: 'K-1 packages',
+        description: 'Upload all partnership, S corp, trust, and estate K-1s received.',
+        reason: 'Missing K-1s can block the downstream 1040 workflow.',
+        sourceHint: 'Upstream entity returns',
+      }),
+      basePaymentChecklist(taxType),
+    ]
+  }
+
+  if (
+    normalized.includes('1065') ||
+    normalized.includes('1120_s') ||
+    normalized.includes('1120s') ||
+    normalized.includes('partnership') ||
+    normalized.includes('s_corp')
+  ) {
+    return [
+      checklistItem({
+        id: 'trial-balance',
+        label: 'Trial balance',
+        description: 'Upload the year-end trial balance and general ledger detail.',
+        reason: 'Entity return prep needs complete books before partner/shareholder review.',
+        sourceHint: 'Accounting system export',
+      }),
+      checklistItem({
+        id: 'bank-reconciliations',
+        label: 'Bank reconciliations',
+        description: 'Confirm bank and credit card accounts are reconciled through year end.',
+        reason: 'Open reconciliation items often block review and K-1 delivery.',
+        sourceHint: 'Bookkeeping close',
+      }),
+      checklistItem({
+        id: 'owner-changes',
+        label: 'Owner changes',
+        description:
+          'Confirm partner/shareholder ownership, capital, address, and compensation changes.',
+        reason: 'K-1 allocation and entity facts depend on current owner data.',
+        sourceHint: 'Owner approval',
+      }),
+      checklistItem({
+        id: 'k1-delivery-approval',
+        label: 'K-1 delivery approval',
+        description: 'Confirm who approves final K-1 packages and how they should be delivered.',
+        reason: 'Downstream individual and trust returns may be blocked until K-1s are issued.',
+        sourceHint: 'Partner or shareholder approval',
+      }),
+      basePaymentChecklist(taxType),
+    ]
+  }
+
+  if (normalized.includes('1120') || normalized.includes('c_corp')) {
+    return [
+      checklistItem({
+        id: 'trial-balance',
+        label: 'Trial balance',
+        description:
+          'Upload the year-end trial balance, general ledger detail, and adjusting entries.',
+        reason: 'Corporate return prep depends on final books and tax adjustment support.',
+        sourceHint: 'Accounting system export',
+      }),
+      checklistItem({
+        id: 'balance-sheet-support',
+        label: 'Balance sheet support',
+        description: 'Upload fixed asset, loan, equity, and retained earnings support.',
+        reason: 'Corporate review needs balance sheet support before e-file authorization.',
+        sourceHint: 'Bookkeeping close',
+      }),
+      checklistItem({
+        id: '8879-corp-authorization',
+        label: '8879-CORP authorization contact',
+        description: 'Confirm the signer and delivery method for e-file authorization.',
+        reason: 'E-file submission evidence depends on signed authorization.',
+        sourceHint: 'Officer approval',
+      }),
+      basePaymentChecklist(taxType),
+    ]
+  }
+
+  if (
+    normalized.includes('1041') ||
+    normalized.includes('trust') ||
+    normalized.includes('estate')
+  ) {
+    return [
+      checklistItem({
+        id: 'fiduciary-income',
+        label: 'Fiduciary income documents',
+        description: 'Upload 1099s, brokerage statements, K-1s, and sale transaction support.',
+        reason: 'Trust and estate return prep depends on fiduciary income source documents.',
+        sourceHint: 'Fiduciary records',
+      }),
+      checklistItem({
+        id: 'beneficiary-information',
+        label: 'Beneficiary information',
+        description: 'Confirm beneficiary names, addresses, tax IDs, and distribution details.',
+        reason: 'Schedule K-1 preparation requires current beneficiary facts.',
+        sourceHint: 'Fiduciary approval',
+      }),
+      basePaymentChecklist(taxType),
+    ]
+  }
+
+  if (normalized.includes('941') || normalized.includes('940') || normalized.includes('payroll')) {
+    return [
+      checklistItem({
+        id: 'payroll-reports',
+        label: 'Payroll reports',
+        description:
+          'Upload quarter or year-end payroll register, tax liability, and wage reports.',
+        reason: 'Payroll returns and deposit schedules must be tracked separately.',
+        sourceHint: 'Payroll provider',
+      }),
+      checklistItem({
+        id: 'deposit-confirmations',
+        label: 'Deposit confirmations',
+        description: 'Upload EFTPS or payroll provider deposit confirmations.',
+        reason: 'Deposit evidence is separate from return filing evidence.',
+        sourceHint: 'EFTPS or payroll provider',
+      }),
+      checklistItem({
+        id: 'payroll-adjustments',
+        label: 'Payroll adjustments',
+        description: 'Confirm voids, corrections, fringe benefits, and owner payroll adjustments.',
+        reason: 'Adjustments can change return totals or require review notes.',
+        sourceHint: 'Payroll close',
+      }),
+    ]
+  }
+
+  if (normalized.includes('1099') || normalized.includes('w_2') || normalized.includes('w2')) {
+    return [
+      checklistItem({
+        id: 'payee-list',
+        label: 'Payee list',
+        description: 'Upload vendor or employee recipient list with addresses and payment totals.',
+        reason: 'Information return workflows require recipient and IRS filing evidence.',
+        sourceHint: 'Accounting or payroll export',
+      }),
+      checklistItem({
+        id: 'tin-support',
+        label: 'TIN support',
+        description: 'Upload W-9s or confirm missing TIN follow-up status.',
+        reason: 'TIN gaps can block filing or require exception review.',
+        sourceHint: 'W-9 records',
+      }),
+      checklistItem({
+        id: 'recipient-delivery',
+        label: 'Recipient delivery',
+        description: 'Confirm recipient copy delivery method and date.',
+        reason: 'Recipient delivery is a tracked information return workflow step.',
+        sourceHint: 'Filing provider evidence',
+      }),
+    ]
+  }
+
+  if (
+    normalized.includes('fbar') ||
+    normalized.includes('8938') ||
+    normalized.includes('5471') ||
+    normalized.includes('5472') ||
+    normalized.includes('8865') ||
+    normalized.includes('8858') ||
+    normalized.includes('3520') ||
+    normalized.includes('foreign')
+  ) {
+    return [
+      checklistItem({
+        id: 'foreign-account-list',
+        label: 'Foreign account list',
+        description:
+          'Upload account names, institutions, countries, account numbers, and maximum values.',
+        reason: 'High-risk foreign reporting needs explicit source facts and review sign-off.',
+        sourceHint: 'Client foreign account records',
+      }),
+      checklistItem({
+        id: 'foreign-ownership',
+        label: 'Foreign ownership facts',
+        description: 'Confirm ownership percentages, related parties, and entity activity.',
+        reason: 'Foreign information forms are tracked as high-risk obligations.',
+        sourceHint: 'Client attestation',
+      }),
+      checklistItem({
+        id: 'partner-risk-review',
+        label: 'Partner risk review',
+        description: 'Assign partner review for high-risk foreign reporting facts.',
+        reason: 'Foreign reporting workflows require human verification before reminders.',
+        sourceHint: 'Internal review',
+      }),
+    ]
+  }
+
+  if (normalized.includes('990') || normalized.includes('nonprofit')) {
+    return [
+      checklistItem({
+        id: 'financial-statements',
+        label: 'Financial statements',
+        description:
+          'Upload year-end financial statements, revenue detail, and expense classifications.',
+        reason:
+          'Exempt organization return type and readiness depend on gross receipts and assets.',
+        sourceHint: 'Nonprofit books',
+      }),
+      checklistItem({
+        id: 'governance-changes',
+        label: 'Governance changes',
+        description:
+          'Confirm officers, directors, key employees, grants, and related-party changes.',
+        reason: '990-series review needs governance facts before final package delivery.',
+        sourceHint: 'Board records',
+      }),
+      checklistItem({
+        id: 'public-disclosure',
+        label: 'Public disclosure package',
+        description: 'Confirm who receives the final public disclosure copy.',
+        reason: 'Delivery evidence is separate from return filing acceptance.',
+        sourceHint: 'Client approval',
+      }),
+    ]
+  }
+
+  if (normalized.includes('sales_tax') || normalized.includes('sales')) {
+    return [
+      checklistItem({
+        id: 'sales-tax-reports',
+        label: 'Sales tax reports',
+        description: 'Upload taxable sales, exempt sales, marketplace, and jurisdiction reports.',
+        reason: 'State and local sales tax deadlines should not default to federal timing.',
+        sourceHint: 'POS or accounting export',
+      }),
+      checklistItem({
+        id: 'jurisdiction-confirmation',
+        label: 'Jurisdiction confirmation',
+        description: 'Confirm filing jurisdictions, local returns, and account IDs.',
+        reason: 'State and local obligations need explicit jurisdiction facts.',
+        sourceHint: 'Practice custom deadline',
+      }),
+      basePaymentChecklist(taxType),
+    ]
+  }
+
   return [
     {
       id: 'source-documents',
@@ -57,7 +336,7 @@ function normalizeChecklist(
     sourceHint?: string | null | undefined
   }>,
 ) {
-  return items.slice(0, 4).map(
+  return items.slice(0, 8).map(
     (item, index): ReadinessChecklistItem => ({
       id:
         'id' in item && item.id

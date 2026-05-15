@@ -337,7 +337,7 @@ const previewSmartPriorityProfile = os.firms.previewSmartPriorityProfile.handler
 )
 
 const backfillPenaltyExposure = os.firms.backfillPenaltyExposure.handler(async ({ context }) => {
-  const { tenant, userId } = await requireCurrentFirmRole(context, ['owner', 'manager'])
+  const { tenant, userId } = await requireCurrentFirmRole(context, ['owner', 'partner', 'manager'])
   const { scoped } = requireTenant(context)
   const recalculatedObligationCount = await backfillPenaltyFactsAndExposure(scoped)
   await scoped.audit.write({

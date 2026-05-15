@@ -69,6 +69,49 @@ function sourceUrlForPreview(
   return sourceId ? (sourceById.get(sourceId)?.url ?? null) : null
 }
 
+function obligationTypeForPreview(
+  preview: ObligationGenerationPreview,
+): NonNullable<ObligationCreateInput['obligationType']> {
+  if (preview.eventType === 'payment') return 'payment'
+  if (preview.eventType === 'deposit') return 'deposit'
+  if (preview.eventType === 'information_report') return 'information'
+  if (preview.eventType === 'client_action' || preview.eventType === 'extension') {
+    return 'client_action'
+  }
+  if (preview.eventType === 'internal_review' || preview.eventType === 'election') {
+    return 'internal_review'
+  }
+  return 'filing'
+}
+
+function recurrenceForPreview(
+  preview: ObligationGenerationPreview,
+  rule: ObligationRule,
+): NonNullable<ObligationCreateInput['recurrence']> {
+  if (rule.dueDateLogic.kind === 'period_table') return rule.dueDateLogic.frequency
+  if (preview.eventType === 'deposit') return 'event_triggered'
+  return 'annual'
+}
+
+function paymentDueDateForPreview(
+  preview: ObligationGenerationPreview,
+  rule: ObligationRule,
+  dueDate: Date,
+): Date | null {
+  if (preview.isPayment) return dueDate
+  if (rule.extensionPolicy.paymentExtended) return null
+  if (
+    rule.taxType === 'federal_1040' ||
+    rule.taxType === 'federal_1040_extension' ||
+    rule.taxType === 'federal_1041' ||
+    rule.taxType === 'federal_1120' ||
+    rule.taxType === 'federal_1120s'
+  ) {
+    return dueDate
+  }
+  return null
+}
+
 function buildCreateInput(input: {
   client: ClientRow
   profile: ClientFilingProfileRow
@@ -77,6 +120,7 @@ function buildCreateInput(input: {
   now: Date
 }): ObligationCreateInput & { preview: ObligationGenerationPreview } {
   const dueDate = new Date(`${input.preview.dueDate}T00:00:00.000Z`)
+  const paymentDueDate = paymentDueDateForPreview(input.preview, input.rule, dueDate)
   const penaltyFacts = buildPenaltyFactsFromLegacy({
     taxType: input.preview.taxType,
     estimatedTaxLiabilityCents: input.client.estimatedTaxLiabilityCents,
@@ -101,9 +145,28 @@ function buildCreateInput(input: {
     rulePeriod: input.preview.period,
     generationSource: input.client.migrationBatchId ? 'migration' : 'manual',
     jurisdiction: input.preview.jurisdiction,
+    obligationType: obligationTypeForPreview(input.preview),
+    formName: input.preview.formName,
+    authority: input.preview.jurisdiction === 'FED' ? 'IRS' : input.preview.jurisdiction,
+    filingDueDate: input.preview.isFiling ? dueDate : null,
+    paymentDueDate,
+    sourceEvidenceJson: input.preview.evidence,
+    recurrence: recurrenceForPreview(input.preview, input.rule),
+    riskLevel: input.rule.riskLevel,
     baseDueDate: dueDate,
     currentDueDate: dueDate,
     status: input.preview.requiresReview ? 'review' : 'pending',
+    prepStage: input.preview.requiresReview ? 'ready_for_prep' : 'not_started',
+    reviewStage: input.preview.requiresReview ? 'ready_for_review' : 'not_required',
+    extensionState:
+      input.preview.eventType === 'extension'
+        ? 'ready_to_file'
+        : input.rule.extensionPolicy.available
+          ? 'not_started'
+          : 'not_applicable',
+    extensionFormName: input.rule.extensionPolicy.formName ?? null,
+    paymentState: paymentDueDate ? 'estimate_needed' : 'not_applicable',
+    efileState: input.preview.isFiling ? 'authorization_requested' : 'not_applicable',
     migrationBatchId: input.client.migrationBatchId,
     estimatedTaxDueCents: exposure.estimatedTaxDueCents,
     estimatedExposureCents: exposure.estimatedExposureCents,
@@ -168,15 +231,17 @@ export async function generateObligationsForAcceptedRules(
     for (const profile of profiles) {
       if (!isRuleGenerationState(profile.state) || profile.taxTypes.length === 0) continue
 
+      const clientFacts = {
+        id: client.id,
+        entityType: client.entityType,
+        state: profile.state,
+        taxTypes: profile.taxTypes,
+        taxYearStart: dates.taxYearStart,
+        taxYearEnd: dates.taxYearEnd,
+        ...(client.taxClassification ? { taxClassification: client.taxClassification } : {}),
+      } as const
       const previews = previewObligationsFromRules({
-        client: {
-          id: client.id,
-          entityType: client.entityType,
-          state: profile.state,
-          taxTypes: profile.taxTypes,
-          taxYearStart: dates.taxYearStart,
-          taxYearEnd: dates.taxYearEnd,
-        },
+        client: clientFacts,
         rules,
       })
 

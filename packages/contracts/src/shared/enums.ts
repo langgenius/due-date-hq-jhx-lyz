@@ -13,6 +13,38 @@ export const EntityTypeSchema = z.enum([
 ])
 export type EntityType = z.infer<typeof EntityTypeSchema>
 
+export const ClientLegalEntitySchema = z.enum([
+  'individual',
+  'sole_proprietorship',
+  'single_member_llc',
+  'multi_member_llc',
+  'partnership',
+  'corporation',
+  'trust',
+  'estate',
+  'nonprofit',
+  'foreign_entity',
+  'other',
+])
+export type ClientLegalEntity = z.infer<typeof ClientLegalEntitySchema>
+
+export const ClientTaxClassificationSchema = z.enum([
+  'individual',
+  'disregarded_entity',
+  'partnership',
+  's_corp',
+  'c_corp',
+  'trust',
+  'estate',
+  'nonprofit',
+  'foreign_reporting_company',
+  'unknown',
+])
+export type ClientTaxClassification = z.infer<typeof ClientTaxClassificationSchema>
+
+export const ClientTaxYearTypeSchema = z.enum(['calendar', 'fiscal'])
+export type ClientTaxYearType = z.infer<typeof ClientTaxYearTypeSchema>
+
 // US state code whitelist lives in packages/core/default-matrix.
 export const StateCodeSchema = z.string().regex(/^[A-Z]{2}$/, {
   error: 'Expected 2-letter state code',
@@ -40,3 +72,82 @@ export type ObligationExtensionDecision = z.infer<typeof ObligationExtensionDeci
 
 export const ExposureStatusSchema = z.enum(['ready', 'needs_input', 'unsupported'])
 export type ExposureStatus = z.infer<typeof ExposureStatusSchema>
+
+export const ObligationTypeSchema = z.enum([
+  'filing',
+  'payment',
+  'deposit',
+  'information',
+  'client_action',
+  'internal_review',
+])
+export type ObligationType = z.infer<typeof ObligationTypeSchema>
+
+export const ObligationRecurrenceSchema = z.enum([
+  'once',
+  'annual',
+  'quarterly',
+  'monthly',
+  'semiweekly',
+  'event_triggered',
+])
+export type ObligationRecurrence = z.infer<typeof ObligationRecurrenceSchema>
+
+export const ObligationRiskLevelSchema = z.enum(['low', 'med', 'high'])
+export type ObligationRiskLevel = z.infer<typeof ObligationRiskLevelSchema>
+
+export const ObligationPrepStageSchema = z.enum([
+  'not_started',
+  'waiting_on_client',
+  'waiting_on_third_party',
+  'bookkeeping_cleanup',
+  'ready_for_prep',
+  'in_prep',
+  'prepared',
+])
+export type ObligationPrepStage = z.infer<typeof ObligationPrepStageSchema>
+
+export const ObligationReviewStageSchema = z.enum([
+  'not_required',
+  'ready_for_review',
+  'in_review',
+  'notes_open',
+  'approved',
+  'overridden',
+])
+export type ObligationReviewStage = z.infer<typeof ObligationReviewStageSchema>
+
+export const ObligationExtensionStateSchema = z.enum([
+  'not_applicable',
+  'not_started',
+  'estimate_needed',
+  'client_approval_needed',
+  'ready_to_file',
+  'filed',
+  'accepted',
+  'rejected',
+])
+export type ObligationExtensionState = z.infer<typeof ObligationExtensionStateSchema>
+
+export const ObligationPaymentStateSchema = z.enum([
+  'not_applicable',
+  'estimate_needed',
+  'client_approval_needed',
+  'scheduled',
+  'confirmed',
+])
+export type ObligationPaymentState = z.infer<typeof ObligationPaymentStateSchema>
+
+export const ObligationEfileStateSchema = z.enum([
+  'not_applicable',
+  'authorization_requested',
+  'authorization_signed',
+  'ready_to_submit',
+  'submitted',
+  'accepted',
+  'rejected',
+  'corrected_resubmitted',
+  'paper_filed',
+  'final_package_delivered',
+])
+export type ObligationEfileState = z.infer<typeof ObligationEfileStateSchema>

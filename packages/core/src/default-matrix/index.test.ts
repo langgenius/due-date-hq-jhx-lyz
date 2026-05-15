@@ -59,9 +59,26 @@ describe('inferTaxTypes', () => {
     expect(occurrences).toHaveLength(1)
   })
 
+  it('uses tax classification to split LLC federal filing paths', () => {
+    const disregarded = inferTaxTypes('llc', 'CA', { taxClassification: 'disregarded_entity' })
+    expect(disregarded.taxTypes).toEqual([
+      'ca_llc_franchise_min_800',
+      'ca_llc_fee_gross_receipts',
+      'federal_1040_sch_c',
+      'federal_1040_estimated_tax',
+    ])
+
+    const sCorp = inferTaxTypes('llc', 'CA', { taxClassification: 's_corp' })
+    expect(sCorp.taxTypes).toEqual([
+      'ca_llc_franchise_min_800',
+      'ca_llc_fee_gross_receipts',
+      'federal_1120s',
+    ])
+  })
+
   it('individual × NY hits the new entity_type added in v1.0', () => {
     const result = inferTaxTypes('individual', 'NY')
-    expect(result.taxTypes).toEqual(['federal_1040', 'ny_it201'])
+    expect(result.taxTypes).toEqual(['federal_1040', 'ny_it201', 'federal_1040_estimated_tax'])
     expect(result.needsReview).toBe(false)
   })
 

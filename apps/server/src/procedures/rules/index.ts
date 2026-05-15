@@ -33,6 +33,7 @@ import { generateObligationsForAcceptedRules } from './_obligation-generation'
 import { toContractRule, toCoreRule, toPracticeContractRule } from './runtime'
 
 const MAX_BULK_ACCEPT = 100
+const RULE_REVIEW_ROLES = ['owner', 'partner', 'manager'] as const
 
 function toSource(source: ReturnType<typeof listRuleSources>[number]): RuleSource {
   return {
@@ -621,7 +622,7 @@ const listTemporaryRules = os.rules.listTemporaryRules.handler(async ({ context 
 
 const acceptTemplate = os.rules.acceptTemplate.handler(async ({ input, context }) => {
   const { userId } = requireTenant(context)
-  await requireCurrentFirmRole(context, ['owner', 'manager'])
+  await requireCurrentFirmRole(context, RULE_REVIEW_ROLES)
   const rule = templateRuleById(input.ruleId)
   if (!rule) throw new ORPCError('NOT_FOUND', { message: 'Rule template was not found.' })
   if (rule.version !== input.expectedVersion) {
@@ -638,7 +639,7 @@ const acceptTemplate = os.rules.acceptTemplate.handler(async ({ input, context }
 
 const bulkAcceptTemplates = os.rules.bulkAcceptTemplates.handler(async ({ input, context }) => {
   const { scoped, userId } = requireTenant(context)
-  await requireCurrentFirmRole(context, ['owner', 'manager'])
+  await requireCurrentFirmRole(context, RULE_REVIEW_ROLES)
   const templateById = new Map(templateRules().map((rule) => [rule.id, rule]))
   const practiceById = new Map(
     (await scoped.rules.listPracticeRules()).map((rule) => [rule.ruleId, rule]),
@@ -743,7 +744,7 @@ const bulkAcceptTemplates = os.rules.bulkAcceptTemplates.handler(async ({ input,
 
 const rejectTemplate = os.rules.rejectTemplate.handler(async ({ input, context }) => {
   const { userId } = requireTenant(context)
-  await requireCurrentFirmRole(context, ['owner', 'manager'])
+  await requireCurrentFirmRole(context, RULE_REVIEW_ROLES)
   const rule = templateRuleById(input.ruleId)
   if (!rule) throw new ORPCError('NOT_FOUND', { message: 'Rule template was not found.' })
   if (rule.version !== input.expectedVersion) {
@@ -761,7 +762,7 @@ const rejectTemplate = os.rules.rejectTemplate.handler(async ({ input, context }
 
 const createCustomRule = os.rules.createCustomRule.handler(async ({ input, context }) => {
   const { scoped, userId } = requireTenant(context)
-  await requireCurrentFirmRole(context, ['owner', 'manager'])
+  await requireCurrentFirmRole(context, RULE_REVIEW_ROLES)
   const reviewedAt = new Date()
   const rule = {
     ...input.rule,
@@ -799,7 +800,7 @@ const createCustomRule = os.rules.createCustomRule.handler(async ({ input, conte
 
 const updatePracticeRule = os.rules.updatePracticeRule.handler(async ({ input, context }) => {
   const { scoped, userId } = requireTenant(context)
-  await requireCurrentFirmRole(context, ['owner', 'manager'])
+  await requireCurrentFirmRole(context, RULE_REVIEW_ROLES)
   const reviewedAt = new Date()
   const existing = await scoped.rules.getPracticeRule(input.rule.id)
   if (!existing) throw new ORPCError('NOT_FOUND', { message: 'Practice rule was not found.' })
@@ -840,7 +841,7 @@ const updatePracticeRule = os.rules.updatePracticeRule.handler(async ({ input, c
 
 const archivePracticeRule = os.rules.archivePracticeRule.handler(async ({ input, context }) => {
   const { scoped, userId } = requireTenant(context)
-  await requireCurrentFirmRole(context, ['owner', 'manager'])
+  await requireCurrentFirmRole(context, RULE_REVIEW_ROLES)
   const existing = await scoped.rules.getPracticeRule(input.ruleId)
   if (!existing) throw new ORPCError('NOT_FOUND', { message: 'Practice rule was not found.' })
   const reviewedAt = new Date()
@@ -896,7 +897,7 @@ const previewBulkRuleImpact = os.rules.previewBulkRuleImpact.handler(async ({ in
 
 const verifyCandidate = os.rules.verifyCandidate.handler(async ({ input, context }) => {
   const { scoped, userId } = requireTenant(context)
-  await requireCurrentFirmRole(context, ['owner', 'manager'])
+  await requireCurrentFirmRole(context, RULE_REVIEW_ROLES)
 
   const base = templateRuleById(input.ruleId)
   if (!base) throw new ORPCError('NOT_FOUND', { message: 'Rule template was not found.' })
@@ -1006,7 +1007,7 @@ const verifyCandidate = os.rules.verifyCandidate.handler(async ({ input, context
 
 const rejectCandidate = os.rules.rejectCandidate.handler(async ({ input, context }) => {
   const { scoped, userId } = requireTenant(context)
-  await requireCurrentFirmRole(context, ['owner', 'manager'])
+  await requireCurrentFirmRole(context, RULE_REVIEW_ROLES)
 
   const base = templateRuleById(input.ruleId)
   if (!base) throw new ORPCError('NOT_FOUND', { message: 'Rule template was not found.' })

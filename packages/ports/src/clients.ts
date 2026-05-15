@@ -1,4 +1,4 @@
-import type { ClientEntityType } from './shared'
+import type { ClientEntityType, ClientLegalEntity, ClientTaxClassification } from './shared'
 
 export interface ClientRow {
   id: string
@@ -8,10 +8,23 @@ export interface ClientRow {
   state: string | null
   county: string | null
   entityType: ClientEntityType
+  legalEntity: ClientLegalEntity | null
+  taxClassification: ClientTaxClassification | null
+  taxYearType: 'calendar' | 'fiscal'
+  fiscalYearEndMonth: number | null
+  fiscalYearEndDay: number | null
   email: string | null
   notes: string | null
   assigneeId: string | null
   assigneeName: string | null
+  ownerCount: number | null
+  hasForeignAccounts: boolean
+  hasPayroll: boolean
+  hasSalesTax: boolean
+  has1099Vendors: boolean
+  hasK1Activity: boolean
+  primaryContactName: string | null
+  primaryContactEmail: string | null
   importanceWeight: number
   lateFilingCountLast12mo: number
   estimatedTaxLiabilityCents: number | null
@@ -30,6 +43,19 @@ export interface ClientCreateInput {
   state?: string | null
   county?: string | null
   entityType: ClientEntityType
+  legalEntity?: ClientLegalEntity | null
+  taxClassification?: ClientTaxClassification | null
+  taxYearType?: 'calendar' | 'fiscal'
+  fiscalYearEndMonth?: number | null
+  fiscalYearEndDay?: number | null
+  ownerCount?: number | null
+  hasForeignAccounts?: boolean
+  hasPayroll?: boolean
+  hasSalesTax?: boolean
+  has1099Vendors?: boolean
+  hasK1Activity?: boolean
+  primaryContactName?: string | null
+  primaryContactEmail?: string | null
   email?: string | null
   notes?: string | null
   assigneeId?: string | null

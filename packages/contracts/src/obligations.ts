@@ -10,8 +10,16 @@ import { obligationQueueContract } from './obligation-queue'
 import { ObligationGenerationPreviewSchema } from './rules'
 import {
   ExposureStatusSchema,
+  ObligationEfileStateSchema,
+  ObligationExtensionStateSchema,
   ObligationExtensionDecisionSchema,
+  ObligationPaymentStateSchema,
+  ObligationPrepStageSchema,
+  ObligationRecurrenceSchema,
+  ObligationReviewStageSchema,
+  ObligationRiskLevelSchema,
   ObligationStatusSchema,
+  ObligationTypeSchema,
 } from './shared/enums'
 import { EntityIdSchema } from './shared/ids'
 
@@ -39,9 +47,24 @@ export const ObligationCreateInputSchema = z.object({
     .nullable()
     .optional(),
   jurisdiction: z.string().trim().min(1).nullable().optional(),
+  obligationType: ObligationTypeSchema.optional(),
+  formName: z.string().trim().min(1).nullable().optional(),
+  authority: z.string().trim().min(1).nullable().optional(),
+  filingDueDate: z.iso.date().nullable().optional(),
+  paymentDueDate: z.iso.date().nullable().optional(),
+  sourceEvidence: z.unknown().nullable().optional(),
+  recurrence: ObligationRecurrenceSchema.optional(),
+  riskLevel: ObligationRiskLevelSchema.optional(),
   baseDueDate: z.iso.date(),
   currentDueDate: z.iso.date().optional(),
   status: ObligationStatusSchema.optional(),
+  prepStage: ObligationPrepStageSchema.optional(),
+  reviewStage: ObligationReviewStageSchema.optional(),
+  extensionState: ObligationExtensionStateSchema.optional(),
+  extensionFormName: z.string().trim().min(1).nullable().optional(),
+  paymentState: ObligationPaymentStateSchema.optional(),
+  efileState: ObligationEfileStateSchema.optional(),
+  efileAuthorizationForm: z.string().trim().min(1).nullable().optional(),
   migrationBatchId: EntityIdSchema.nullable().optional(),
   estimatedTaxDueCents: z.number().int().min(0).nullable().optional(),
   estimatedExposureCents: z.number().int().min(0).nullable().optional(),
@@ -55,6 +78,35 @@ export const ObligationCreateInputSchema = z.object({
   penaltyFormulaLabel: z.string().nullable().optional(),
   exposureCalculatedAt: z.iso.datetime().nullable().optional(),
 })
+
+export const ObligationDependencyTypeSchema = z.enum(['k1', 'source_document', 'payment', 'review'])
+export const ObligationDependencyStatusSchema = z.enum(['blocking', 'satisfied', 'waived'])
+export const ObligationDependencyPublicSchema = z.object({
+  id: EntityIdSchema,
+  firmId: z.string().min(1),
+  upstreamObligationId: EntityIdSchema,
+  downstreamObligationId: EntityIdSchema,
+  dependencyType: ObligationDependencyTypeSchema,
+  status: ObligationDependencyStatusSchema,
+  sourceNote: z.string().nullable(),
+  createdAt: z.iso.datetime(),
+  updatedAt: z.iso.datetime(),
+})
+export type ObligationDependencyPublic = z.infer<typeof ObligationDependencyPublicSchema>
+
+export const ObligationReviewNoteTypeSchema = z.enum(['review_note', 'blocking_issue', 'override'])
+export const ObligationReviewNotePublicSchema = z.object({
+  id: EntityIdSchema,
+  firmId: z.string().min(1),
+  obligationInstanceId: EntityIdSchema,
+  authorUserId: z.string().nullable(),
+  noteType: ObligationReviewNoteTypeSchema,
+  body: z.string().min(1),
+  resolvedAt: z.iso.datetime().nullable(),
+  createdAt: z.iso.datetime(),
+  updatedAt: z.iso.datetime(),
+})
+export type ObligationReviewNotePublic = z.infer<typeof ObligationReviewNotePublicSchema>
 
 export const DueDateUpdateInputSchema = z.object({
   id: EntityIdSchema,

@@ -1,7 +1,13 @@
 import { oc } from '@orpc/contract'
 import * as z from 'zod'
 import { AiInsightPublicSchema } from './ai-insights'
-import { EntityTypeSchema, StateCodeSchema } from './shared/enums'
+import {
+  ClientLegalEntitySchema,
+  ClientTaxClassificationSchema,
+  ClientTaxYearTypeSchema,
+  EntityTypeSchema,
+  StateCodeSchema,
+} from './shared/enums'
 import { EntityIdSchema, TenantIdSchema } from './shared/ids'
 
 export const ClientImportanceWeightSchema = z.number().int().min(1).max(3)
@@ -51,6 +57,11 @@ export const ClientIdentitySchema = z.object({
   state: StateCodeSchema.nullable(),
   county: z.string().nullable(),
   entityType: EntityTypeSchema,
+  legalEntity: ClientLegalEntitySchema.nullable(),
+  taxClassification: ClientTaxClassificationSchema,
+  taxYearType: ClientTaxYearTypeSchema,
+  fiscalYearEndMonth: z.number().int().min(1).max(12).nullable(),
+  fiscalYearEndDay: z.number().int().min(1).max(31).nullable(),
 })
 
 export const ClientCreateInputSchema = z.object({
@@ -63,6 +74,19 @@ export const ClientCreateInputSchema = z.object({
   state: StateCodeSchema.nullable().optional(),
   county: z.string().nullable().optional(),
   entityType: EntityTypeSchema,
+  legalEntity: ClientLegalEntitySchema.nullable().optional(),
+  taxClassification: ClientTaxClassificationSchema.default('unknown').optional(),
+  taxYearType: ClientTaxYearTypeSchema.default('calendar').optional(),
+  fiscalYearEndMonth: z.number().int().min(1).max(12).nullable().optional(),
+  fiscalYearEndDay: z.number().int().min(1).max(31).nullable().optional(),
+  ownerCount: z.number().int().min(0).max(10000).nullable().optional(),
+  hasForeignAccounts: z.boolean().default(false).optional(),
+  hasPayroll: z.boolean().default(false).optional(),
+  hasSalesTax: z.boolean().default(false).optional(),
+  has1099Vendors: z.boolean().default(false).optional(),
+  hasK1Activity: z.boolean().default(false).optional(),
+  primaryContactName: z.string().trim().min(1).max(200).nullable().optional(),
+  primaryContactEmail: z.email().nullable().optional(),
   email: z.email().nullable().optional(),
   notes: z.string().max(5000).nullable().optional(),
   assigneeId: z.string().trim().min(1).max(200).nullable().optional(),
@@ -82,6 +106,14 @@ export const ClientPublicSchema = ClientIdentitySchema.extend({
   notes: z.string().nullable(),
   assigneeId: z.string().min(1).nullable(),
   assigneeName: z.string().nullable(),
+  ownerCount: z.number().int().min(0).nullable(),
+  hasForeignAccounts: z.boolean(),
+  hasPayroll: z.boolean(),
+  hasSalesTax: z.boolean(),
+  has1099Vendors: z.boolean(),
+  hasK1Activity: z.boolean(),
+  primaryContactName: z.string().nullable(),
+  primaryContactEmail: z.email().nullable(),
   importanceWeight: ClientImportanceWeightSchema,
   lateFilingCountLast12mo: z.number().int().min(0),
   estimatedTaxLiabilityCents: z.number().int().positive().nullable(),

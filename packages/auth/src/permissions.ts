@@ -63,6 +63,18 @@ export const roles = {
     dollars: ['read'],
   }),
 
+  partner: accessControl.newRole({
+    // Business reviewer role: operational control without account-owner
+    // organization or billing management powers.
+    client: ['create', 'read', 'update'],
+    obligation: ['read', 'update:status', 'update:assignee'],
+    pulse: ['read', 'approve', 'batch_apply', 'revert'],
+    migration: ['run', 'revert'],
+    rule: ['read', 'report_issue'],
+    audit: ['read'],
+    dollars: ['read'],
+  }),
+
   manager: accessControl.newRole({
     // Member administration is Owner-only in Members v1. Managers keep
     // business-domain permissions but no organization-plugin member surface.
@@ -97,4 +109,4 @@ export const roles = {
   }),
 } as const
 
-export type Role = 'owner' | 'manager' | 'preparer' | 'coordinator'
+export type Role = 'owner' | 'partner' | 'manager' | 'preparer' | 'coordinator'

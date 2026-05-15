@@ -8,7 +8,7 @@ import { requireCurrentFirmRole } from '../_permissions'
 import { os } from '../_root'
 import { calendarFeedUrl, signCalendarToken } from '../../lib/calendar-token'
 
-const FIRM_CALENDAR_ROLES = ['owner', 'manager'] as const
+const FIRM_CALENDAR_ROLES = ['owner', 'partner', 'manager'] as const
 
 function toIso(value: Date): string {
   return value.toISOString()
@@ -51,7 +51,10 @@ async function canManageFirmCalendar(ctx: RpcContext): Promise<boolean> {
   const { members } = ctx.vars
   if (!members) return false
   const actor = await members.findMembership(tenant.firmId, userId)
-  return actor?.status === 'active' && (actor.role === 'owner' || actor.role === 'manager')
+  return (
+    actor?.status === 'active' &&
+    (actor.role === 'owner' || actor.role === 'partner' || actor.role === 'manager')
+  )
 }
 
 async function requireCalendarAccess(ctx: RpcContext, row: CalendarSubscriptionRow): Promise<void> {

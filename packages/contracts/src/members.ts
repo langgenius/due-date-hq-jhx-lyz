@@ -2,7 +2,7 @@ import { oc } from '@orpc/contract'
 import * as z from 'zod'
 import { FirmRoleSchema } from './firms'
 
-export const MemberManagedRoleSchema = z.enum(['manager', 'preparer', 'coordinator'])
+export const MemberManagedRoleSchema = z.enum(['partner', 'manager', 'preparer', 'coordinator'])
 export const MemberStatusSchema = z.enum(['active', 'suspended'])
 export const MemberInvitationStatusSchema = z.enum(['pending', 'expired', 'canceled'])
 

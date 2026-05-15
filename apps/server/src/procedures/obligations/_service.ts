@@ -23,6 +23,14 @@ interface ObligationRow {
   rulePeriod?: string | null
   generationSource?: ObligationInstancePublic['generationSource']
   jurisdiction?: string | null
+  obligationType?: ObligationInstancePublic['obligationType']
+  formName?: string | null
+  authority?: string | null
+  filingDueDate?: Date | null
+  paymentDueDate?: Date | null
+  sourceEvidenceJson?: unknown
+  recurrence?: ObligationInstancePublic['recurrence']
+  riskLevel?: ObligationInstancePublic['riskLevel']
   baseDueDate: Date
   currentDueDate: Date
   status: ObligationInstancePublic['status']
@@ -33,6 +41,21 @@ interface ObligationRow {
   extensionExpectedDueDate: Date | null
   extensionDecidedAt: Date | null
   extensionDecidedByUserId: string | null
+  extensionState?: ObligationInstancePublic['extensionState']
+  extensionFormName?: string | null
+  extensionFiledAt?: Date | null
+  extensionAcceptedAt?: Date | null
+  prepStage?: ObligationInstancePublic['prepStage']
+  reviewStage?: ObligationInstancePublic['reviewStage']
+  reviewerUserId?: string | null
+  reviewCompletedAt?: Date | null
+  paymentState?: ObligationInstancePublic['paymentState']
+  paymentConfirmedAt?: Date | null
+  efileState?: ObligationInstancePublic['efileState']
+  efileAuthorizationForm?: string | null
+  efileSubmittedAt?: Date | null
+  efileAcceptedAt?: Date | null
+  efileRejectedAt?: Date | null
   migrationBatchId: string | null
   estimatedTaxDueCents: number | null
   estimatedExposureCents: number | null
@@ -93,6 +116,14 @@ export function toObligationPublic(
     rulePeriod: row.rulePeriod ?? null,
     generationSource: row.generationSource ?? null,
     jurisdiction: row.jurisdiction ?? null,
+    obligationType: row.obligationType ?? 'filing',
+    formName: row.formName ?? null,
+    authority: row.authority ?? null,
+    filingDueDate: row.filingDueDate ? toIsoDate(row.filingDueDate) : null,
+    paymentDueDate: row.paymentDueDate ? toIsoDate(row.paymentDueDate) : null,
+    sourceEvidence: row.sourceEvidenceJson ?? null,
+    recurrence: row.recurrence ?? 'once',
+    riskLevel: row.riskLevel ?? 'low',
     baseDueDate: toIsoDate(row.baseDueDate),
     currentDueDate: toIsoDate(row.currentDueDate),
     status: row.status,
@@ -105,6 +136,21 @@ export function toObligationPublic(
       : null,
     extensionDecidedAt: row.extensionDecidedAt?.toISOString() ?? null,
     extensionDecidedByUserId: row.extensionDecidedByUserId,
+    extensionState: row.extensionState ?? 'not_started',
+    extensionFormName: row.extensionFormName ?? null,
+    extensionFiledAt: row.extensionFiledAt?.toISOString() ?? null,
+    extensionAcceptedAt: row.extensionAcceptedAt?.toISOString() ?? null,
+    prepStage: row.prepStage ?? 'not_started',
+    reviewStage: row.reviewStage ?? 'not_required',
+    reviewerUserId: row.reviewerUserId ?? null,
+    reviewCompletedAt: row.reviewCompletedAt?.toISOString() ?? null,
+    paymentState: row.paymentState ?? 'not_applicable',
+    paymentConfirmedAt: row.paymentConfirmedAt?.toISOString() ?? null,
+    efileState: row.efileState ?? 'not_applicable',
+    efileAuthorizationForm: row.efileAuthorizationForm ?? null,
+    efileSubmittedAt: row.efileSubmittedAt?.toISOString() ?? null,
+    efileAcceptedAt: row.efileAcceptedAt?.toISOString() ?? null,
+    efileRejectedAt: row.efileRejectedAt?.toISOString() ?? null,
     migrationBatchId: row.migrationBatchId,
     estimatedTaxDueCents: row.estimatedTaxDueCents,
     estimatedExposureCents: row.estimatedExposureCents,

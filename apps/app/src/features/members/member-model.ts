@@ -2,17 +2,21 @@ import type { MemberInvitationPublic, MemberManagedRole, MemberPublic } from '@d
 import { formatDateTimeWithTimezone } from '@/lib/utils'
 
 export const MANAGED_ROLES = [
+  'partner',
   'manager',
   'preparer',
   'coordinator',
 ] as const satisfies readonly MemberManagedRole[]
 
 export function isManagedRole(value: unknown): value is MemberManagedRole {
-  return value === 'manager' || value === 'preparer' || value === 'coordinator'
+  return (
+    value === 'partner' || value === 'manager' || value === 'preparer' || value === 'coordinator'
+  )
 }
 
 export function roleLabel(role: MemberPublic['role'] | MemberManagedRole): string {
   if (role === 'owner') return 'Owner'
+  if (role === 'partner') return 'Partner'
   if (role === 'manager') return 'Manager'
   if (role === 'preparer') return 'Preparer'
   return 'Coordinator'

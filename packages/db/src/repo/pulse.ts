@@ -1163,7 +1163,7 @@ export function makePulseRepo(db: Db, firmId: string) {
         and(
           eq(member.organizationId, firmId),
           eq(member.status, 'active'),
-          inArray(member.role, ['owner', 'manager']),
+          inArray(member.role, ['owner', 'partner', 'manager']),
         ),
       )
       .orderBy(asc(user.email))
@@ -2388,7 +2388,7 @@ export function makePulseOpsRepo(db: Db) {
         and(
           eq(member.organizationId, firmId),
           eq(member.status, 'active'),
-          inArray(member.role, ['owner', 'manager']),
+          inArray(member.role, ['owner', 'partner', 'manager']),
         ),
       )
       .orderBy(asc(user.email))
@@ -2419,7 +2419,7 @@ export function makePulseOpsRepo(db: Db) {
         and(
           eq(member.organizationId, firmId),
           eq(member.status, 'active'),
-          inArray(member.role, ['owner', 'manager']),
+          inArray(member.role, ['owner', 'partner', 'manager']),
         ),
       )
       .orderBy(asc(user.email))

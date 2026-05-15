@@ -41,6 +41,7 @@ export interface SeatUsage {
 function normalizeRole(value: string | null): FirmRole {
   switch (value) {
     case 'owner':
+    case 'partner':
     case 'manager':
     case 'preparer':
     case 'coordinator':

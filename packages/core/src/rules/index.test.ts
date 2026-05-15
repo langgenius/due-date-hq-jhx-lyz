@@ -317,6 +317,121 @@ describe('@duedatehq/core/rules', () => {
     expect(previews.some((preview) => preview.ruleId === 'fed.disaster_relief.watch')).toBe(false)
   })
 
+  it('keeps federal entity return due dates and LLC tax classification paths explicit', () => {
+    const sCorpPreviews = previewObligationsFromRules({
+      client: {
+        id: 'client_scorp',
+        entityType: 's_corp',
+        state: 'NY',
+        taxTypes: ['federal_1120s'],
+        taxYearStart: '2025-01-01',
+        taxYearEnd: '2025-12-31',
+      },
+    })
+    expect(
+      sCorpPreviews.find((preview) => preview.ruleId === 'fed.1120s.return.2025'),
+    ).toMatchObject({
+      dueDate: '2026-03-16',
+      reminderReady: true,
+    })
+
+    const llcAsSCorpPreviews = previewObligationsFromRules({
+      client: {
+        id: 'client_llc_scorp',
+        entityType: 'llc',
+        taxClassification: 's_corp',
+        state: 'CA',
+        taxTypes: ['federal_1120s'],
+        taxYearStart: '2025-01-01',
+        taxYearEnd: '2025-12-31',
+      },
+    })
+    expect(llcAsSCorpPreviews.some((preview) => preview.ruleId === 'fed.1065.return.2025')).toBe(
+      false,
+    )
+    expect(
+      llcAsSCorpPreviews.find((preview) => preview.ruleId === 'fed.1120s.return.2025'),
+    ).toMatchObject({
+      dueDate: '2026-03-16',
+    })
+  })
+
+  it('tracks 1040 extensions without changing payment due dates', () => {
+    const returnRule = findRuleById('fed.1040.return.2025')
+    const extensionRule = findRuleById('fed.1040.extension.2025')
+    expect(returnRule?.extensionPolicy).toMatchObject({
+      formName: 'Form 4868',
+      paymentExtended: false,
+    })
+    expect(extensionRule?.extensionPolicy).toMatchObject({
+      formName: 'Form 4868',
+      paymentExtended: false,
+    })
+
+    const previews = previewObligationsFromRules({
+      client: {
+        id: 'client_1040',
+        entityType: 'individual',
+        taxClassification: 'individual',
+        state: 'CA',
+        taxTypes: ['federal_1040', 'federal_1040_extension', 'federal_1040_estimated_tax'],
+      },
+    })
+    expect(previews.find((preview) => preview.ruleId === 'fed.1040.return.2025')).toMatchObject({
+      dueDate: '2026-04-15',
+      eventType: 'filing',
+    })
+    expect(previews.find((preview) => preview.ruleId === 'fed.1040.extension.2025')).toMatchObject({
+      dueDate: '2026-04-15',
+      eventType: 'extension',
+      reminderReady: true,
+    })
+    expect(
+      previews.filter((preview) => preview.ruleId === 'fed.1040.estimated_tax.2026'),
+    ).toHaveLength(4)
+  })
+
+  it('separates payroll return, payroll deposit, information return, and FBAR workflows', () => {
+    const previews = previewObligationsFromRules({
+      client: {
+        id: 'client_business',
+        entityType: 'c_corp',
+        taxClassification: 'c_corp',
+        state: 'TX',
+        taxTypes: [
+          'federal_941',
+          'federal_payroll_deposit_monthly',
+          'federal_1099_nec',
+          'federal_fbar',
+        ],
+      },
+    })
+
+    const form941 = previews.filter((preview) => preview.ruleId === 'fed.941.return.2026')
+    const payrollDeposit = previews.find(
+      (preview) => preview.ruleId === 'fed.payroll_deposit.monthly.2026',
+    )
+    const nec = previews.find((preview) => preview.ruleId === 'fed.1099_nec.2025')
+    const fbar = previews.find((preview) => preview.ruleId === 'fed.fbar.automatic_extension.2025')
+
+    expect(form941).toHaveLength(4)
+    expect(form941.every((preview) => preview.eventType === 'filing')).toBe(true)
+    expect(payrollDeposit).toMatchObject({
+      eventType: 'deposit',
+      dueDate: null,
+      reminderReady: false,
+    })
+    expect(nec).toMatchObject({
+      eventType: 'information_report',
+      dueDate: '2026-02-02',
+      reminderReady: false,
+    })
+    expect(fbar).toMatchObject({
+      dueDate: '2026-10-15',
+      reminderReady: false,
+    })
+  })
+
   it('keeps optional PTET generated as review-only and expands period tables', () => {
     const previews = previewObligationsFromRules({
       client: {

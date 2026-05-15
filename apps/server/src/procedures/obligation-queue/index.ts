@@ -34,6 +34,14 @@ interface RawRow {
   rulePeriod: string | null
   generationSource: ObligationQueueRow['generationSource']
   jurisdiction: string | null
+  obligationType: ObligationQueueRow['obligationType']
+  formName: string | null
+  authority: string | null
+  filingDueDate: Date | null
+  paymentDueDate: Date | null
+  sourceEvidenceJson: unknown
+  recurrence: ObligationQueueRow['recurrence']
+  riskLevel: ObligationQueueRow['riskLevel']
   baseDueDate: Date
   currentDueDate: Date
   status: ObligationQueueRow['status']
@@ -44,6 +52,21 @@ interface RawRow {
   extensionExpectedDueDate: Date | null
   extensionDecidedAt: Date | null
   extensionDecidedByUserId: string | null
+  extensionState: ObligationQueueRow['extensionState']
+  extensionFormName: string | null
+  extensionFiledAt: Date | null
+  extensionAcceptedAt: Date | null
+  prepStage: ObligationQueueRow['prepStage']
+  reviewStage: ObligationQueueRow['reviewStage']
+  reviewerUserId: string | null
+  reviewCompletedAt: Date | null
+  paymentState: ObligationQueueRow['paymentState']
+  paymentConfirmedAt: Date | null
+  efileState: ObligationQueueRow['efileState']
+  efileAuthorizationForm: string | null
+  efileSubmittedAt: Date | null
+  efileAcceptedAt: Date | null
+  efileRejectedAt: Date | null
   migrationBatchId: string | null
   estimatedTaxDueCents: number | null
   estimatedExposureCents: number | null
@@ -119,6 +142,14 @@ function toRow(
     rulePeriod: row.rulePeriod,
     generationSource: row.generationSource,
     jurisdiction: row.jurisdiction,
+    obligationType: row.obligationType,
+    formName: row.formName,
+    authority: row.authority,
+    filingDueDate: row.filingDueDate ? toIsoDate(row.filingDueDate) : null,
+    paymentDueDate: row.paymentDueDate ? toIsoDate(row.paymentDueDate) : null,
+    sourceEvidence: row.sourceEvidenceJson ?? null,
+    recurrence: row.recurrence,
+    riskLevel: row.riskLevel,
     baseDueDate: toIsoDate(row.baseDueDate),
     currentDueDate: toIsoDate(row.currentDueDate),
     status: row.status,
@@ -131,6 +162,21 @@ function toRow(
       : null,
     extensionDecidedAt: row.extensionDecidedAt?.toISOString() ?? null,
     extensionDecidedByUserId: row.extensionDecidedByUserId,
+    extensionState: row.extensionState,
+    extensionFormName: row.extensionFormName,
+    extensionFiledAt: row.extensionFiledAt?.toISOString() ?? null,
+    extensionAcceptedAt: row.extensionAcceptedAt?.toISOString() ?? null,
+    prepStage: row.prepStage,
+    reviewStage: row.reviewStage,
+    reviewerUserId: row.reviewerUserId,
+    reviewCompletedAt: row.reviewCompletedAt?.toISOString() ?? null,
+    paymentState: row.paymentState,
+    paymentConfirmedAt: row.paymentConfirmedAt?.toISOString() ?? null,
+    efileState: row.efileState,
+    efileAuthorizationForm: row.efileAuthorizationForm,
+    efileSubmittedAt: row.efileSubmittedAt?.toISOString() ?? null,
+    efileAcceptedAt: row.efileAcceptedAt?.toISOString() ?? null,
+    efileRejectedAt: row.efileRejectedAt?.toISOString() ?? null,
     migrationBatchId: row.migrationBatchId,
     estimatedTaxDueCents: opts.hideDollars ? null : row.estimatedTaxDueCents,
     estimatedExposureCents: opts.hideDollars ? null : row.estimatedExposureCents,

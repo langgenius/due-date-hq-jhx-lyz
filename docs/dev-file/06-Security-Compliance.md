@@ -29,7 +29,7 @@
 | `socialProviders.google` + `oneTap`        | Google OAuth 登录与 Google One Tap ID token callback    |
 | `genericOAuth.microsoft-entra-id`          | Microsoft Entra ID / Microsoft 365 登录                 |
 | `organization`                             | 多租户（= Firm）+ Member + Invitation + Active-org 切换 |
-| 自定义 Access Control（`organization.ac`） | 四角色权限矩阵                                          |
+| 自定义 Access Control（`organization.ac`） | 五角色权限矩阵                                          |
 | `twoFactor`                                | 可选 TOTP MFA；启用后登录 session 必须完成二次验证      |
 
 ### 2.2 Session & Cookie
@@ -72,7 +72,7 @@
 `requirePermission` 仍是安全边界；SPA 的 `PermissionGate` 只负责禁用必然失败的查询和渲染
 “可见但受限”的权限说明。
 
-### 3.1 四角色 + 权限 statement（约束）
+### 3.1 五角色 + 权限 statement（约束）
 
 ```ts
 // packages/auth/permissions.ts（业务约束，不是示例）
@@ -91,27 +91,30 @@ const statement = {
 
 ### 3.2 角色权限矩阵
 
-| 资源 · 动作                  | owner | manager | preparer             | coordinator               |
-| ---------------------------- | ----- | ------- | -------------------- | ------------------------- |
-| `client.create`              | ✓     | ✓       | ✓                    | —                         |
-| `client.read`                | ✓     | ✓       | ✓                    | ✓                         |
-| `obligation.update:status`   | ✓     | ✓       | ✓（仅自己 assignee） | —                         |
-| `obligation.update:assignee` | ✓     | ✓       | —                    | —                         |
-| `pulse.approve`              | ✓     | ✓       | —                    | —                         |
-| `pulse.batch_apply`          | ✓     | ✓       | —                    | —                         |
-| `pulse.revert`               | ✓     | ✓       | —                    | —                         |
-| `migration.run`              | ✓     | ✓       | ✓                    | —                         |
-| `migration.revert`           | ✓     | ✓       | —                    | —                         |
-| `member.invite`              | ✓     | —       | —                    | —                         |
-| `member.change_role`         | ✓     | —       | —                    | —                         |
-| `billing.read`               | ✓     | ✓       | —                    | —                         |
-| `billing.update`             | ✓     | —       | —                    | —                         |
-| `audit.read`                 | ✓     | ✓       | ✓                    | —                         |
-| `audit.export`               | ✓     | —       | —                    | —                         |
-| `dollars.read`               | ✓     | ✓       | ✓                    | 默认 ✗；firm 开关打开才 ✓ |
-| `export.evidence_package`    | ✓     | —       | —                    | —                         |
+| 资源 · 动作                  | owner | partner | manager | preparer             | coordinator               |
+| ---------------------------- | ----- | ------- | ------- | -------------------- | ------------------------- |
+| `client.create`              | ✓     | ✓       | ✓       | ✓                    | —                         |
+| `client.read`                | ✓     | ✓       | ✓       | ✓                    | ✓                         |
+| `obligation.update:status`   | ✓     | ✓       | ✓       | ✓（仅自己 assignee） | —                         |
+| `obligation.update:assignee` | ✓     | ✓       | ✓       | —                    | —                         |
+| `pulse.approve`              | ✓     | ✓       | ✓       | —                    | —                         |
+| `pulse.batch_apply`          | ✓     | ✓       | ✓       | —                    | —                         |
+| `pulse.revert`               | ✓     | ✓       | ✓       | —                    | —                         |
+| `migration.run`              | ✓     | ✓       | ✓       | ✓                    | —                         |
+| `migration.revert`           | ✓     | ✓       | ✓       | —                    | —                         |
+| `member.invite`              | ✓     | —       | —       | —                    | —                         |
+| `member.change_role`         | ✓     | —       | —       | —                    | —                         |
+| `billing.read`               | ✓     | —       | ✓       | —                    | —                         |
+| `billing.update`             | ✓     | —       | —       | —                    | —                         |
+| `audit.read`                 | ✓     | ✓       | ✓       | ✓                    | —                         |
+| `audit.export`               | ✓     | —       | —       | —                    | —                         |
+| `dollars.read`               | ✓     | ✓       | ✓       | ✓                    | 默认 ✗；firm 开关打开才 ✓ |
+| `export.evidence_package`    | ✓     | —       | —       | —                    | —                         |
 
-**边界原则：** Revert 是补救能力，Owner + Manager 都可执行；Owner-only 只用于所有权 / 账户级能力，包括 Firm 删除、Owner 转让、billing、member 管理和全 firm export。Members v1 mutation 网关当前只允许 Owner；Manager 成员管理可在 P1 重新评估。
+**边界原则：** Partner 是事务所业务角色，覆盖 final review、extension approval、risk sign-off、
+Pulse/Rules 业务确认和补救动作；Owner 是 SaaS account / billing / firm 管理角色。Partner
+不自动继承 billing、member management、firm delete 或全 firm export。Members v1 mutation
+网关当前只允许 Owner；Manager/Partner 成员管理可在 P1 重新评估。
 
 ### 3.3 前端无权限交互
 
@@ -126,7 +129,7 @@ const statement = {
 
 - 7 天 Demo / P0 早期：必须检查 session、active firm、tenant scope；client / migration / obligation 写入口已在服务端按 role gate 收口，且所有写操作写 audit
 - 真实试点前：危险写操作按 RBAC 矩阵校验（migration/pulse revert = Owner + Manager，export / billing / ownership = Owner）；MFA 保持账户可选项
-- Phase 1 在每个 oRPC procedure middleware 中加 `authed.use(requirePermission('client.delete'))`，启用四角色矩阵
+- Phase 1 在每个 oRPC procedure middleware 中加 `authed.use(requirePermission('client.delete'))`，启用五角色矩阵
 - 失败 → 写 `audit_event(action='auth.denied', reason=...)` + 返回 `ORPCError('FORBIDDEN')`
 
 ---

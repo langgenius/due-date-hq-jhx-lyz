@@ -38,7 +38,7 @@ import { useLocaleSwitch } from '@/i18n/provider'
 import { initialsFromName, signOut, type AuthUser } from '@/lib/auth'
 import { cn } from '@duedatehq/ui/lib/utils'
 
-type DemoRole = 'owner' | 'manager' | 'preparer' | 'coordinator'
+type DemoRole = 'owner' | 'partner' | 'manager' | 'preparer' | 'coordinator'
 type DemoPlan = 'solo' | 'pro' | 'team'
 
 type DemoAccount = {
@@ -58,7 +58,13 @@ type DemoAccountsResponse = {
 const DEMO_ACCOUNTS_QUERY_KEY = ['e2e', 'demo-accounts'] as const
 
 function isDemoRole(value: unknown): value is DemoRole {
-  return value === 'owner' || value === 'manager' || value === 'preparer' || value === 'coordinator'
+  return (
+    value === 'owner' ||
+    value === 'partner' ||
+    value === 'manager' ||
+    value === 'preparer' ||
+    value === 'coordinator'
+  )
 }
 
 function isDemoPlan(value: unknown): value is DemoPlan {
@@ -120,6 +126,7 @@ export function demoAccountSwitchHref(account: DemoAccount | DemoRole, redirectT
 
 const DEMO_ROLE_LABELS = {
   owner: msg`Owner`,
+  partner: msg`Partner`,
   manager: msg`Manager`,
   preparer: msg`Preparer`,
   coordinator: msg`Coordinator`,

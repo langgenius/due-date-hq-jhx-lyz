@@ -1,8 +1,16 @@
 import type {
   ExposureStatus,
+  ObligationEfileState,
+  ObligationExtensionState,
   ObligationExtensionDecision,
+  ObligationPaymentState,
+  ObligationPrepStage,
+  ObligationRecurrence,
   ObligationReadiness,
+  ObligationReviewStage,
+  ObligationRiskLevel,
   ObligationStatus,
+  ObligationType,
 } from './shared'
 
 export interface PenaltyBreakdownItem {
@@ -34,6 +42,14 @@ export interface ObligationInstanceRow {
   rulePeriod: string | null
   generationSource: 'migration' | 'manual' | 'annual_rollover' | 'pulse' | null
   jurisdiction: string | null
+  obligationType: ObligationType
+  formName: string | null
+  authority: string | null
+  filingDueDate: Date | null
+  paymentDueDate: Date | null
+  sourceEvidenceJson: unknown
+  recurrence: ObligationRecurrence
+  riskLevel: ObligationRiskLevel
   baseDueDate: Date
   currentDueDate: Date
   status: ObligationStatus
@@ -44,6 +60,21 @@ export interface ObligationInstanceRow {
   extensionExpectedDueDate: Date | null
   extensionDecidedAt: Date | null
   extensionDecidedByUserId: string | null
+  extensionState: ObligationExtensionState
+  extensionFormName: string | null
+  extensionFiledAt: Date | null
+  extensionAcceptedAt: Date | null
+  prepStage: ObligationPrepStage
+  reviewStage: ObligationReviewStage
+  reviewerUserId: string | null
+  reviewCompletedAt: Date | null
+  paymentState: ObligationPaymentState
+  paymentConfirmedAt: Date | null
+  efileState: ObligationEfileState
+  efileAuthorizationForm: string | null
+  efileSubmittedAt: Date | null
+  efileAcceptedAt: Date | null
+  efileRejectedAt: Date | null
   migrationBatchId: string | null
   estimatedTaxDueCents: number | null
   estimatedExposureCents: number | null
@@ -71,9 +102,24 @@ export interface ObligationCreateInput {
   rulePeriod?: string | null
   generationSource?: 'migration' | 'manual' | 'annual_rollover' | 'pulse' | null
   jurisdiction?: string | null
+  obligationType?: ObligationType
+  formName?: string | null
+  authority?: string | null
+  filingDueDate?: Date | null
+  paymentDueDate?: Date | null
+  sourceEvidenceJson?: unknown
+  recurrence?: ObligationRecurrence
+  riskLevel?: ObligationRiskLevel
   baseDueDate: Date
   currentDueDate?: Date
   status?: ObligationStatus
+  prepStage?: ObligationPrepStage
+  reviewStage?: ObligationReviewStage
+  extensionState?: ObligationExtensionState
+  extensionFormName?: string | null
+  paymentState?: ObligationPaymentState
+  efileState?: ObligationEfileState
+  efileAuthorizationForm?: string | null
   migrationBatchId?: string | null
   estimatedTaxDueCents?: number | null
   estimatedExposureCents?: number | null

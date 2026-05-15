@@ -8,7 +8,7 @@ import type { ContextVars, Env } from '../../env'
 import type { RpcContext } from '../_context'
 import { requestPulseReview } from './index'
 
-type Role = 'owner' | 'manager' | 'preparer' | 'coordinator'
+type Role = 'owner' | 'partner' | 'manager' | 'preparer' | 'coordinator'
 type Status = 'matched' | 'dismissed' | 'reverted'
 type SourceStatus = 'approved' | 'source_revoked'
 type EnqueueEmailInput = {
@@ -26,7 +26,14 @@ function member(role: Role, overrides: Partial<MemberRow> = {}): MemberRow {
     id: `member_${role}`,
     organizationId: 'firm_1',
     userId: `user_${role}`,
-    name: role === 'preparer' ? 'Avery Patel' : role === 'manager' ? 'Miguel Chen' : 'Sarah',
+    name:
+      role === 'preparer'
+        ? 'Avery Patel'
+        : role === 'partner'
+          ? 'Priya Shah'
+          : role === 'manager'
+            ? 'Miguel Chen'
+            : 'Sarah',
     email: `${role}@example.com`,
     image: null,
     role,
@@ -97,6 +104,7 @@ function contextFor(
   }))
   const listMembers = vi.fn(async () => [
     member('owner'),
+    member('partner'),
     member('manager'),
     member('preparer'),
     member('coordinator'),
@@ -149,11 +157,12 @@ function contextFor(
 
 describe('requestPulseReview', () => {
   it.each([
-    ['owner', 1],
-    ['manager', 1],
-    ['preparer', 2],
+    ['owner', 2],
+    ['partner', 2],
+    ['manager', 2],
+    ['preparer', 3],
   ] as const)(
-    'lets an active %s request review and notifies Owner/Manager',
+    'lets an active %s request review and notifies Partner/Manager',
     async (role, count) => {
       const {
         context,
@@ -193,7 +202,9 @@ describe('requestPulseReview', () => {
       )
       expect(emailInput.payloadJson.recipients).toHaveLength(count)
       expect(emailInput.payloadJson.subject).toBe('Review requested: IRS CA storm relief')
-      expect(emailInput.payloadJson.text).toContain('requested Owner/Manager review for this Pulse')
+      expect(emailInput.payloadJson.text).toContain(
+        'requested Partner/Manager review for this Pulse',
+      )
       expect(emailInput.payloadJson.text).toContain(
         'https://app.test/rules?tab=pulse&alert=alert_1',
       )
@@ -245,9 +256,9 @@ describe('requestPulseReview', () => {
     } = contextFor('preparer', pulseDetail(), 'pro')
 
     await expect(requestPulseReview({ context, alertId: 'alert_1' })).resolves.toEqual(
-      expect.objectContaining({ notificationCount: 2, emailCount: 2 }),
+      expect.objectContaining({ notificationCount: 3, emailCount: 3 }),
     )
-    expect(notificationsCreate).toHaveBeenCalledTimes(2)
+    expect(notificationsCreate).toHaveBeenCalledTimes(3)
     expect(notificationsEnqueueEmail).toHaveBeenCalledTimes(1)
     expect(requestPriorityReview).not.toHaveBeenCalled()
     expect(auditWrite).toHaveBeenCalledWith(

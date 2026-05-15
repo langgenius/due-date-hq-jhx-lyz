@@ -269,7 +269,13 @@ function syncInput(subscription: Subscription): StripeSubscriptionSyncInput {
 }
 
 function isKnownFirmRole(role: string): boolean {
-  return role === 'owner' || role === 'manager' || role === 'preparer' || role === 'coordinator'
+  return (
+    role === 'owner' ||
+    role === 'partner' ||
+    role === 'manager' ||
+    role === 'preparer' ||
+    role === 'coordinator'
+  )
 }
 
 function assertSignInOtpType(type: string) {

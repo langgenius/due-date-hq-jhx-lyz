@@ -82,9 +82,9 @@ describe('requireCurrentFirmRole', () => {
   })
 
   it('keeps write-role gates aligned with the current RBAC surface', () => {
-    expect(CLIENT_WRITE_ROLES).toEqual(['owner', 'manager', 'preparer'])
-    expect(MIGRATION_RUN_ROLES).toEqual(['owner', 'manager', 'preparer'])
-    expect(MIGRATION_REVERT_ROLES).toEqual(['owner', 'manager'])
-    expect(OBLIGATION_STATUS_WRITE_ROLES).toEqual(['owner', 'manager', 'preparer'])
+    expect(CLIENT_WRITE_ROLES).toEqual(['owner', 'partner', 'manager', 'preparer'])
+    expect(MIGRATION_RUN_ROLES).toEqual(['owner', 'partner', 'manager', 'preparer'])
+    expect(MIGRATION_REVERT_ROLES).toEqual(['owner', 'partner', 'manager'])
+    expect(OBLIGATION_STATUS_WRITE_ROLES).toEqual(['owner', 'partner', 'manager', 'preparer'])
   })
 })

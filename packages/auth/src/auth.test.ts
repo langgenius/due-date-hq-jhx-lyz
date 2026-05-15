@@ -75,8 +75,16 @@ describe('@duedatehq/auth permissions', () => {
 
   it('declares every configured role', () => {
     expect(Object.keys(roles).toSorted()).toEqual(
-      ['coordinator', 'manager', 'owner', 'preparer'].toSorted(),
+      ['coordinator', 'manager', 'owner', 'partner', 'preparer'].toSorted(),
     )
+  })
+
+  it('grants partner workflow control without account-owner billing powers', () => {
+    const partner = roles.partner.statements as Record<string, readonly string[] | undefined>
+    expect(partner.obligation).toEqual(expect.arrayContaining(['read', 'update:status']))
+    expect(partner.pulse).toEqual(expect.arrayContaining(['read', 'approve', 'revert']))
+    expect(partner.billing).toBeUndefined()
+    expect(partner.member).toBeUndefined()
   })
 
   it('hides dollars:read from the coordinator role (PRD §3.6 RBAC)', () => {

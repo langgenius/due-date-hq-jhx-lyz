@@ -6,11 +6,19 @@ import {
   obligationInstance,
   type ExposureStatus,
   type ObligationInstance,
+  type ObligationEfileState,
+  type ObligationExtensionState,
+  type ObligationPaymentState,
+  type ObligationPrepStage,
+  type ObligationRecurrence,
+  type ObligationReviewStage,
+  type ObligationRiskLevel,
+  type ObligationType,
 } from '../schema/obligations'
 import { listActiveOverlayDueDates } from './overlay'
 import { loadDerivedReadinessByObligation } from './readiness-derived'
 
-const COLS_PER_OI_ROW = 26
+const COLS_PER_OI_ROW = 45
 const OI_BATCH_SIZE = Math.floor(100 / COLS_PER_OI_ROW) // = 3
 const CLIENT_ASSERT_BATCH_SIZE = 90
 const OI_LOOKUP_IDS_PER_BATCH = 90
@@ -27,9 +35,24 @@ export interface ObligationCreateInput {
   rulePeriod?: string | null
   generationSource?: 'migration' | 'manual' | 'annual_rollover' | 'pulse' | null
   jurisdiction?: string | null
+  obligationType?: ObligationType
+  formName?: string | null
+  authority?: string | null
+  filingDueDate?: Date | null
+  paymentDueDate?: Date | null
+  sourceEvidenceJson?: unknown
+  recurrence?: ObligationRecurrence
+  riskLevel?: ObligationRiskLevel
   baseDueDate: Date
   currentDueDate?: Date
   status?: ObligationStatus
+  prepStage?: ObligationPrepStage
+  reviewStage?: ObligationReviewStage
+  extensionState?: ObligationExtensionState
+  extensionFormName?: string | null
+  paymentState?: ObligationPaymentState
+  efileState?: ObligationEfileState
+  efileAuthorizationForm?: string | null
   migrationBatchId?: string | null
   estimatedTaxDueCents?: number | null
   estimatedExposureCents?: number | null
@@ -200,9 +223,24 @@ export function makeObligationsRepo(db: Db, firmId: string) {
         rulePeriod: i.rulePeriod ?? null,
         generationSource: i.generationSource ?? null,
         jurisdiction: resolveJurisdiction(i, { clientsById, profilesById }),
+        obligationType: i.obligationType ?? 'filing',
+        formName: i.formName ?? null,
+        authority: i.authority ?? null,
+        filingDueDate: i.filingDueDate ?? null,
+        paymentDueDate: i.paymentDueDate ?? null,
+        sourceEvidenceJson: i.sourceEvidenceJson ?? null,
+        recurrence: i.recurrence ?? 'once',
+        riskLevel: i.riskLevel ?? 'low',
         baseDueDate: i.baseDueDate,
         currentDueDate: i.currentDueDate ?? i.baseDueDate,
         status: i.status ?? ('pending' as const),
+        prepStage: i.prepStage ?? 'not_started',
+        reviewStage: i.reviewStage ?? 'not_required',
+        extensionState: i.extensionState ?? 'not_started',
+        extensionFormName: i.extensionFormName ?? null,
+        paymentState: i.paymentState ?? 'not_applicable',
+        efileState: i.efileState ?? 'not_applicable',
+        efileAuthorizationForm: i.efileAuthorizationForm ?? null,
         migrationBatchId: i.migrationBatchId ?? null,
         estimatedTaxDueCents: i.estimatedTaxDueCents ?? null,
         estimatedExposureCents: i.estimatedExposureCents ?? null,
@@ -425,6 +463,7 @@ export function makeObligationsRepo(db: Db, firmId: string) {
           extensionExpectedDueDate: patch.expectedExtendedDueDate,
           extensionDecidedAt: patch.decidedAt,
           extensionDecidedByUserId: patch.decidedByUserId,
+          extensionState: patch.decision === 'applied' ? 'filed' : 'rejected',
           ...(patch.status !== undefined ? { status: patch.status } : {}),
         })
         .where(and(eq(obligationInstance.firmId, firmId), eq(obligationInstance.id, id)))

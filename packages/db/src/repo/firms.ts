@@ -15,7 +15,7 @@ import { obligationInstance, type ObligationStatus } from '../schema/obligations
 import { listActiveOverlayDueDates } from './overlay'
 import { fromSmartPriorityProfile, toSmartPriorityProfile } from './priority-profile'
 
-export type FirmRole = 'owner' | 'manager' | 'preparer' | 'coordinator'
+export type FirmRole = 'owner' | 'partner' | 'manager' | 'preparer' | 'coordinator'
 
 export interface FirmMembershipRow {
   id: string

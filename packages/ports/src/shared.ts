@@ -1,6 +1,6 @@
 export type FirmPlan = 'solo' | 'pro' | 'team' | 'firm'
 export type FirmStatus = 'active' | 'suspended' | 'deleted'
-export type FirmRole = 'owner' | 'manager' | 'preparer' | 'coordinator'
+export type FirmRole = 'owner' | 'partner' | 'manager' | 'preparer' | 'coordinator'
 export type MemberStatus = 'active' | 'suspended'
 export type InvitationStatus = 'pending' | 'expired' | 'canceled'
 
@@ -12,6 +12,19 @@ export type ClientEntityType =
   | 'sole_prop'
   | 'trust'
   | 'individual'
+  | 'other'
+
+export type ClientLegalEntity =
+  | 'individual'
+  | 'sole_proprietorship'
+  | 'single_member_llc'
+  | 'multi_member_llc'
+  | 'partnership'
+  | 'corporation'
+  | 'trust'
+  | 'estate'
+  | 'nonprofit'
+  | 'foreign_entity'
   | 'other'
 
 export type ObligationStatus =
@@ -29,6 +42,75 @@ export type ObligationReadiness = 'ready' | 'waiting' | 'needs_review'
 export type ObligationExtensionDecision = 'not_considered' | 'applied' | 'rejected'
 
 export type ExposureStatus = 'ready' | 'needs_input' | 'unsupported'
+
+export type ClientTaxClassification =
+  | 'individual'
+  | 'disregarded_entity'
+  | 'partnership'
+  | 's_corp'
+  | 'c_corp'
+  | 'trust'
+  | 'estate'
+  | 'nonprofit'
+  | 'foreign_reporting_company'
+  | 'unknown'
+
+export type ObligationType =
+  | 'filing'
+  | 'payment'
+  | 'deposit'
+  | 'information'
+  | 'client_action'
+  | 'internal_review'
+export type ObligationRecurrence =
+  | 'once'
+  | 'annual'
+  | 'quarterly'
+  | 'monthly'
+  | 'semiweekly'
+  | 'event_triggered'
+export type ObligationRiskLevel = 'low' | 'med' | 'high'
+export type ObligationPrepStage =
+  | 'not_started'
+  | 'waiting_on_client'
+  | 'waiting_on_third_party'
+  | 'bookkeeping_cleanup'
+  | 'ready_for_prep'
+  | 'in_prep'
+  | 'prepared'
+export type ObligationReviewStage =
+  | 'not_required'
+  | 'ready_for_review'
+  | 'in_review'
+  | 'notes_open'
+  | 'approved'
+  | 'overridden'
+export type ObligationExtensionState =
+  | 'not_applicable'
+  | 'not_started'
+  | 'estimate_needed'
+  | 'client_approval_needed'
+  | 'ready_to_file'
+  | 'filed'
+  | 'accepted'
+  | 'rejected'
+export type ObligationPaymentState =
+  | 'not_applicable'
+  | 'estimate_needed'
+  | 'client_approval_needed'
+  | 'scheduled'
+  | 'confirmed'
+export type ObligationEfileState =
+  | 'not_applicable'
+  | 'authorization_requested'
+  | 'authorization_signed'
+  | 'ready_to_submit'
+  | 'submitted'
+  | 'accepted'
+  | 'rejected'
+  | 'corrected_resubmitted'
+  | 'paper_filed'
+  | 'final_package_delivered'
 
 export type MigrationSource =
   | 'paste'

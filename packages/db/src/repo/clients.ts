@@ -1,6 +1,12 @@
 import { and, desc, eq, inArray, isNull } from 'drizzle-orm'
 import type { Db } from '../client'
-import { client, type Client, type ClientEntityType } from '../schema/clients'
+import {
+  client,
+  type Client,
+  type ClientEntityType,
+  type ClientLegalEntity,
+  type ClientTaxClassification,
+} from '../schema/clients'
 
 /**
  * ClientsRepo — tenant-scoped CRUD for `client` rows.
@@ -11,7 +17,7 @@ import { client, type Client, type ClientEntityType } from '../schema/clients'
  * D1 100-param budget: `client` inserts 17 cols -> 5 rows per batch INSERT.
  */
 
-const COLS_PER_CLIENT_ROW = 20
+const COLS_PER_CLIENT_ROW = 34
 const CLIENT_BATCH_SIZE = Math.floor(100 / COLS_PER_CLIENT_ROW) // = 5
 const CLIENT_LOOKUP_IDS_PER_BATCH = 99
 const CLIENT_UPDATE_IDS_PER_BATCH = 90
@@ -23,6 +29,19 @@ export interface ClientCreateInput {
   state?: string | null
   county?: string | null
   entityType: ClientEntityType
+  legalEntity?: ClientLegalEntity | null
+  taxClassification?: ClientTaxClassification | null
+  taxYearType?: 'calendar' | 'fiscal'
+  fiscalYearEndMonth?: number | null
+  fiscalYearEndDay?: number | null
+  ownerCount?: number | null
+  hasForeignAccounts?: boolean
+  hasPayroll?: boolean
+  hasSalesTax?: boolean
+  has1099Vendors?: boolean
+  hasK1Activity?: boolean
+  primaryContactName?: string | null
+  primaryContactEmail?: string | null
   email?: string | null
   notes?: string | null
   assigneeId?: string | null
@@ -49,6 +68,19 @@ export function makeClientsRepo(db: Db, firmId: string) {
         state: input.state ?? null,
         county: input.county ?? null,
         entityType: input.entityType,
+        legalEntity: input.legalEntity ?? null,
+        taxClassification: input.taxClassification ?? 'unknown',
+        taxYearType: input.taxYearType ?? 'calendar',
+        fiscalYearEndMonth: input.fiscalYearEndMonth ?? null,
+        fiscalYearEndDay: input.fiscalYearEndDay ?? null,
+        ownerCount: input.ownerCount ?? null,
+        hasForeignAccounts: input.hasForeignAccounts ?? false,
+        hasPayroll: input.hasPayroll ?? false,
+        hasSalesTax: input.hasSalesTax ?? false,
+        has1099Vendors: input.has1099Vendors ?? false,
+        hasK1Activity: input.hasK1Activity ?? false,
+        primaryContactName: input.primaryContactName ?? null,
+        primaryContactEmail: input.primaryContactEmail ?? null,
         email: input.email ?? null,
         notes: input.notes ?? null,
         assigneeId: input.assigneeId ?? null,
@@ -73,6 +105,19 @@ export function makeClientsRepo(db: Db, firmId: string) {
         state: i.state ?? null,
         county: i.county ?? null,
         entityType: i.entityType,
+        legalEntity: i.legalEntity ?? null,
+        taxClassification: i.taxClassification ?? 'unknown',
+        taxYearType: i.taxYearType ?? 'calendar',
+        fiscalYearEndMonth: i.fiscalYearEndMonth ?? null,
+        fiscalYearEndDay: i.fiscalYearEndDay ?? null,
+        ownerCount: i.ownerCount ?? null,
+        hasForeignAccounts: i.hasForeignAccounts ?? false,
+        hasPayroll: i.hasPayroll ?? false,
+        hasSalesTax: i.hasSalesTax ?? false,
+        has1099Vendors: i.has1099Vendors ?? false,
+        hasK1Activity: i.hasK1Activity ?? false,
+        primaryContactName: i.primaryContactName ?? null,
+        primaryContactEmail: i.primaryContactEmail ?? null,
         email: i.email ?? null,
         notes: i.notes ?? null,
         assigneeId: i.assigneeId ?? null,

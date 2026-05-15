@@ -24,6 +24,18 @@ export type EntityType =
   | 'individual'
   | 'other'
 
+export type TaxClassification =
+  | 'individual'
+  | 'disregarded_entity'
+  | 'partnership'
+  | 's_corp'
+  | 'c_corp'
+  | 'trust'
+  | 'estate'
+  | 'nonprofit'
+  | 'foreign_reporting_company'
+  | 'unknown'
+
 export const MATRIX_VERSION = 'v1.0' as const
 export type MatrixVersion = typeof MATRIX_VERSION
 
@@ -213,11 +225,33 @@ const FEDERAL_OVERLAY: Record<EntityType, readonly string[]> = {
   llc: ['federal_1065_or_1040'],
   s_corp: ['federal_1120s'],
   partnership: ['federal_1065'],
-  c_corp: ['federal_1120'],
-  sole_prop: ['federal_1040_sch_c'],
+  c_corp: ['federal_1120', 'federal_1120_estimated_tax'],
+  sole_prop: ['federal_1040_sch_c', 'federal_1040_estimated_tax'],
   trust: ['federal_1041'],
-  individual: ['federal_1040'],
+  individual: ['federal_1040', 'federal_1040_estimated_tax'],
   other: ['federal'],
+}
+
+function federalOverlayForTaxClassification(
+  entityType: EntityType,
+  taxClassification?: TaxClassification | null,
+): readonly string[] {
+  if (entityType === 'llc') {
+    if (taxClassification === 'disregarded_entity') {
+      return ['federal_1040_sch_c', 'federal_1040_estimated_tax']
+    }
+    if (taxClassification === 'partnership') return ['federal_1065']
+    if (taxClassification === 's_corp') return ['federal_1120s']
+    if (taxClassification === 'c_corp') return ['federal_1120', 'federal_1120_estimated_tax']
+  }
+
+  if (taxClassification === 's_corp') return ['federal_1120s']
+  if (taxClassification === 'c_corp') return ['federal_1120', 'federal_1120_estimated_tax']
+  if (taxClassification === 'partnership') return ['federal_1065']
+  if (taxClassification === 'disregarded_entity') return ['federal_1040_sch_c']
+  if (taxClassification === 'nonprofit') return ['federal_990']
+
+  return FEDERAL_OVERLAY[entityType]
 }
 
 const STATE_CODES = new Set<string>(STATE_RULE_JURISDICTIONS)
@@ -262,8 +296,12 @@ function genericStateTaxTypes(entityType: EntityType, state: string): string[] {
  *     federal_overlay only + needsReview = true.
  *   - entity_type='other' (with or without state) → federal + needsReview.
  */
-export function inferTaxTypes(entityType: EntityType, state: string): InferTaxTypesResult {
-  const fed = FEDERAL_OVERLAY[entityType]
+export function inferTaxTypes(
+  entityType: EntityType,
+  state: string,
+  opts: { taxClassification?: TaxClassification | null } = {},
+): InferTaxTypesResult {
+  const fed = federalOverlayForTaxClassification(entityType, opts.taxClassification)
   const stateCell = RULES[entityType]?.[state]
 
   if (!stateCell) {
@@ -278,8 +316,12 @@ export function inferTaxTypes(entityType: EntityType, state: string): InferTaxTy
     }
   }
 
+  const stateTaxTypes =
+    opts.taxClassification && opts.taxClassification !== 'unknown'
+      ? stateCell.taxTypes.filter((taxType) => !taxType.startsWith('federal'))
+      : stateCell.taxTypes
   const result: InferTaxTypesResult = {
-    taxTypes: dedup([...stateCell.taxTypes, ...fed]),
+    taxTypes: dedup([...stateTaxTypes, ...fed]),
     needsReview: stateCell.needsReview,
     matrixVersion: MATRIX_VERSION,
     sourceUrls: stateCell.sourceUrls,

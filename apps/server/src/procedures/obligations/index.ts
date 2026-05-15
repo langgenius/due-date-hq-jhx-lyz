@@ -44,6 +44,14 @@ interface ObligationRow {
   rulePeriod: string | null
   generationSource: ObligationInstancePublic['generationSource']
   jurisdiction: string | null
+  obligationType: ObligationInstancePublic['obligationType']
+  formName: string | null
+  authority: string | null
+  filingDueDate: Date | null
+  paymentDueDate: Date | null
+  sourceEvidenceJson: unknown
+  recurrence: ObligationInstancePublic['recurrence']
+  riskLevel: ObligationInstancePublic['riskLevel']
   baseDueDate: Date
   currentDueDate: Date
   status: ObligationInstancePublic['status']
@@ -54,6 +62,21 @@ interface ObligationRow {
   extensionExpectedDueDate: Date | null
   extensionDecidedAt: Date | null
   extensionDecidedByUserId: string | null
+  extensionState: ObligationInstancePublic['extensionState']
+  extensionFormName: string | null
+  extensionFiledAt: Date | null
+  extensionAcceptedAt: Date | null
+  prepStage: ObligationInstancePublic['prepStage']
+  reviewStage: ObligationInstancePublic['reviewStage']
+  reviewerUserId: string | null
+  reviewCompletedAt: Date | null
+  paymentState: ObligationInstancePublic['paymentState']
+  paymentConfirmedAt: Date | null
+  efileState: ObligationInstancePublic['efileState']
+  efileAuthorizationForm: string | null
+  efileSubmittedAt: Date | null
+  efileAcceptedAt: Date | null
+  efileRejectedAt: Date | null
   migrationBatchId: string | null
   estimatedTaxDueCents: number | null
   estimatedExposureCents: number | null
@@ -85,9 +108,24 @@ const createBatch = os.obligations.createBatch.handler(async ({ input, context }
       rulePeriod?: string | null
       generationSource?: ObligationInstancePublic['generationSource']
       jurisdiction?: string | null
+      obligationType?: ObligationInstancePublic['obligationType']
+      formName?: string | null
+      authority?: string | null
+      filingDueDate?: Date | null
+      paymentDueDate?: Date | null
+      sourceEvidenceJson?: unknown
+      recurrence?: ObligationInstancePublic['recurrence']
+      riskLevel?: ObligationInstancePublic['riskLevel']
       baseDueDate: Date
       currentDueDate: Date
       status?: ObligationInstancePublic['status']
+      prepStage?: ObligationInstancePublic['prepStage']
+      reviewStage?: ObligationInstancePublic['reviewStage']
+      extensionState?: ObligationInstancePublic['extensionState']
+      extensionFormName?: string | null
+      paymentState?: ObligationInstancePublic['paymentState']
+      efileState?: ObligationInstancePublic['efileState']
+      efileAuthorizationForm?: string | null
       migrationBatchId: string | null
       estimatedTaxDueCents?: number | null
       estimatedExposureCents?: number | null
@@ -110,8 +148,23 @@ const createBatch = os.obligations.createBatch.handler(async ({ input, context }
       rulePeriod: o.rulePeriod ?? null,
       generationSource: o.generationSource ?? null,
       jurisdiction: o.jurisdiction ?? null,
+      obligationType: o.obligationType ?? 'filing',
+      formName: o.formName ?? null,
+      authority: o.authority ?? null,
+      filingDueDate: o.filingDueDate ? new Date(o.filingDueDate) : null,
+      paymentDueDate: o.paymentDueDate ? new Date(o.paymentDueDate) : null,
+      sourceEvidenceJson: o.sourceEvidence ?? null,
+      recurrence: o.recurrence ?? 'once',
+      riskLevel: o.riskLevel ?? 'low',
       baseDueDate: new Date(o.baseDueDate),
       currentDueDate: o.currentDueDate ? new Date(o.currentDueDate) : new Date(o.baseDueDate),
+      prepStage: o.prepStage ?? 'not_started',
+      reviewStage: o.reviewStage ?? 'not_required',
+      extensionState: o.extensionState ?? 'not_started',
+      extensionFormName: o.extensionFormName ?? null,
+      paymentState: o.paymentState ?? 'not_applicable',
+      efileState: o.efileState ?? 'not_applicable',
+      efileAuthorizationForm: o.efileAuthorizationForm ?? null,
       migrationBatchId: o.migrationBatchId ?? null,
       estimatedTaxDueCents: o.estimatedTaxDueCents ?? null,
       estimatedExposureCents: o.estimatedExposureCents ?? null,

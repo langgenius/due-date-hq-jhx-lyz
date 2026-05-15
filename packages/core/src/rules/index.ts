@@ -115,9 +115,19 @@ export type EntityApplicability =
 export type ObligationEventType =
   | 'filing'
   | 'payment'
+  | 'deposit'
   | 'extension'
   | 'election'
   | 'information_report'
+  | 'client_action'
+  | 'internal_review'
+export type ObligationType =
+  | 'filing'
+  | 'payment'
+  | 'deposit'
+  | 'information'
+  | 'client_action'
+  | 'internal_review'
 export type RuleTier = 'basic' | 'annual_rolling' | 'exception' | 'applicability_review'
 export type RuleStatus = 'candidate' | 'verified' | 'deprecated'
 export type RuleRiskLevel = 'low' | 'med' | 'high'
@@ -143,7 +153,7 @@ export type DueDateLogic =
     }
   | {
       kind: 'period_table'
-      frequency: 'monthly' | 'quarterly' | 'annual'
+      frequency: 'semiweekly' | 'monthly' | 'quarterly' | 'annual'
       periods: readonly { period: string; dueDate: string }[]
       holidayRollover: 'source_adjusted'
     }
@@ -199,6 +209,7 @@ export interface ObligationRule {
   taxType: string
   formName: string
   eventType: ObligationEventType
+  obligationType?: ObligationType
   isFiling: boolean
   isPayment: boolean
   taxYear: number
@@ -225,6 +236,17 @@ export type RuleGenerationEntity = Exclude<EntityApplicability, 'any_business'> 
 export interface RuleGenerationClientFacts {
   id: string
   entityType: RuleGenerationEntity
+  taxClassification?:
+    | 'individual'
+    | 'disregarded_entity'
+    | 'partnership'
+    | 's_corp'
+    | 'c_corp'
+    | 'trust'
+    | 'estate'
+    | 'nonprofit'
+    | 'foreign_reporting_company'
+    | 'unknown'
   state: RuleGenerationState
   taxTypes: readonly string[]
   taxYearStart?: string
@@ -281,6 +303,8 @@ const RULE_TAX_TYPE_ALIASES: Record<
   string,
   readonly { taxType: string; requiresReview?: boolean; reason?: string }[]
 > = {
+  federal_1040_sch_c: [{ taxType: 'federal_1040' }],
+  federal_4868: [{ taxType: 'federal_1040_extension' }],
   ca_100_franchise: [{ taxType: 'ca_100' }],
   ca_100s_franchise: [{ taxType: 'ca_100s' }],
   ca_llc_fee_gross_receipts: [
@@ -962,6 +986,118 @@ export const RULE_SOURCES = [
     lastReviewedOn: VERIFIED_AT,
   },
   {
+    id: 'fed.irs_when_to_file_individuals_2026',
+    jurisdiction: 'FED',
+    title: 'IRS When to file for individuals (2026 filing season)',
+    url: 'https://www.irs.gov/filing/individuals/when-to-file',
+    sourceType: 'due_dates',
+    acquisitionMethod: 'html_watch',
+    cadence: 'pre_season',
+    priority: 'critical',
+    healthStatus: 'healthy',
+    isEarlyWarning: false,
+    notificationChannels: ['source_change', 'practice_rule_preview'],
+    lastReviewedOn: VERIFIED_AT,
+  },
+  {
+    id: 'fed.irs_i1041_2025',
+    jurisdiction: 'FED',
+    title: 'IRS Instructions for Form 1041 (2025)',
+    url: 'https://www.irs.gov/instructions/i1041',
+    sourceType: 'instructions',
+    acquisitionMethod: 'html_watch',
+    cadence: 'pre_season',
+    priority: 'critical',
+    healthStatus: 'healthy',
+    isEarlyWarning: false,
+    notificationChannels: ['source_change', 'practice_rule_preview'],
+    lastReviewedOn: VERIFIED_AT,
+  },
+  {
+    id: 'fed.irs_i941_2026',
+    jurisdiction: 'FED',
+    title: 'IRS Instructions for Form 941 (03/2026)',
+    url: 'https://www.irs.gov/instructions/i941',
+    sourceType: 'instructions',
+    acquisitionMethod: 'html_watch',
+    cadence: 'quarterly',
+    priority: 'critical',
+    healthStatus: 'healthy',
+    isEarlyWarning: false,
+    notificationChannels: ['source_change', 'practice_rule_preview'],
+    lastReviewedOn: VERIFIED_AT,
+  },
+  {
+    id: 'fed.irs_information_return_reporting',
+    jurisdiction: 'FED',
+    title: 'IRS Information return reporting',
+    url: 'https://www.irs.gov/businesses/small-businesses-self-employed/information-return-reporting',
+    sourceType: 'instructions',
+    acquisitionMethod: 'html_watch',
+    cadence: 'pre_season',
+    priority: 'critical',
+    healthStatus: 'healthy',
+    isEarlyWarning: false,
+    notificationChannels: ['source_change', 'practice_rule_preview'],
+    lastReviewedOn: VERIFIED_AT,
+  },
+  {
+    id: 'fed.irs_p1099_2026',
+    jurisdiction: 'FED',
+    title: 'IRS Publication 1099 (2026), General Instructions for Certain Information Returns',
+    url: 'https://www.irs.gov/publications/p1099',
+    sourceType: 'publication',
+    acquisitionMethod: 'html_watch',
+    cadence: 'pre_season',
+    priority: 'critical',
+    healthStatus: 'healthy',
+    isEarlyWarning: false,
+    notificationChannels: ['source_change', 'practice_rule_preview'],
+    lastReviewedOn: VERIFIED_AT,
+  },
+  {
+    id: 'fed.fincen_fbar_due_date',
+    jurisdiction: 'FED',
+    title: 'FinCEN Due Date for FBARs',
+    url: 'https://www.fincen.gov/sites/default/files/2020-03/Due_Date_for_FBARs.pdf',
+    sourceType: 'instructions',
+    acquisitionMethod: 'pdf_watch',
+    cadence: 'pre_season',
+    priority: 'critical',
+    healthStatus: 'healthy',
+    isEarlyWarning: false,
+    notificationChannels: ['source_change', 'practice_rule_preview'],
+    lastReviewedOn: VERIFIED_AT,
+  },
+  {
+    id: 'fed.irs_990_due_date',
+    jurisdiction: 'FED',
+    title: 'IRS Annual exempt organization return due date',
+    url: 'https://www.irs.gov/charities-non-profits/annual-exempt-organization-return-due-date',
+    sourceType: 'due_dates',
+    acquisitionMethod: 'html_watch',
+    cadence: 'pre_season',
+    priority: 'high',
+    healthStatus: 'healthy',
+    isEarlyWarning: false,
+    notificationChannels: ['source_change', 'practice_rule_preview'],
+    lastReviewedOn: VERIFIED_AT,
+  },
+  {
+    id: 'fed.irs_i8868_2026',
+    jurisdiction: 'FED',
+    title: 'IRS Instructions for Form 8868 (01/2026)',
+    url: 'https://www.irs.gov/instructions/i8868',
+    sourceType: 'instructions',
+    acquisitionMethod: 'html_watch',
+    cadence: 'pre_season',
+    priority: 'high',
+    healthStatus: 'healthy',
+    isEarlyWarning: false,
+    notificationChannels: ['source_change', 'practice_rule_preview'],
+    lastReviewedOn: VERIFIED_AT,
+  },
+  {
     id: 'fed.irs_disaster_relief',
     jurisdiction: 'FED',
     title: 'IRS Tax Relief in Disaster Situations',
@@ -1344,6 +1480,21 @@ const SOURCE_EXCERPTS: Record<string, string> = {
     'A corporation must file Form 1120-S by the 15th day of the 3rd month following the close of its tax year.',
   'fed.irs_i1120_2025':
     'A corporation must file Form 1120 by the 15th day of the 4th month after the end of its tax year.',
+  'fed.irs_when_to_file_individuals_2026':
+    'IRS lists April 15, 2026 as the individual filing date and states that filing extensions do not extend payment time.',
+  'fed.irs_i1041_2025':
+    'Calendar-year estates and trusts file Form 1041 and Schedule K-1 by April 15, 2026; fiscal-year due dates use the 15th day of the 4th month after year end.',
+  'fed.irs_i941_2026':
+    'Form 941 due dates follow the month after each quarter; the instructions list January-March wages as due April 30.',
+  'fed.irs_information_return_reporting':
+    'IRS information return reporting guidance says Form 1099-NEC is due by January 31 for nonemployee compensation.',
+  'fed.irs_p1099_2026':
+    'Publication 1099 explains weekend and legal-holiday rollover for filing and furnishing due dates.',
+  'fed.fincen_fbar_due_date':
+    'FinCEN grants an automatic extension from the April 15 FBAR due date to October 15 each year.',
+  'fed.irs_990_due_date':
+    'Exempt organization annual returns are generally due on the 15th day of the 5th month after the accounting period ends.',
+  'fed.irs_i8868_2026': 'Form 8868 cannot be used to extend the due date of Form 990-N.',
   'fed.irs_disaster_relief':
     'IRS publishes notice-specific tax relief by date, listing affected localities and postponed acts.',
   'fed.fema_disaster_declarations':
@@ -1576,6 +1727,439 @@ export const STATE_CANDIDATE_RULES = STATE_RULE_SOURCE_SEEDS.flatMap((seed) =>
 
 export const OBLIGATION_RULES = [
   ...STATE_CANDIDATE_RULES,
+  {
+    id: 'fed.1040.return.2025',
+    title: 'Federal Form 1040 individual income tax return',
+    jurisdiction: 'FED',
+    entityApplicability: ['individual', 'sole_prop'],
+    taxType: 'federal_1040',
+    formName: 'Form 1040',
+    eventType: 'filing',
+    obligationType: 'filing',
+    isFiling: true,
+    isPayment: false,
+    taxYear: 2025,
+    applicableYear: 2026,
+    ruleTier: 'basic',
+    status: 'verified',
+    coverageStatus: 'full',
+    riskLevel: 'med',
+    requiresApplicabilityReview: false,
+    dueDateLogic: {
+      kind: 'fixed_date',
+      date: '2026-04-15',
+      holidayRollover: 'next_business_day',
+    },
+    extensionPolicy: {
+      available: true,
+      formName: 'Form 4868',
+      durationMonths: 6,
+      paymentExtended: false,
+      notes:
+        'Form 4868 extends filing time only; tax payment remains due by the original due date.',
+    },
+    sourceIds: ['fed.irs_when_to_file_individuals_2026', 'fed.irs_pub_509_2026'],
+    evidence: [
+      sourceEvidence(
+        'fed.irs_when_to_file_individuals_2026',
+        'File on',
+        'IRS lists the 2026 individual filing date and extension/payment distinction.',
+      ),
+      sourceEvidence(
+        'fed.irs_pub_509_2026',
+        'Individuals',
+        'Publication 509 is the IRS tax calendar source for filing and paying actions.',
+      ),
+    ],
+    defaultTip: 'Track Form 1040 filing separately from payment and Form 4868 extension work.',
+    quality: VERIFIED_QUALITY,
+    verifiedBy: 'practice.template_seed',
+    verifiedAt: VERIFIED_AT,
+    nextReviewOn: NEXT_PRE_SEASON_REVIEW,
+    version: 1,
+  },
+  {
+    id: 'fed.1040.extension.2025',
+    title: 'Federal Form 4868 individual extension request',
+    jurisdiction: 'FED',
+    entityApplicability: ['individual', 'sole_prop'],
+    taxType: 'federal_1040_extension',
+    formName: 'Form 4868',
+    eventType: 'extension',
+    obligationType: 'client_action',
+    isFiling: true,
+    isPayment: false,
+    taxYear: 2025,
+    applicableYear: 2026,
+    ruleTier: 'basic',
+    status: 'verified',
+    coverageStatus: 'full',
+    riskLevel: 'med',
+    requiresApplicabilityReview: false,
+    dueDateLogic: {
+      kind: 'fixed_date',
+      date: '2026-04-15',
+      holidayRollover: 'next_business_day',
+    },
+    extensionPolicy: {
+      available: true,
+      formName: 'Form 4868',
+      durationMonths: 6,
+      paymentExtended: false,
+      notes: 'Extension request due by the original return date; payment is still due April 15.',
+    },
+    sourceIds: ['fed.irs_when_to_file_individuals_2026'],
+    evidence: [
+      sourceEvidence(
+        'fed.irs_when_to_file_individuals_2026',
+        'Extension of time to file',
+        'IRS states that Form 4868 is due by the original due date and does not extend payment.',
+      ),
+    ],
+    defaultTip: 'Use this as the client-action control for filing Form 4868.',
+    quality: VERIFIED_QUALITY,
+    verifiedBy: 'practice.template_seed',
+    verifiedAt: VERIFIED_AT,
+    nextReviewOn: NEXT_PRE_SEASON_REVIEW,
+    version: 1,
+  },
+  {
+    id: 'fed.1040.estimated_tax.2026',
+    title: 'Federal individual estimated tax payments',
+    jurisdiction: 'FED',
+    entityApplicability: ['individual', 'sole_prop'],
+    taxType: 'federal_1040_estimated_tax',
+    formName: 'Form 1040-ES',
+    eventType: 'payment',
+    obligationType: 'payment',
+    isFiling: false,
+    isPayment: true,
+    taxYear: 2026,
+    applicableYear: 2026,
+    ruleTier: 'annual_rolling',
+    status: 'verified',
+    coverageStatus: 'manual',
+    riskLevel: 'med',
+    requiresApplicabilityReview: true,
+    dueDateLogic: {
+      kind: 'period_table',
+      frequency: 'quarterly',
+      periods: [
+        { period: 'Q1', dueDate: '2026-04-15' },
+        { period: 'Q2', dueDate: '2026-06-15' },
+        { period: 'Q3', dueDate: '2026-09-15' },
+        { period: 'Q4', dueDate: '2027-01-15' },
+      ],
+      holidayRollover: 'source_adjusted',
+    },
+    extensionPolicy: {
+      available: false,
+      paymentExtended: false,
+      notes:
+        'Estimated tax installments are payment obligations and are not extended by Form 4868.',
+    },
+    sourceIds: ['fed.irs_pub_509_2026'],
+    evidence: [
+      sourceEvidence(
+        'fed.irs_pub_509_2026',
+        'Individuals / estimated tax',
+        'Publication 509 provides the individual estimated tax calendar.',
+      ),
+    ],
+    defaultTip:
+      'Estimated tax is a payment workflow; require preparer review before amount reminders.',
+    quality: VERIFIED_QUALITY,
+    verifiedBy: 'practice.template_seed',
+    verifiedAt: VERIFIED_AT,
+    nextReviewOn: NEXT_PRE_SEASON_REVIEW,
+    version: 1,
+  },
+  {
+    id: 'fed.1041.return.2025',
+    title: 'Federal Form 1041 fiduciary income tax return',
+    jurisdiction: 'FED',
+    entityApplicability: ['trust'],
+    taxType: 'federal_1041',
+    formName: 'Form 1041',
+    eventType: 'filing',
+    obligationType: 'filing',
+    isFiling: true,
+    isPayment: false,
+    taxYear: 2025,
+    applicableYear: 2026,
+    ruleTier: 'basic',
+    status: 'verified',
+    coverageStatus: 'full',
+    riskLevel: 'med',
+    requiresApplicabilityReview: false,
+    dueDateLogic: {
+      kind: 'nth_day_after_tax_year_end',
+      monthOffset: 4,
+      day: 15,
+      holidayRollover: 'next_business_day',
+    },
+    extensionPolicy: {
+      available: true,
+      formName: 'Form 7004',
+      durationMonths: 5.5,
+      paymentExtended: false,
+      notes:
+        'Form 1041 has a 5.5-month filing extension; interest applies to tax not paid by the due date.',
+    },
+    sourceIds: ['fed.irs_i1041_2025', 'fed.irs_i7004_2025'],
+    evidence: [
+      sourceEvidence(
+        'fed.irs_i1041_2025',
+        'When To File',
+        'Instructions specify calendar-year and fiscal-year due dates for Form 1041 and K-1s.',
+      ),
+      sourceEvidence(
+        'fed.irs_i7004_2025',
+        'Extension Period',
+        'Form 7004 instructions identify the 5.5-month extension for Form 1041.',
+      ),
+    ],
+    defaultTip: 'Do not reuse the 1040 or 1120 extension length for Form 1041.',
+    quality: VERIFIED_QUALITY,
+    verifiedBy: 'practice.template_seed',
+    verifiedAt: VERIFIED_AT,
+    nextReviewOn: NEXT_PRE_SEASON_REVIEW,
+    version: 1,
+  },
+  {
+    id: 'fed.941.return.2026',
+    title: 'Federal Form 941 quarterly payroll tax return',
+    jurisdiction: 'FED',
+    entityApplicability: ['any_business'],
+    taxType: 'federal_941',
+    formName: 'Form 941',
+    eventType: 'filing',
+    obligationType: 'filing',
+    isFiling: true,
+    isPayment: false,
+    taxYear: 2026,
+    applicableYear: 2026,
+    ruleTier: 'annual_rolling',
+    status: 'verified',
+    coverageStatus: 'manual',
+    riskLevel: 'high',
+    requiresApplicabilityReview: true,
+    dueDateLogic: {
+      kind: 'period_table',
+      frequency: 'quarterly',
+      periods: [
+        { period: 'Q1', dueDate: '2026-04-30' },
+        { period: 'Q2', dueDate: '2026-07-31' },
+        { period: 'Q3', dueDate: '2026-11-02' },
+        { period: 'Q4', dueDate: '2027-02-01' },
+      ],
+      holidayRollover: 'source_adjusted',
+    },
+    extensionPolicy: {
+      available: false,
+      paymentExtended: false,
+      notes: 'Form 941 is a return filing obligation; payroll deposits follow separate schedules.',
+    },
+    sourceIds: ['fed.irs_i941_2026', 'fed.irs_pub_509_2026'],
+    evidence: [
+      sourceEvidence(
+        'fed.irs_i941_2026',
+        'When To File',
+        'Form 941 instructions list the quarter-end and return due-date table.',
+      ),
+    ],
+    defaultTip: 'Keep Form 941 return filing separate from monthly or semiweekly payroll deposits.',
+    quality: VERIFIED_QUALITY,
+    verifiedBy: 'practice.template_seed',
+    verifiedAt: VERIFIED_AT,
+    nextReviewOn: NEXT_PRE_SEASON_REVIEW,
+    version: 1,
+  },
+  {
+    id: 'fed.payroll_deposit.monthly.2026',
+    title: 'Federal payroll tax monthly deposit schedule',
+    jurisdiction: 'FED',
+    entityApplicability: ['any_business'],
+    taxType: 'federal_payroll_deposit_monthly',
+    formName: 'Payroll tax deposit',
+    eventType: 'deposit',
+    obligationType: 'deposit',
+    isFiling: false,
+    isPayment: true,
+    taxYear: 2026,
+    applicableYear: 2026,
+    ruleTier: 'applicability_review',
+    status: 'verified',
+    coverageStatus: 'manual',
+    riskLevel: 'high',
+    requiresApplicabilityReview: true,
+    dueDateLogic: {
+      kind: 'source_defined_calendar',
+      description: 'Monthly and semiweekly payroll deposit schedules depend on employer facts.',
+      holidayRollover: 'next_business_day',
+    },
+    extensionPolicy: {
+      available: false,
+      paymentExtended: false,
+      notes: 'Deposit schedules are not return filing deadlines.',
+    },
+    sourceIds: ['fed.irs_pub_509_2026'],
+    evidence: [
+      sourceEvidence(
+        'fed.irs_pub_509_2026',
+        'Employment taxes',
+        'Publication 509 distinguishes employment tax returns and deposit due dates.',
+      ),
+    ],
+    defaultTip: 'Configure monthly or semiweekly deposits separately from Form 941.',
+    quality: VERIFIED_QUALITY,
+    verifiedBy: 'practice.template_seed',
+    verifiedAt: VERIFIED_AT,
+    nextReviewOn: NEXT_PRE_SEASON_REVIEW,
+    version: 1,
+  },
+  {
+    id: 'fed.1099_nec.2025',
+    title: 'Federal Form 1099-NEC information return',
+    jurisdiction: 'FED',
+    entityApplicability: ['any_business'],
+    taxType: 'federal_1099_nec',
+    formName: 'Form 1099-NEC',
+    eventType: 'information_report',
+    obligationType: 'information',
+    isFiling: true,
+    isPayment: false,
+    taxYear: 2025,
+    applicableYear: 2026,
+    ruleTier: 'annual_rolling',
+    status: 'verified',
+    coverageStatus: 'full',
+    riskLevel: 'high',
+    requiresApplicabilityReview: true,
+    dueDateLogic: {
+      kind: 'fixed_date',
+      date: '2026-02-02',
+      holidayRollover: 'source_adjusted',
+    },
+    extensionPolicy: {
+      available: true,
+      formName: 'Form 8809',
+      paymentExtended: false,
+      notes:
+        '1099-NEC filing is an information reporting workflow; recipient and IRS filing are tracked together for the basic workflow.',
+    },
+    sourceIds: ['fed.irs_information_return_reporting', 'fed.irs_p1099_2026'],
+    evidence: [
+      sourceEvidence(
+        'fed.irs_information_return_reporting',
+        'Form 1099-NEC',
+        'IRS guidance sets the Form 1099-NEC deadline for nonemployee compensation.',
+      ),
+    ],
+    defaultTip: 'Collect W-9s, validate TIN/name, furnish recipients, and file with IRS.',
+    quality: VERIFIED_QUALITY,
+    verifiedBy: 'practice.template_seed',
+    verifiedAt: VERIFIED_AT,
+    nextReviewOn: NEXT_PRE_SEASON_REVIEW,
+    version: 1,
+  },
+  {
+    id: 'fed.fbar.automatic_extension.2025',
+    title: 'FBAR automatic extended filing control',
+    jurisdiction: 'FED',
+    entityApplicability: ['individual', 'any_business'],
+    taxType: 'federal_fbar',
+    formName: 'FinCEN Form 114',
+    eventType: 'filing',
+    obligationType: 'information',
+    isFiling: true,
+    isPayment: false,
+    taxYear: 2025,
+    applicableYear: 2026,
+    ruleTier: 'basic',
+    status: 'verified',
+    coverageStatus: 'manual',
+    riskLevel: 'high',
+    requiresApplicabilityReview: true,
+    dueDateLogic: {
+      kind: 'fixed_date',
+      date: '2026-10-15',
+      holidayRollover: 'source_adjusted',
+    },
+    extensionPolicy: {
+      available: true,
+      durationMonths: 6,
+      paymentExtended: false,
+      notes:
+        'FBAR receives an automatic extension to October 15; no separate extension filing is required.',
+    },
+    sourceIds: ['fed.fincen_fbar_due_date'],
+    evidence: [
+      sourceEvidence(
+        'fed.fincen_fbar_due_date',
+        'Due Date for FBARs',
+        'FinCEN grants automatic extension from April 15 to October 15.',
+      ),
+    ],
+    defaultTip:
+      'Mark as high-risk information reporting and track the automatic October 15 deadline.',
+    quality: VERIFIED_QUALITY,
+    verifiedBy: 'practice.template_seed',
+    verifiedAt: VERIFIED_AT,
+    nextReviewOn: NEXT_PRE_SEASON_REVIEW,
+    version: 1,
+  },
+  {
+    id: 'fed.990.return.2025',
+    title: 'Federal exempt organization annual return',
+    jurisdiction: 'FED',
+    entityApplicability: ['any_business'],
+    taxType: 'federal_990',
+    formName: 'Form 990 / 990-EZ / 990-N / 990-PF',
+    eventType: 'filing',
+    obligationType: 'filing',
+    isFiling: true,
+    isPayment: false,
+    taxYear: 2025,
+    applicableYear: 2026,
+    ruleTier: 'applicability_review',
+    status: 'verified',
+    coverageStatus: 'manual',
+    riskLevel: 'med',
+    requiresApplicabilityReview: true,
+    dueDateLogic: {
+      kind: 'nth_day_after_tax_year_end',
+      monthOffset: 5,
+      day: 15,
+      holidayRollover: 'next_business_day',
+    },
+    extensionPolicy: {
+      available: true,
+      formName: 'Form 8868',
+      durationMonths: 6,
+      paymentExtended: false,
+      notes: 'Form 8868 can extend most 990-series returns, but not Form 990-N.',
+    },
+    sourceIds: ['fed.irs_990_due_date', 'fed.irs_i8868_2026'],
+    evidence: [
+      sourceEvidence(
+        'fed.irs_990_due_date',
+        'Annual exempt organization return',
+        'IRS states the annual exempt organization return due-date rule.',
+      ),
+      sourceEvidence(
+        'fed.irs_i8868_2026',
+        'Form 990-N',
+        'Instructions state Form 8868 cannot extend Form 990-N.',
+      ),
+    ],
+    defaultTip: 'Confirm the exact 990-series form before relying on extension behavior.',
+    quality: VERIFIED_QUALITY,
+    verifiedBy: 'practice.template_seed',
+    verifiedAt: VERIFIED_AT,
+    nextReviewOn: NEXT_PRE_SEASON_REVIEW,
+    version: 1,
+  },
   {
     id: 'fed.1065.return.2025',
     title: 'Federal Form 1065 return for partnerships',
@@ -2916,7 +3500,51 @@ function ruleMatchesJurisdiction(rule: ObligationRule, client: RuleGenerationCli
   return rule.jurisdiction === 'FED' || rule.jurisdiction === client.state
 }
 
-function ruleMatchesEntity(rule: ObligationRule, entityType: RuleGenerationEntity): boolean {
+function ruleMatchesEntity(rule: ObligationRule, client: RuleGenerationClientFacts): boolean {
+  const entityType = client.entityType
+  if (
+    rule.jurisdiction === 'FED' &&
+    client.taxClassification &&
+    client.taxClassification !== 'unknown'
+  ) {
+    if (client.taxClassification === 'disregarded_entity') {
+      return (
+        rule.entityApplicability.includes('sole_prop') ||
+        rule.entityApplicability.includes('individual') ||
+        rule.entityApplicability.includes('any_business')
+      )
+    }
+    if (client.taxClassification === 'individual') {
+      return rule.entityApplicability.includes('individual')
+    }
+    if (client.taxClassification === 'partnership') {
+      return (
+        rule.entityApplicability.includes('partnership') ||
+        rule.entityApplicability.includes('any_business')
+      )
+    }
+    if (client.taxClassification === 's_corp') {
+      return (
+        rule.entityApplicability.includes('s_corp') ||
+        rule.entityApplicability.includes('any_business')
+      )
+    }
+    if (client.taxClassification === 'c_corp') {
+      return (
+        rule.entityApplicability.includes('c_corp') ||
+        rule.entityApplicability.includes('any_business')
+      )
+    }
+    if (client.taxClassification === 'trust' || client.taxClassification === 'estate') {
+      return rule.entityApplicability.includes('trust')
+    }
+    if (
+      client.taxClassification === 'nonprofit' ||
+      client.taxClassification === 'foreign_reporting_company'
+    ) {
+      return rule.entityApplicability.includes('any_business')
+    }
+  }
   if (entityType !== 'other' && rule.entityApplicability.includes(entityType)) return true
   if (!rule.entityApplicability.includes('any_business')) return false
 
@@ -2965,7 +3593,7 @@ export function previewObligationsFromRules(
   for (const rule of rules) {
     if (rule.status !== 'verified') continue
     if (!ruleMatchesJurisdiction(rule, input.client)) continue
-    if (!ruleMatchesEntity(rule, input.client.entityType)) continue
+    if (!ruleMatchesEntity(rule, input.client)) continue
 
     const match = taxTypeMatches.find((candidate) => candidate.taxType === rule.taxType)
     if (!match) continue

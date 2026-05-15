@@ -45,6 +45,50 @@ export const client = sqliteTable(
     entityType: text('entity_type', {
       enum: ['llc', 's_corp', 'partnership', 'c_corp', 'sole_prop', 'trust', 'individual', 'other'],
     }).notNull(),
+    legalEntity: text('legal_entity', {
+      enum: [
+        'individual',
+        'sole_proprietorship',
+        'single_member_llc',
+        'multi_member_llc',
+        'partnership',
+        'corporation',
+        'trust',
+        'estate',
+        'nonprofit',
+        'foreign_entity',
+        'other',
+      ],
+    }),
+    taxClassification: text('tax_classification', {
+      enum: [
+        'individual',
+        'disregarded_entity',
+        'partnership',
+        's_corp',
+        'c_corp',
+        'trust',
+        'estate',
+        'nonprofit',
+        'foreign_reporting_company',
+        'unknown',
+      ],
+    }).default('unknown'),
+    taxYearType: text('tax_year_type', { enum: ['calendar', 'fiscal'] })
+      .notNull()
+      .default('calendar'),
+    fiscalYearEndMonth: integer('fiscal_year_end_month'),
+    fiscalYearEndDay: integer('fiscal_year_end_day'),
+    ownerCount: integer('owner_count'),
+    hasForeignAccounts: integer('has_foreign_accounts', { mode: 'boolean' })
+      .notNull()
+      .default(false),
+    hasPayroll: integer('has_payroll', { mode: 'boolean' }).notNull().default(false),
+    hasSalesTax: integer('has_sales_tax', { mode: 'boolean' }).notNull().default(false),
+    has1099Vendors: integer('has_1099_vendors', { mode: 'boolean' }).notNull().default(false),
+    hasK1Activity: integer('has_k1_activity', { mode: 'boolean' }).notNull().default(false),
+    primaryContactName: text('primary_contact_name'),
+    primaryContactEmail: text('primary_contact_email'),
 
     email: text('email'),
     notes: text('notes'),
@@ -192,6 +236,35 @@ export const CLIENT_ENTITY_TYPES = [
   'other',
 ] as const
 export type ClientEntityType = (typeof CLIENT_ENTITY_TYPES)[number]
+
+export const CLIENT_LEGAL_ENTITIES = [
+  'individual',
+  'sole_proprietorship',
+  'single_member_llc',
+  'multi_member_llc',
+  'partnership',
+  'corporation',
+  'trust',
+  'estate',
+  'nonprofit',
+  'foreign_entity',
+  'other',
+] as const
+export type ClientLegalEntity = (typeof CLIENT_LEGAL_ENTITIES)[number]
+
+export const CLIENT_TAX_CLASSIFICATIONS = [
+  'individual',
+  'disregarded_entity',
+  'partnership',
+  's_corp',
+  'c_corp',
+  'trust',
+  'estate',
+  'nonprofit',
+  'foreign_reporting_company',
+  'unknown',
+] as const
+export type ClientTaxClassification = (typeof CLIENT_TAX_CLASSIFICATIONS)[number]
 
 export const ESTIMATED_TAX_LIABILITY_SOURCES = ['manual', 'imported', 'demo_seed'] as const
 export type EstimatedTaxLiabilitySource = (typeof ESTIMATED_TAX_LIABILITY_SOURCES)[number]

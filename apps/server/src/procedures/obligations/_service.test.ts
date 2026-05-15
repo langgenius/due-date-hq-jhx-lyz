@@ -1,51 +1,11 @@
 import { describe, expect, it } from 'vitest'
 import { ObligationInstancePublicSchema } from '@duedatehq/contracts'
+import type { ObligationInstanceRow } from '@duedatehq/ports/obligations'
 import type { ScopedRepo } from '@duedatehq/ports/scoped'
-import type {
-  ObligationExtensionDecision,
-  ObligationReadiness,
-  ObligationStatus,
-} from '@duedatehq/ports/shared'
 import { deriveObligationReadiness } from '@duedatehq/core/obligation-workflow'
 import { bulkUpdateObligationStatus, toObligationPublic, updateObligationStatus } from './_service'
 
-interface Row {
-  id: string
-  firmId: string
-  clientId: string
-  clientFilingProfileId: string | null
-  taxType: string
-  taxYear: number | null
-  ruleId: string | null
-  ruleVersion: number | null
-  rulePeriod: string | null
-  generationSource: 'migration' | 'manual' | 'annual_rollover' | 'pulse' | null
-  jurisdiction: string | null
-  baseDueDate: Date
-  currentDueDate: Date
-  status: ObligationStatus
-  readiness: ObligationReadiness
-  extensionDecision: ObligationExtensionDecision
-  extensionMemo: string | null
-  extensionSource: string | null
-  extensionExpectedDueDate: Date | null
-  extensionDecidedAt: Date | null
-  extensionDecidedByUserId: string | null
-  migrationBatchId: string | null
-  estimatedTaxDueCents: number | null
-  estimatedExposureCents: number | null
-  exposureStatus: 'ready' | 'needs_input' | 'unsupported'
-  penaltyFactsJson: unknown
-  penaltyFactsVersion: string | null
-  penaltyBreakdownJson: unknown
-  penaltyFormulaVersion: string | null
-  missingPenaltyFactsJson: unknown
-  penaltySourceRefsJson: unknown
-  penaltyFormulaLabel: string | null
-  exposureCalculatedAt: Date | null
-  createdAt: Date
-  updatedAt: Date
-}
+type Row = ObligationInstanceRow
 
 function unused(name: string): never {
   throw new Error(`Unexpected repo call in updateStatus test: ${name}`)
@@ -521,6 +481,14 @@ function makeRow(over: Partial<Row> = {}): Row {
     rulePeriod: null,
     generationSource: null,
     jurisdiction: 'FED',
+    obligationType: 'filing',
+    formName: 'Form 1040',
+    authority: 'IRS',
+    filingDueDate: now,
+    paymentDueDate: null,
+    sourceEvidenceJson: null,
+    recurrence: 'annual',
+    riskLevel: 'low',
     baseDueDate: now,
     currentDueDate: now,
     status: 'pending',
@@ -531,6 +499,21 @@ function makeRow(over: Partial<Row> = {}): Row {
     extensionExpectedDueDate: null,
     extensionDecidedAt: null,
     extensionDecidedByUserId: null,
+    extensionState: 'not_started',
+    extensionFormName: null,
+    extensionFiledAt: null,
+    extensionAcceptedAt: null,
+    prepStage: 'not_started',
+    reviewStage: 'not_required',
+    reviewerUserId: null,
+    reviewCompletedAt: null,
+    paymentState: 'not_applicable',
+    paymentConfirmedAt: null,
+    efileState: 'not_applicable',
+    efileAuthorizationForm: null,
+    efileSubmittedAt: null,
+    efileAcceptedAt: null,
+    efileRejectedAt: null,
     migrationBatchId: null,
     estimatedTaxDueCents: null,
     estimatedExposureCents: null,

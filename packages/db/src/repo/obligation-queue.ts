@@ -9,7 +9,18 @@ import type { Db } from '../client'
 import { evidenceLink } from '../schema/audit'
 import { client, clientFilingProfile } from '../schema/clients'
 import { firmProfile } from '../schema/firm'
-import { obligationInstance, type ObligationStatus } from '../schema/obligations'
+import {
+  obligationInstance,
+  type ObligationEfileState,
+  type ObligationExtensionState,
+  type ObligationPaymentState,
+  type ObligationPrepStage,
+  type ObligationRecurrence,
+  type ObligationReviewStage,
+  type ObligationRiskLevel,
+  type ObligationStatus,
+  type ObligationType,
+} from '../schema/obligations'
 import { obligationSavedView, type ObligationQueueDensity } from '../schema/obligation-saved-view'
 import { listActiveOverlayDueDates } from './overlay'
 import { toSmartPriorityProfile } from './priority-profile'
@@ -76,6 +87,14 @@ export interface ObligationQueueListRow {
   rulePeriod: string | null
   generationSource: 'migration' | 'manual' | 'annual_rollover' | 'pulse' | null
   jurisdiction: string | null
+  obligationType: ObligationType
+  formName: string | null
+  authority: string | null
+  filingDueDate: Date | null
+  paymentDueDate: Date | null
+  sourceEvidenceJson: unknown
+  recurrence: ObligationRecurrence
+  riskLevel: ObligationRiskLevel
   baseDueDate: Date
   currentDueDate: Date
   status: ObligationStatus
@@ -86,6 +105,21 @@ export interface ObligationQueueListRow {
   extensionExpectedDueDate: Date | null
   extensionDecidedAt: Date | null
   extensionDecidedByUserId: string | null
+  extensionState: ObligationExtensionState
+  extensionFormName: string | null
+  extensionFiledAt: Date | null
+  extensionAcceptedAt: Date | null
+  prepStage: ObligationPrepStage
+  reviewStage: ObligationReviewStage
+  reviewerUserId: string | null
+  reviewCompletedAt: Date | null
+  paymentState: ObligationPaymentState
+  paymentConfirmedAt: Date | null
+  efileState: ObligationEfileState
+  efileAuthorizationForm: string | null
+  efileSubmittedAt: Date | null
+  efileAcceptedAt: Date | null
+  efileRejectedAt: Date | null
   migrationBatchId: string | null
   estimatedTaxDueCents: number | null
   estimatedExposureCents: number | null
@@ -184,6 +218,14 @@ interface ObligationQueueRawJoinedRow {
   rulePeriod: string | null
   generationSource: 'migration' | 'manual' | 'annual_rollover' | 'pulse' | null
   jurisdiction: string | null
+  obligationType: ObligationType
+  formName: string | null
+  authority: string | null
+  filingDueDate: Date | null
+  paymentDueDate: Date | null
+  sourceEvidenceJson: unknown
+  recurrence: ObligationRecurrence
+  riskLevel: ObligationRiskLevel
   baseDueDate: Date
   currentDueDate: Date
   status: ObligationStatus
@@ -193,6 +235,21 @@ interface ObligationQueueRawJoinedRow {
   extensionExpectedDueDate: Date | null
   extensionDecidedAt: Date | null
   extensionDecidedByUserId: string | null
+  extensionState: ObligationExtensionState
+  extensionFormName: string | null
+  extensionFiledAt: Date | null
+  extensionAcceptedAt: Date | null
+  prepStage: ObligationPrepStage
+  reviewStage: ObligationReviewStage
+  reviewerUserId: string | null
+  reviewCompletedAt: Date | null
+  paymentState: ObligationPaymentState
+  paymentConfirmedAt: Date | null
+  efileState: ObligationEfileState
+  efileAuthorizationForm: string | null
+  efileSubmittedAt: Date | null
+  efileAcceptedAt: Date | null
+  efileRejectedAt: Date | null
   migrationBatchId: string | null
   estimatedTaxDueCents: number | null
   estimatedExposureCents: number | null
@@ -638,6 +695,14 @@ export function makeObligationQueueRepo(db: Db, firmId: string) {
           rulePeriod: obligationInstance.rulePeriod,
           generationSource: obligationInstance.generationSource,
           jurisdiction: obligationInstance.jurisdiction,
+          obligationType: obligationInstance.obligationType,
+          formName: obligationInstance.formName,
+          authority: obligationInstance.authority,
+          filingDueDate: obligationInstance.filingDueDate,
+          paymentDueDate: obligationInstance.paymentDueDate,
+          sourceEvidenceJson: obligationInstance.sourceEvidenceJson,
+          recurrence: obligationInstance.recurrence,
+          riskLevel: obligationInstance.riskLevel,
           baseDueDate: obligationInstance.baseDueDate,
           currentDueDate: obligationInstance.currentDueDate,
           status: obligationInstance.status,
@@ -647,6 +712,21 @@ export function makeObligationQueueRepo(db: Db, firmId: string) {
           extensionExpectedDueDate: obligationInstance.extensionExpectedDueDate,
           extensionDecidedAt: obligationInstance.extensionDecidedAt,
           extensionDecidedByUserId: obligationInstance.extensionDecidedByUserId,
+          extensionState: obligationInstance.extensionState,
+          extensionFormName: obligationInstance.extensionFormName,
+          extensionFiledAt: obligationInstance.extensionFiledAt,
+          extensionAcceptedAt: obligationInstance.extensionAcceptedAt,
+          prepStage: obligationInstance.prepStage,
+          reviewStage: obligationInstance.reviewStage,
+          reviewerUserId: obligationInstance.reviewerUserId,
+          reviewCompletedAt: obligationInstance.reviewCompletedAt,
+          paymentState: obligationInstance.paymentState,
+          paymentConfirmedAt: obligationInstance.paymentConfirmedAt,
+          efileState: obligationInstance.efileState,
+          efileAuthorizationForm: obligationInstance.efileAuthorizationForm,
+          efileSubmittedAt: obligationInstance.efileSubmittedAt,
+          efileAcceptedAt: obligationInstance.efileAcceptedAt,
+          efileRejectedAt: obligationInstance.efileRejectedAt,
           migrationBatchId: obligationInstance.migrationBatchId,
           estimatedTaxDueCents: obligationInstance.estimatedTaxDueCents,
           estimatedExposureCents: obligationInstance.estimatedExposureCents,
@@ -732,6 +812,14 @@ export function makeObligationQueueRepo(db: Db, firmId: string) {
               rulePeriod: obligationInstance.rulePeriod,
               generationSource: obligationInstance.generationSource,
               jurisdiction: obligationInstance.jurisdiction,
+              obligationType: obligationInstance.obligationType,
+              formName: obligationInstance.formName,
+              authority: obligationInstance.authority,
+              filingDueDate: obligationInstance.filingDueDate,
+              paymentDueDate: obligationInstance.paymentDueDate,
+              sourceEvidenceJson: obligationInstance.sourceEvidenceJson,
+              recurrence: obligationInstance.recurrence,
+              riskLevel: obligationInstance.riskLevel,
               baseDueDate: obligationInstance.baseDueDate,
               currentDueDate: obligationInstance.currentDueDate,
               status: obligationInstance.status,
@@ -741,6 +829,21 @@ export function makeObligationQueueRepo(db: Db, firmId: string) {
               extensionExpectedDueDate: obligationInstance.extensionExpectedDueDate,
               extensionDecidedAt: obligationInstance.extensionDecidedAt,
               extensionDecidedByUserId: obligationInstance.extensionDecidedByUserId,
+              extensionState: obligationInstance.extensionState,
+              extensionFormName: obligationInstance.extensionFormName,
+              extensionFiledAt: obligationInstance.extensionFiledAt,
+              extensionAcceptedAt: obligationInstance.extensionAcceptedAt,
+              prepStage: obligationInstance.prepStage,
+              reviewStage: obligationInstance.reviewStage,
+              reviewerUserId: obligationInstance.reviewerUserId,
+              reviewCompletedAt: obligationInstance.reviewCompletedAt,
+              paymentState: obligationInstance.paymentState,
+              paymentConfirmedAt: obligationInstance.paymentConfirmedAt,
+              efileState: obligationInstance.efileState,
+              efileAuthorizationForm: obligationInstance.efileAuthorizationForm,
+              efileSubmittedAt: obligationInstance.efileSubmittedAt,
+              efileAcceptedAt: obligationInstance.efileAcceptedAt,
+              efileRejectedAt: obligationInstance.efileRejectedAt,
               migrationBatchId: obligationInstance.migrationBatchId,
               estimatedTaxDueCents: obligationInstance.estimatedTaxDueCents,
               estimatedExposureCents: obligationInstance.estimatedExposureCents,

@@ -5,7 +5,7 @@ import { authSchema, createDb, firmSchema, scoped } from '@duedatehq/db'
 import type { ContextVars, Env } from '../env'
 
 type SeedMode = 'empty' | 'obligations' | 'pulse' | 'mfa'
-type DemoRole = 'owner' | 'manager' | 'preparer' | 'coordinator'
+type DemoRole = 'owner' | 'partner' | 'manager' | 'preparer' | 'coordinator'
 type DemoPlan = 'solo' | 'pro' | 'team'
 type SeedRole = DemoRole
 type BillingPlan = DemoPlan | 'firm'
@@ -44,6 +44,15 @@ const DEMO_ACCOUNTS = [
     plan: 'pro',
     name: 'Miguel Chen',
     email: 'miguel.manager@duedatehq.test',
+  },
+  {
+    id: 'brightline-partner',
+    role: 'partner',
+    userId: 'mock_user_partner_priya',
+    firmId: DEMO_FIRM_ID,
+    plan: 'pro',
+    name: 'Priya Shah',
+    email: 'priya.partner@duedatehq.test',
   },
   {
     id: 'brightline-preparer',
@@ -117,7 +126,13 @@ function hasE2ESeedAccess(c: { env: Env; req: { header(name: string): string | u
 }
 
 export function isDemoRole(value: unknown): value is DemoRole {
-  return value === 'owner' || value === 'manager' || value === 'preparer' || value === 'coordinator'
+  return (
+    value === 'owner' ||
+    value === 'partner' ||
+    value === 'manager' ||
+    value === 'preparer' ||
+    value === 'coordinator'
+  )
 }
 
 export function isDemoAccountId(value: unknown): value is DemoAccountId {
@@ -149,6 +164,7 @@ function demoAccountForId(accountId: DemoAccountId) {
 
 function roleLabel(role: DemoRole): string {
   if (role === 'owner') return 'Owner'
+  if (role === 'partner') return 'Partner'
   if (role === 'manager') return 'Manager'
   if (role === 'preparer') return 'Preparer'
   return 'Coordinator'

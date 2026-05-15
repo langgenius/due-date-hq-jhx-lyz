@@ -90,6 +90,7 @@ function firmMonogram(name: string): string {
 
 const NAV_ROLE_LABELS = {
   owner: msg`Owner`,
+  partner: msg`Partner`,
   manager: msg`Manager`,
   preparer: msg`Preparer`,
   coordinator: msg`Coordinator`,

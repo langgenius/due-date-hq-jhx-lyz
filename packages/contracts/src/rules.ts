@@ -1,6 +1,10 @@
 import { oc } from '@orpc/contract'
 import * as z from 'zod'
-import { EntityTypeSchema } from './shared/enums'
+import {
+  ClientTaxClassificationSchema,
+  EntityTypeSchema,
+  ObligationTypeSchema,
+} from './shared/enums'
 import { EntityIdSchema } from './shared/ids'
 
 export const RuleGenerationStateValues = [
@@ -128,9 +132,12 @@ export const RuleGenerationEntitySchema = EntityTypeSchema
 export const ObligationEventTypeSchema = z.enum([
   'filing',
   'payment',
+  'deposit',
   'extension',
   'election',
   'information_report',
+  'client_action',
+  'internal_review',
 ])
 export const RuleTierSchema = z.enum([
   'basic',
@@ -177,7 +184,7 @@ export const DueDateLogicSchema = z.discriminatedUnion('kind', [
   }),
   z.object({
     kind: z.literal('period_table'),
-    frequency: z.enum(['monthly', 'quarterly', 'annual']),
+    frequency: z.enum(['semiweekly', 'monthly', 'quarterly', 'annual']),
     periods: z.array(
       z.object({
         period: z.string().min(1),
@@ -197,7 +204,7 @@ export type DueDateLogic = z.infer<typeof DueDateLogicSchema>
 export const ExtensionPolicySchema = z.object({
   available: z.boolean(),
   formName: z.string().min(1).optional(),
-  durationMonths: z.number().int().positive().optional(),
+  durationMonths: z.number().positive().optional(),
   paymentExtended: z.boolean(),
   notes: z.string().min(1),
 })
@@ -250,6 +257,7 @@ export const ObligationRuleSchema = z.object({
   taxType: z.string().min(1),
   formName: z.string().min(1),
   eventType: ObligationEventTypeSchema,
+  obligationType: ObligationTypeSchema.optional(),
   isFiling: z.boolean(),
   isPayment: z.boolean(),
   taxYear: z.number().int().min(2000).max(2100),
@@ -289,6 +297,7 @@ export type RuleCoverageRow = z.infer<typeof RuleCoverageRowSchema>
 export const RuleGenerationClientFactsSchema = z.object({
   id: z.string().min(1),
   entityType: RuleGenerationEntitySchema,
+  taxClassification: ClientTaxClassificationSchema.optional(),
   state: RuleGenerationStateSchema,
   taxTypes: z.array(z.string().min(1)),
   taxYearStart: z

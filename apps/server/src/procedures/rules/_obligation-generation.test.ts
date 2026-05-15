@@ -27,10 +27,23 @@ function makeClient(overrides: Partial<ClientRow> = {}): ClientRow {
     state: 'CA',
     county: null,
     entityType: 'llc',
+    legalEntity: null,
+    taxClassification: 'unknown',
+    taxYearType: 'calendar',
+    fiscalYearEndMonth: null,
+    fiscalYearEndDay: null,
     email: null,
     notes: null,
     assigneeId: null,
     assigneeName: null,
+    ownerCount: null,
+    hasForeignAccounts: false,
+    hasPayroll: false,
+    hasSalesTax: false,
+    has1099Vendors: false,
+    hasK1Activity: false,
+    primaryContactName: null,
+    primaryContactEmail: null,
     importanceWeight: 2,
     lateFilingCountLast12mo: 0,
     estimatedTaxLiabilityCents: 125_000,
@@ -196,5 +209,58 @@ describe('generateObligationsForAcceptedRules', () => {
 
     expect(result).toMatchObject({ candidateCount: 0, createdCount: 0, duplicateCount: 0 })
     expect(createBatch).not.toHaveBeenCalled()
+  })
+
+  it('persists CPA workflow dates and substates from accepted federal rules', async () => {
+    const client = makeClient({
+      entityType: 'individual',
+      taxClassification: 'individual',
+      migrationBatchId: null,
+    })
+    const profile = makeProfile({
+      taxTypes: ['federal_1040', 'federal_1040_extension'],
+      migrationBatchId: null,
+    })
+    const { scoped, createdInputs } = makeScoped({
+      clients: [client],
+      profiles: new Map([[CLIENT_ID, [profile]]]),
+    })
+
+    const result = await generateObligationsForAcceptedRules({
+      scoped,
+      userId: USER_ID,
+      rules: [mustRule('fed.1040.return.2025'), mustRule('fed.1040.extension.2025')],
+      now: new Date('2026-05-06T00:00:00.000Z'),
+    })
+
+    expect(result).toMatchObject({ candidateCount: 2, createdCount: 2, duplicateCount: 0 })
+    expect(createdInputs).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          clientFilingProfileId: null,
+          taxType: 'federal_1040',
+          obligationType: 'filing',
+          formName: 'Form 1040',
+          authority: 'IRS',
+          filingDueDate: new Date('2026-04-15T00:00:00.000Z'),
+          paymentDueDate: new Date('2026-04-15T00:00:00.000Z'),
+          recurrence: 'annual',
+          riskLevel: 'med',
+          extensionState: 'not_started',
+          extensionFormName: 'Form 4868',
+          paymentState: 'estimate_needed',
+          efileState: 'authorization_requested',
+        }),
+        expect.objectContaining({
+          taxType: 'federal_1040_extension',
+          obligationType: 'client_action',
+          formName: 'Form 4868',
+          filingDueDate: new Date('2026-04-15T00:00:00.000Z'),
+          paymentDueDate: new Date('2026-04-15T00:00:00.000Z'),
+          extensionState: 'ready_to_file',
+          paymentState: 'estimate_needed',
+        }),
+      ]),
+    )
   })
 })

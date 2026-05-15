@@ -35,10 +35,12 @@ const invitation = {
 
 describe('member model', () => {
   it('keeps managed roles distinct from owner', () => {
-    expect(MANAGED_ROLES).toEqual(['manager', 'preparer', 'coordinator'])
+    expect(MANAGED_ROLES).toEqual(['partner', 'manager', 'preparer', 'coordinator'])
+    expect(isManagedRole('partner')).toBe(true)
     expect(isManagedRole('manager')).toBe(true)
     expect(isManagedRole('owner')).toBe(false)
     expect(roleLabel('owner')).toBe('Owner')
+    expect(roleLabel('partner')).toBe('Partner')
     expect(roleLabel('coordinator')).toBe('Coordinator')
   })
 

@@ -52,6 +52,7 @@ const SOURCE_LABELS: Record<string, string> = {
   'fema.declarations': 'FEMA declarations',
   'ny.dtf.press': 'NY DTF Press',
 }
+const PULSE_REVIEW_ROLES = ['owner', 'partner', 'manager'] as const
 
 interface PulseAffectedClientRow {
   obligationId: string
@@ -291,7 +292,7 @@ function pulseReviewNotificationBody(input: {
   requesterName: string
   note: string | null
 }): string {
-  const base = `${input.requesterName} requested Owner/Manager review for this Pulse.`
+  const base = `${input.requesterName} requested Partner/Manager review for this Pulse.`
   return input.note ? `${base} Note: ${input.note}` : base
 }
 
@@ -306,7 +307,7 @@ function pulseReviewEmailText(input: {
   alertUrl: string
 }): string {
   const lines = [
-    `${input.requesterName} requested Owner/Manager review for this Pulse: ${input.alertTitle}.`,
+    `${input.requesterName} requested Partner/Manager review for this Pulse: ${input.alertTitle}.`,
   ]
   if (input.note) lines.push('', `Note: ${input.note}`)
   lines.push('', `Open Pulse review: ${input.alertUrl}`)
@@ -360,7 +361,7 @@ const listSourceHealth = os.pulse.listSourceHealth.handler(async ({ context }) =
 })
 
 const listSourceSignals = os.pulse.listSourceSignals.handler(async ({ input, context }) => {
-  await requireCurrentFirmRole(context, ['owner', 'manager'])
+  await requireCurrentFirmRole(context, PULSE_REVIEW_ROLES)
   const { scoped } = requireTenant(context)
   const opts: Parameters<typeof scoped.pulse.listSourceSignals>[0] =
     input === undefined
@@ -375,7 +376,7 @@ const listSourceSignals = os.pulse.listSourceSignals.handler(async ({ input, con
 })
 
 const retrySourceHealth = os.pulse.retrySourceHealth.handler(async ({ input, context }) => {
-  await requireCurrentFirmRole(context, ['owner', 'manager'])
+  await requireCurrentFirmRole(context, PULSE_REVIEW_ROLES)
   const { scoped } = requireTenant(context)
   const adapter = liveRegulatorySourceAdapters.find((candidate) => candidate.id === input.sourceId)
   if (!adapter) {
@@ -416,7 +417,7 @@ const listPriorityQueue = os.pulse.listPriorityQueue.handler(async ({ input, con
 })
 
 const reviewPriorityMatches = os.pulse.reviewPriorityMatches.handler(async ({ input, context }) => {
-  const { userId } = await requireCurrentFirmRole(context, ['owner', 'manager'])
+  const { userId } = await requireCurrentFirmRole(context, PULSE_REVIEW_ROLES)
   const { scoped, tenant } = requireTenant(context)
   requirePriorityPulseMatching(tenant.plan)
   try {
@@ -435,7 +436,7 @@ const reviewPriorityMatches = os.pulse.reviewPriorityMatches.handler(async ({ in
 })
 
 const applyReviewed = os.pulse.applyReviewed.handler(async ({ input, context }) => {
-  const { userId } = await requireCurrentFirmRole(context, ['owner', 'manager'])
+  const { userId } = await requireCurrentFirmRole(context, PULSE_REVIEW_ROLES)
   const { scoped, tenant } = requireTenant(context)
   requirePriorityPulseMatching(tenant.plan)
   try {
@@ -468,7 +469,7 @@ const applyReviewed = os.pulse.applyReviewed.handler(async ({ input, context }) 
 })
 
 const apply = os.pulse.apply.handler(async ({ input, context }) => {
-  const { userId } = await requireCurrentFirmRole(context, ['owner', 'manager'])
+  const { userId } = await requireCurrentFirmRole(context, PULSE_REVIEW_ROLES)
   const { scoped, tenant } = requireTenant(context)
   requireProductionPulse(tenant.plan)
   try {
@@ -508,7 +509,7 @@ const apply = os.pulse.apply.handler(async ({ input, context }) => {
 })
 
 const dismiss = os.pulse.dismiss.handler(async ({ input, context }) => {
-  const { userId } = await requireCurrentFirmRole(context, ['owner', 'manager'])
+  const { userId } = await requireCurrentFirmRole(context, PULSE_REVIEW_ROLES)
   const { scoped, tenant } = requireTenant(context)
   requireProductionPulse(tenant.plan)
   try {
@@ -524,7 +525,7 @@ const dismiss = os.pulse.dismiss.handler(async ({ input, context }) => {
 })
 
 const snooze = os.pulse.snooze.handler(async ({ input, context }) => {
-  const { userId } = await requireCurrentFirmRole(context, ['owner', 'manager'])
+  const { userId } = await requireCurrentFirmRole(context, PULSE_REVIEW_ROLES)
   const { scoped, tenant } = requireTenant(context)
   requireProductionPulse(tenant.plan)
   try {
@@ -544,7 +545,7 @@ const snooze = os.pulse.snooze.handler(async ({ input, context }) => {
 })
 
 const revert = os.pulse.revert.handler(async ({ input, context }) => {
-  const { userId } = await requireCurrentFirmRole(context, ['owner', 'manager'])
+  const { userId } = await requireCurrentFirmRole(context, PULSE_REVIEW_ROLES)
   const { scoped, tenant } = requireTenant(context)
   requireProductionPulse(tenant.plan)
   try {
@@ -574,7 +575,7 @@ const revert = os.pulse.revert.handler(async ({ input, context }) => {
 })
 
 const reactivate = os.pulse.reactivate.handler(async ({ input, context }) => {
-  const { userId } = await requireCurrentFirmRole(context, ['owner', 'manager'])
+  const { userId } = await requireCurrentFirmRole(context, PULSE_REVIEW_ROLES)
   const { scoped, tenant } = requireTenant(context)
   requireProductionPulse(tenant.plan)
   try {
@@ -596,6 +597,7 @@ export async function requestPulseReview(input: {
 }): Promise<{ notificationCount: number; emailCount: number; auditId: string }> {
   const { members, tenant, userId } = await requireCurrentFirmRole(input.context, [
     'owner',
+    'partner',
     'manager',
     'preparer',
   ])
@@ -630,7 +632,7 @@ export async function requestPulseReview(input: {
       (member) =>
         member.status === 'active' &&
         member.userId !== userId &&
-        (member.role === 'owner' || member.role === 'manager'),
+        (member.role === 'owner' || member.role === 'partner' || member.role === 'manager'),
     )
     const href = `/rules?tab=pulse&alert=${encodeURIComponent(alert.id)}`
     const subject = `Review requested: ${alert.title}`

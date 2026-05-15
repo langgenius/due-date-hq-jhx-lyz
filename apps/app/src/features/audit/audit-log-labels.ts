@@ -209,6 +209,7 @@ export function useAuditChangeLabels({
         mapping: t`Mapping`,
         matched: t`Matched`,
         owner: t`Owner`,
+        partner: t`Partner`,
         pending: statusLabels.pending ?? t`Pending`,
         pending_review: t`Pending review`,
         preparer: t`Preparer`,

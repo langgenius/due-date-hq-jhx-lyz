@@ -1,5 +1,6 @@
 import { relations, sql } from 'drizzle-orm'
 import { index, integer, sqliteTable, text, uniqueIndex } from 'drizzle-orm/sqlite-core'
+import { user } from './auth'
 import { client, clientFilingProfile } from './clients'
 import { firmProfile } from './firm'
 
@@ -8,6 +9,91 @@ export type ExposureStatus = (typeof EXPOSURE_STATUSES)[number]
 
 export const OBLIGATION_EXTENSION_DECISIONS = ['not_considered', 'applied', 'rejected'] as const
 export type ObligationExtensionDecision = (typeof OBLIGATION_EXTENSION_DECISIONS)[number]
+
+export const OBLIGATION_TYPES = [
+  'filing',
+  'payment',
+  'deposit',
+  'information',
+  'client_action',
+  'internal_review',
+] as const
+export type ObligationType = (typeof OBLIGATION_TYPES)[number]
+
+export const OBLIGATION_RECURRENCES = [
+  'once',
+  'annual',
+  'quarterly',
+  'monthly',
+  'semiweekly',
+  'event_triggered',
+] as const
+export type ObligationRecurrence = (typeof OBLIGATION_RECURRENCES)[number]
+
+export const OBLIGATION_RISK_LEVELS = ['low', 'med', 'high'] as const
+export type ObligationRiskLevel = (typeof OBLIGATION_RISK_LEVELS)[number]
+
+export const OBLIGATION_PREP_STAGES = [
+  'not_started',
+  'waiting_on_client',
+  'waiting_on_third_party',
+  'bookkeeping_cleanup',
+  'ready_for_prep',
+  'in_prep',
+  'prepared',
+] as const
+export type ObligationPrepStage = (typeof OBLIGATION_PREP_STAGES)[number]
+
+export const OBLIGATION_REVIEW_STAGES = [
+  'not_required',
+  'ready_for_review',
+  'in_review',
+  'notes_open',
+  'approved',
+  'overridden',
+] as const
+export type ObligationReviewStage = (typeof OBLIGATION_REVIEW_STAGES)[number]
+
+export const OBLIGATION_EXTENSION_STATES = [
+  'not_applicable',
+  'not_started',
+  'estimate_needed',
+  'client_approval_needed',
+  'ready_to_file',
+  'filed',
+  'accepted',
+  'rejected',
+] as const
+export type ObligationExtensionState = (typeof OBLIGATION_EXTENSION_STATES)[number]
+
+export const OBLIGATION_PAYMENT_STATES = [
+  'not_applicable',
+  'estimate_needed',
+  'client_approval_needed',
+  'scheduled',
+  'confirmed',
+] as const
+export type ObligationPaymentState = (typeof OBLIGATION_PAYMENT_STATES)[number]
+
+export const OBLIGATION_EFILE_STATES = [
+  'not_applicable',
+  'authorization_requested',
+  'authorization_signed',
+  'ready_to_submit',
+  'submitted',
+  'accepted',
+  'rejected',
+  'corrected_resubmitted',
+  'paper_filed',
+  'final_package_delivered',
+] as const
+export type ObligationEfileState = (typeof OBLIGATION_EFILE_STATES)[number]
+
+export const OBLIGATION_DEPENDENCY_TYPES = ['k1', 'source_document', 'payment', 'review'] as const
+export type ObligationDependencyType = (typeof OBLIGATION_DEPENDENCY_TYPES)[number]
+
+export const OBLIGATION_DEPENDENCY_STATUSES = ['blocking', 'satisfied', 'waived'] as const
+export type ObligationDependencyStatus = (typeof OBLIGATION_DEPENDENCY_STATUSES)[number]
 
 /**
  * obligation_instance — a single due-date row for one client for one tax type.
@@ -60,6 +146,14 @@ export const obligationInstance = sqliteTable(
       enum: ['migration', 'manual', 'annual_rollover', 'pulse'],
     }),
     jurisdiction: text('jurisdiction'),
+    obligationType: text('obligation_type', { enum: OBLIGATION_TYPES }).notNull().default('filing'),
+    formName: text('form_name'),
+    authority: text('authority'),
+    filingDueDate: integer('filing_due_date', { mode: 'timestamp_ms' }),
+    paymentDueDate: integer('payment_due_date', { mode: 'timestamp_ms' }),
+    sourceEvidenceJson: text('source_evidence_json', { mode: 'json' }).$type<unknown>(),
+    recurrence: text('recurrence', { enum: OBLIGATION_RECURRENCES }).notNull().default('once'),
+    riskLevel: text('risk_level', { enum: OBLIGATION_RISK_LEVELS }).notNull().default('low'),
 
     baseDueDate: integer('base_due_date', { mode: 'timestamp_ms' }).notNull(),
     currentDueDate: integer('current_due_date', { mode: 'timestamp_ms' }).notNull(),
@@ -86,6 +180,32 @@ export const obligationInstance = sqliteTable(
     extensionExpectedDueDate: integer('extension_expected_due_date', { mode: 'timestamp_ms' }),
     extensionDecidedAt: integer('extension_decided_at', { mode: 'timestamp_ms' }),
     extensionDecidedByUserId: text('extension_decided_by_user_id'),
+    extensionState: text('extension_state', { enum: OBLIGATION_EXTENSION_STATES })
+      .notNull()
+      .default('not_started'),
+    extensionFormName: text('extension_form_name'),
+    extensionFiledAt: integer('extension_filed_at', { mode: 'timestamp_ms' }),
+    extensionAcceptedAt: integer('extension_accepted_at', { mode: 'timestamp_ms' }),
+
+    prepStage: text('prep_stage', { enum: OBLIGATION_PREP_STAGES })
+      .notNull()
+      .default('not_started'),
+    reviewStage: text('review_stage', { enum: OBLIGATION_REVIEW_STAGES })
+      .notNull()
+      .default('not_required'),
+    reviewerUserId: text('reviewer_user_id').references(() => user.id, { onDelete: 'set null' }),
+    reviewCompletedAt: integer('review_completed_at', { mode: 'timestamp_ms' }),
+    paymentState: text('payment_state', { enum: OBLIGATION_PAYMENT_STATES })
+      .notNull()
+      .default('not_applicable'),
+    paymentConfirmedAt: integer('payment_confirmed_at', { mode: 'timestamp_ms' }),
+    efileState: text('efile_state', { enum: OBLIGATION_EFILE_STATES })
+      .notNull()
+      .default('not_applicable'),
+    efileAuthorizationForm: text('efile_authorization_form'),
+    efileSubmittedAt: integer('efile_submitted_at', { mode: 'timestamp_ms' }),
+    efileAcceptedAt: integer('efile_accepted_at', { mode: 'timestamp_ms' }),
+    efileRejectedAt: integer('efile_rejected_at', { mode: 'timestamp_ms' }),
 
     // Nullable: rows created outside of a migration batch (manual add,
     // Pulse-apply in Phase 1 via exception) do not carry a batch id.
@@ -143,11 +263,87 @@ export const obligationInstance = sqliteTable(
       table.jurisdiction,
       table.currentDueDate,
     ),
+    index('idx_oi_firm_type_due').on(table.firmId, table.obligationType, table.currentDueDate),
+    index('idx_oi_firm_workflow').on(
+      table.firmId,
+      table.prepStage,
+      table.reviewStage,
+      table.paymentState,
+      table.efileState,
+    ),
     index('idx_oi_profile').on(table.clientFilingProfileId),
     // Client detail page drawer.
     index('idx_oi_client').on(table.clientId),
     // 24h revert path mirror of idx_client_batch.
     index('idx_oi_batch').on(table.migrationBatchId),
+  ],
+)
+
+export const obligationDependency = sqliteTable(
+  'obligation_dependency',
+  {
+    id: text('id').primaryKey(),
+    firmId: text('firm_id')
+      .notNull()
+      .references(() => firmProfile.id, { onDelete: 'cascade' }),
+    upstreamObligationId: text('upstream_obligation_id')
+      .notNull()
+      .references(() => obligationInstance.id, { onDelete: 'cascade' }),
+    downstreamObligationId: text('downstream_obligation_id')
+      .notNull()
+      .references(() => obligationInstance.id, { onDelete: 'cascade' }),
+    dependencyType: text('dependency_type', { enum: OBLIGATION_DEPENDENCY_TYPES })
+      .notNull()
+      .default('k1'),
+    status: text('status', { enum: OBLIGATION_DEPENDENCY_STATUSES }).notNull().default('blocking'),
+    sourceNote: text('source_note'),
+    createdAt: integer('created_at', { mode: 'timestamp_ms' })
+      .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
+      .notNull(),
+    updatedAt: integer('updated_at', { mode: 'timestamp_ms' })
+      .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
+      .$onUpdate(() => /* @__PURE__ */ new Date())
+      .notNull(),
+  },
+  (table) => [
+    uniqueIndex('uq_obligation_dependency_pair_type').on(
+      table.firmId,
+      table.upstreamObligationId,
+      table.downstreamObligationId,
+      table.dependencyType,
+    ),
+    index('idx_obligation_dependency_downstream').on(table.firmId, table.downstreamObligationId),
+    index('idx_obligation_dependency_upstream').on(table.firmId, table.upstreamObligationId),
+  ],
+)
+
+export const obligationReviewNote = sqliteTable(
+  'obligation_review_note',
+  {
+    id: text('id').primaryKey(),
+    firmId: text('firm_id')
+      .notNull()
+      .references(() => firmProfile.id, { onDelete: 'cascade' }),
+    obligationInstanceId: text('obligation_instance_id')
+      .notNull()
+      .references(() => obligationInstance.id, { onDelete: 'cascade' }),
+    authorUserId: text('author_user_id').references(() => user.id, { onDelete: 'set null' }),
+    noteType: text('note_type', { enum: ['review_note', 'blocking_issue', 'override'] })
+      .notNull()
+      .default('review_note'),
+    body: text('body').notNull(),
+    resolvedAt: integer('resolved_at', { mode: 'timestamp_ms' }),
+    createdAt: integer('created_at', { mode: 'timestamp_ms' })
+      .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
+      .notNull(),
+    updatedAt: integer('updated_at', { mode: 'timestamp_ms' })
+      .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
+      .$onUpdate(() => /* @__PURE__ */ new Date())
+      .notNull(),
+  },
+  (table) => [
+    index('idx_obligation_review_note_obligation').on(table.firmId, table.obligationInstanceId),
+    index('idx_obligation_review_note_open').on(table.firmId, table.noteType, table.resolvedAt),
   ],
 )
 
@@ -168,6 +364,10 @@ export const obligationInstanceRelations = relations(obligationInstance, ({ one 
 
 export type ObligationInstance = typeof obligationInstance.$inferSelect
 export type NewObligationInstance = typeof obligationInstance.$inferInsert
+export type ObligationDependency = typeof obligationDependency.$inferSelect
+export type NewObligationDependency = typeof obligationDependency.$inferInsert
+export type ObligationReviewNote = typeof obligationReviewNote.$inferSelect
+export type NewObligationReviewNote = typeof obligationReviewNote.$inferInsert
 
 export const OBLIGATION_STATUSES = [
   'pending',

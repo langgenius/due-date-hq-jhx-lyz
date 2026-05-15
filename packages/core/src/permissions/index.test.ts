@@ -10,6 +10,7 @@ import {
 function matrix(permission: FirmPermission) {
   return {
     owner: hasFirmPermission({ role: 'owner', permission }),
+    partner: hasFirmPermission({ role: 'partner', permission }),
     manager: hasFirmPermission({ role: 'manager', permission }),
     preparer: hasFirmPermission({ role: 'preparer', permission }),
     coordinator: hasFirmPermission({ role: 'coordinator', permission }),
@@ -19,6 +20,7 @@ function matrix(permission: FirmPermission) {
 describe('firm permissions', () => {
   it('narrows known firm roles', () => {
     expect(isFirmRole('owner')).toBe(true)
+    expect(isFirmRole('partner')).toBe(true)
     expect(isFirmRole('manager')).toBe(true)
     expect(isFirmRole('member')).toBe(false)
     expect(isFirmRole(null)).toBe(false)
@@ -27,18 +29,21 @@ describe('firm permissions', () => {
   it('keeps owner-only account and firm management permissions tight', () => {
     expect(matrix('member.manage')).toEqual({
       owner: true,
+      partner: false,
       manager: false,
       preparer: false,
       coordinator: false,
     })
     expect(matrix('billing.update')).toEqual({
       owner: true,
+      partner: false,
       manager: false,
       preparer: false,
       coordinator: false,
     })
     expect(matrix('firm.priority.update')).toEqual({
       owner: true,
+      partner: false,
       manager: false,
       preparer: false,
       coordinator: false,
@@ -50,6 +55,17 @@ describe('firm permissions', () => {
     expect(hasFirmPermission({ role: 'manager', permission: 'pulse.apply' })).toBe(true)
     expect(hasFirmPermission({ role: 'manager', permission: 'pulse.revert' })).toBe(true)
     expect(hasFirmPermission({ role: 'manager', permission: 'migration.revert' })).toBe(true)
+  })
+
+  it('lets partners control workflow without account-owner billing powers', () => {
+    expect(hasFirmPermission({ role: 'partner', permission: 'audit.read' })).toBe(true)
+    expect(hasFirmPermission({ role: 'partner', permission: 'client.write' })).toBe(true)
+    expect(hasFirmPermission({ role: 'partner', permission: 'obligation.status.update' })).toBe(
+      true,
+    )
+    expect(hasFirmPermission({ role: 'partner', permission: 'pulse.apply' })).toBe(true)
+    expect(hasFirmPermission({ role: 'partner', permission: 'billing.read' })).toBe(false)
+    expect(hasFirmPermission({ role: 'partner', permission: 'member.manage' })).toBe(false)
   })
 
   it('keeps preparers on read/import/status work without account powers', () => {
@@ -76,6 +92,11 @@ describe('firm permissions', () => {
   it('exposes stable role requirements for UI copy and server guards', () => {
     expect(requiredRolesForFirmPermission('member.manage')).toEqual(['owner'])
     expect(requiredRolesForFirmPermission('billing.read')).toEqual(['owner', 'manager'])
-    expect(requiredRolesForFirmPermission('audit.read')).toEqual(['owner', 'manager', 'preparer'])
+    expect(requiredRolesForFirmPermission('audit.read')).toEqual([
+      'owner',
+      'partner',
+      'manager',
+      'preparer',
+    ])
   })
 })

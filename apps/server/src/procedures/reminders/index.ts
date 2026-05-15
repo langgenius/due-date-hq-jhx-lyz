@@ -13,6 +13,9 @@ import { requireTenant } from '../_context'
 import { requireCurrentFirmRole } from '../_permissions'
 import { os } from '../_root'
 
+const REMINDER_READ_ROLES = ['owner', 'partner', 'manager', 'preparer', 'coordinator'] as const
+const REMINDER_MANAGE_ROLES = ['owner', 'partner', 'manager'] as const
+
 function requireRemindersRepo(scoped: ReturnType<typeof requireTenant>['scoped']) {
   if (!scoped.reminders) {
     throw new Error('Reminders repo methods are not available.')
@@ -53,21 +56,21 @@ function toSuppressionPublic(row: ReminderSuppressionRow): ReminderSuppression {
 }
 
 const overview = os.reminders.overview.handler(async ({ context }) => {
-  await requireCurrentFirmRole(context, ['owner', 'manager', 'preparer', 'coordinator'])
+  await requireCurrentFirmRole(context, REMINDER_READ_ROLES)
   const { scoped } = requireTenant(context)
   const reminders = requireRemindersRepo(scoped)
   return reminders.overview()
 })
 
 const listTemplates = os.reminders.listTemplates.handler(async ({ context }) => {
-  await requireCurrentFirmRole(context, ['owner', 'manager', 'preparer', 'coordinator'])
+  await requireCurrentFirmRole(context, REMINDER_READ_ROLES)
   const { scoped } = requireTenant(context)
   const reminders = requireRemindersRepo(scoped)
   return (await reminders.listTemplates()).map(toTemplatePublic)
 })
 
 const updateTemplate = os.reminders.updateTemplate.handler(async ({ input, context }) => {
-  await requireCurrentFirmRole(context, ['owner', 'manager'])
+  await requireCurrentFirmRole(context, REMINDER_MANAGE_ROLES)
   const { scoped } = requireTenant(context)
   const reminders = requireRemindersRepo(scoped)
   return toTemplatePublic(
@@ -80,7 +83,7 @@ const updateTemplate = os.reminders.updateTemplate.handler(async ({ input, conte
 })
 
 const listUpcoming = os.reminders.listUpcoming.handler(async ({ input, context }) => {
-  await requireCurrentFirmRole(context, ['owner', 'manager', 'preparer', 'coordinator'])
+  await requireCurrentFirmRole(context, REMINDER_READ_ROLES)
   const { scoped } = requireTenant(context)
   const reminders = requireRemindersRepo(scoped)
   const listInput = input?.limit === undefined ? {} : { limit: input.limit }
@@ -90,7 +93,7 @@ const listUpcoming = os.reminders.listUpcoming.handler(async ({ input, context }
 })
 
 const listRecentSends = os.reminders.listRecentSends.handler(async ({ input, context }) => {
-  await requireCurrentFirmRole(context, ['owner', 'manager', 'preparer', 'coordinator'])
+  await requireCurrentFirmRole(context, REMINDER_READ_ROLES)
   const { scoped } = requireTenant(context)
   const reminders = requireRemindersRepo(scoped)
   const listInput = input?.limit === undefined ? {} : { limit: input.limit }
@@ -100,7 +103,7 @@ const listRecentSends = os.reminders.listRecentSends.handler(async ({ input, con
 })
 
 const listSuppressions = os.reminders.listSuppressions.handler(async ({ input, context }) => {
-  await requireCurrentFirmRole(context, ['owner', 'manager', 'preparer', 'coordinator'])
+  await requireCurrentFirmRole(context, REMINDER_READ_ROLES)
   const { scoped } = requireTenant(context)
   const reminders = requireRemindersRepo(scoped)
   const listInput = input?.limit === undefined ? {} : { limit: input.limit }

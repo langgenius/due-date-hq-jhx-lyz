@@ -166,8 +166,10 @@ export function buildAllowUserToCreateOrganization(db: Db) {
   }
 }
 
-function assertManagedRole(role: string): asserts role is 'manager' | 'preparer' | 'coordinator' {
-  if (role !== 'manager' && role !== 'preparer' && role !== 'coordinator') {
+function assertManagedRole(
+  role: string,
+): asserts role is 'partner' | 'manager' | 'preparer' | 'coordinator' {
+  if (role !== 'partner' && role !== 'manager' && role !== 'preparer' && role !== 'coordinator') {
     throw new APIError('FORBIDDEN', { message: 'Unsupported member role.' })
   }
 }

@@ -338,11 +338,13 @@ function PracticeProfileForm({ firm }: { firm: FirmPublic }) {
   const currentRole =
     firm.role === 'owner'
       ? t`Owner`
-      : firm.role === 'manager'
-        ? t`Manager`
-        : firm.role === 'preparer'
-          ? t`Preparer`
-          : t`Coordinator`
+      : firm.role === 'partner'
+        ? t`Partner`
+        : firm.role === 'manager'
+          ? t`Manager`
+          : firm.role === 'preparer'
+            ? t`Preparer`
+            : t`Coordinator`
   const firmSummary = t`Active practice · ${{ currentPlan }} plan · ${firm.seatLimit} seat limit`
   const firmSummaryLabel = t`Active practice summary`
   const priorityFactorLabels: Record<SmartPriorityFactorKey, string> = {

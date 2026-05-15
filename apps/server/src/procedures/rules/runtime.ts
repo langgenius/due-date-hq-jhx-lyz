@@ -96,8 +96,9 @@ export function toCoreRule(rule: ContractObligationRule): CoreObligationRule {
       : rule.status === 'deprecated' || rule.status === 'archived'
         ? 'deprecated'
         : 'candidate'
+  const { obligationType, ...ruleRest } = rule
   return {
-    ...rule,
+    ...ruleRest,
     status,
     entityApplicability: [...rule.entityApplicability],
     dueDateLogic: rule.dueDateLogic,
@@ -105,5 +106,6 @@ export function toCoreRule(rule: ContractObligationRule): CoreObligationRule {
     sourceIds: [...rule.sourceIds],
     evidence: rule.evidence.map(toCoreEvidence),
     quality: { ...rule.quality },
+    ...(obligationType !== undefined ? { obligationType } : {}),
   }
 }

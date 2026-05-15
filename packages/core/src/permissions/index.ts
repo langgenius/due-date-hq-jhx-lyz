@@ -1,4 +1,4 @@
-export const FIRM_ROLES = ['owner', 'manager', 'preparer', 'coordinator'] as const
+export const FIRM_ROLES = ['owner', 'partner', 'manager', 'preparer', 'coordinator'] as const
 
 export type FirmRole = (typeof FIRM_ROLES)[number]
 
@@ -28,25 +28,31 @@ export interface FirmPermissionCheck {
 
 export const FIRM_PERMISSION_ROLES = {
   'audit.export': ['owner'],
-  'audit.read': ['owner', 'manager', 'preparer'],
+  'audit.read': ['owner', 'partner', 'manager', 'preparer'],
   'billing.read': ['owner', 'manager'],
   'billing.update': ['owner'],
-  'client.write': ['owner', 'manager', 'preparer'],
-  'dollars.read': ['owner', 'manager', 'preparer'],
-  'firm.calendar.manage': ['owner', 'manager'],
+  'client.write': ['owner', 'partner', 'manager', 'preparer'],
+  'dollars.read': ['owner', 'partner', 'manager', 'preparer'],
+  'firm.calendar.manage': ['owner', 'partner', 'manager'],
   'firm.delete': ['owner'],
   'firm.priority.update': ['owner'],
   'firm.update': ['owner'],
   'member.manage': ['owner'],
-  'migration.revert': ['owner', 'manager'],
-  'migration.run': ['owner', 'manager', 'preparer'],
-  'obligation.status.update': ['owner', 'manager', 'preparer'],
-  'pulse.apply': ['owner', 'manager'],
-  'pulse.revert': ['owner', 'manager'],
+  'migration.revert': ['owner', 'partner', 'manager'],
+  'migration.run': ['owner', 'partner', 'manager', 'preparer'],
+  'obligation.status.update': ['owner', 'partner', 'manager', 'preparer'],
+  'pulse.apply': ['owner', 'partner', 'manager'],
+  'pulse.revert': ['owner', 'partner', 'manager'],
 } as const satisfies Record<FirmPermission, readonly FirmRole[]>
 
 export function isFirmRole(value: unknown): value is FirmRole {
-  return value === 'owner' || value === 'manager' || value === 'preparer' || value === 'coordinator'
+  return (
+    value === 'owner' ||
+    value === 'partner' ||
+    value === 'manager' ||
+    value === 'preparer' ||
+    value === 'coordinator'
+  )
 }
 
 export function requiredRolesForFirmPermission(permission: FirmPermission): readonly FirmRole[] {

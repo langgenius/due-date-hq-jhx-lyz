@@ -67,7 +67,7 @@ function toAuditPackagePublic(row: AuditPackageRow): AuditEvidencePackagePublic 
 }
 
 const list = os.audit.list.handler(async ({ input, context }) => {
-  await requireCurrentFirmRole(context, ['owner', 'manager', 'preparer'])
+  await requireCurrentFirmRole(context, ['owner', 'partner', 'manager', 'preparer'])
   const { scoped } = requireTenant(context)
 
   const repoInput: NonNullable<Parameters<typeof scoped.audit.list>[0]> = {}

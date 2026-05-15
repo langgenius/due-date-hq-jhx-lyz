@@ -109,7 +109,7 @@ export function shouldSendMorningDigest(input: {
 }
 
 function canSeeFirmWide(role: string): boolean {
-  return role === 'owner' || role === 'manager'
+  return role === 'owner' || role === 'partner' || role === 'manager'
 }
 
 function isAssignedToRecipient(

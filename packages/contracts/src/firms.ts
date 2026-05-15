@@ -5,7 +5,7 @@ import { TenantIdSchema } from './shared/ids'
 
 export const FirmPlanSchema = z.enum(['solo', 'pro', 'team', 'firm'])
 export const FirmStatusSchema = z.enum(['active', 'suspended', 'deleted'])
-export const FirmRoleSchema = z.enum(['owner', 'manager', 'preparer', 'coordinator'])
+export const FirmRoleSchema = z.enum(['owner', 'partner', 'manager', 'preparer', 'coordinator'])
 export const US_FIRM_TIMEZONES = [
   'America/New_York',
   'America/Detroit',

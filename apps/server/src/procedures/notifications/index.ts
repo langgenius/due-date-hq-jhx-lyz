@@ -8,6 +8,8 @@ import { requireTenant } from '../_context'
 import { requireCurrentFirmRole } from '../_permissions'
 import { os } from '../_root'
 
+const NOTIFICATION_ROLES = ['owner', 'partner', 'manager', 'preparer', 'coordinator'] as const
+
 type NotificationRow = Omit<InAppNotificationPublic, 'readAt' | 'createdAt'> & {
   readAt: Date | null
   createdAt: Date
@@ -65,7 +67,7 @@ function requireNotificationsRepo(scoped: ReturnType<typeof requireTenant>['scop
 }
 
 const list = os.notifications.list.handler(async ({ input, context }) => {
-  await requireCurrentFirmRole(context, ['owner', 'manager', 'preparer', 'coordinator'])
+  await requireCurrentFirmRole(context, NOTIFICATION_ROLES)
   const { scoped, userId } = requireTenant(context)
   const notifications = requireNotificationsRepo(scoped)
   const result = await notifications.listForUser(userId, {
@@ -81,14 +83,14 @@ const list = os.notifications.list.handler(async ({ input, context }) => {
 })
 
 const unreadCount = os.notifications.unreadCount.handler(async ({ context }) => {
-  await requireCurrentFirmRole(context, ['owner', 'manager', 'preparer', 'coordinator'])
+  await requireCurrentFirmRole(context, NOTIFICATION_ROLES)
   const { scoped, userId } = requireTenant(context)
   const notifications = requireNotificationsRepo(scoped)
   return { count: await notifications.unreadCount(userId) }
 })
 
 const markRead = os.notifications.markRead.handler(async ({ input, context }) => {
-  await requireCurrentFirmRole(context, ['owner', 'manager', 'preparer', 'coordinator'])
+  await requireCurrentFirmRole(context, NOTIFICATION_ROLES)
   const { scoped, userId } = requireTenant(context)
   const notifications = requireNotificationsRepo(scoped)
   await notifications.markRead(userId, input.id)
@@ -96,21 +98,21 @@ const markRead = os.notifications.markRead.handler(async ({ input, context }) =>
 })
 
 const markAllRead = os.notifications.markAllRead.handler(async ({ context }) => {
-  await requireCurrentFirmRole(context, ['owner', 'manager', 'preparer', 'coordinator'])
+  await requireCurrentFirmRole(context, NOTIFICATION_ROLES)
   const { scoped, userId } = requireTenant(context)
   const notifications = requireNotificationsRepo(scoped)
   return { count: await notifications.markAllRead(userId) }
 })
 
 const getPreferences = os.notifications.getPreferences.handler(async ({ context }) => {
-  await requireCurrentFirmRole(context, ['owner', 'manager', 'preparer', 'coordinator'])
+  await requireCurrentFirmRole(context, NOTIFICATION_ROLES)
   const { scoped, userId } = requireTenant(context)
   const notifications = requireNotificationsRepo(scoped)
   return toPreferencePublic(await notifications.getPreference(userId))
 })
 
 const updatePreferences = os.notifications.updatePreferences.handler(async ({ input, context }) => {
-  await requireCurrentFirmRole(context, ['owner', 'manager', 'preparer', 'coordinator'])
+  await requireCurrentFirmRole(context, NOTIFICATION_ROLES)
   const { scoped, userId } = requireTenant(context)
   const notifications = requireNotificationsRepo(scoped)
   return toPreferencePublic(
@@ -137,7 +139,7 @@ const updatePreferences = os.notifications.updatePreferences.handler(async ({ in
 
 const listMorningDigestRuns = os.notifications.listMorningDigestRuns.handler(
   async ({ context }) => {
-    await requireCurrentFirmRole(context, ['owner', 'manager', 'preparer', 'coordinator'])
+    await requireCurrentFirmRole(context, NOTIFICATION_ROLES)
     const { scoped, userId } = requireTenant(context)
     const notifications = requireNotificationsRepo(scoped)
     return {
@@ -147,7 +149,7 @@ const listMorningDigestRuns = os.notifications.listMorningDigestRuns.handler(
 )
 
 const previewMorningDigest = os.notifications.previewMorningDigest.handler(async ({ context }) => {
-  await requireCurrentFirmRole(context, ['owner', 'manager', 'preparer', 'coordinator'])
+  await requireCurrentFirmRole(context, NOTIFICATION_ROLES)
   const { tenant, userId } = requireTenant(context)
   return previewMorningDigestForUser(context.env, userId, tenant.firmId)
 })
